@@ -7,6 +7,12 @@
     - OAuth for user authentication -- passwordless login!!
 - Deployment: Docker, Azure (see if we can get a free cloud instance)
 
+TODO
+----
+- determine the app's colorscheme
+- go through the template project to understand react native
+- understand how passwordless login would work when using OAuth
+
 # App features
 - Track macros (calories, protein, etc) by inserting food items by:
     - Creating custom food items
