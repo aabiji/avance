@@ -10,9 +10,7 @@
 TODO
 ----
 - determine the app's colorscheme
-- go through the template project to understand react native
 - understand how passwordless login would work when using OAuth
-- TODO: can we not start charging when usb debugging???
 
 # App features
 - Track macros (calories, protein, etc) by inserting food items by:
