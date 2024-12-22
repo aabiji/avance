@@ -1,6 +1,7 @@
-import { Text, View, FlatList, StyleSheet } from "react-native";
+import { Text, View, FlatList } from "react-native";
 import { Link } from "expo-router";
 import Button from "@/app/components/Button";
+import styles from "@/app/components/styles";
 
 interface Food {
   amount: number,
@@ -30,7 +31,7 @@ export default function FoodTracker() {
   const total = items.reduce((a, b) => a + b.calories * b.amount, 0);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={styles.container}>
       <View style={styles.row}>
         <Text style={styles.text}>
           <Text style={styles.header}> {total} / 1500 </Text> kcal
@@ -49,19 +50,3 @@ export default function FoodTracker() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  text: { textAlign: "justify" },
-  header: { fontSize: 24 },
-  row: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    minHeight: 100,
-    paddingHorizontal: 10
-  },
-  list: {
-    paddingBottom: 50, // Avoid item clipping
-  }
-})
