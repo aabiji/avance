@@ -1,5 +1,6 @@
-import { Text, View, FlatList, Pressable, StyleSheet } from "react-native";
+import { Text, View, FlatList, StyleSheet } from "react-native";
 import { Link } from "expo-router";
+import Button from "@/app/components/Button";
 
 interface Food {
   amount: number,
@@ -17,21 +18,8 @@ function FoodItem({ item }: { item: Food }) {
   )
 }
 
-function Button({ text, onPress }: { text: string, onPress?: () => void }) {
-  return (
-    <Pressable style={
-      ({pressed}) => [
-        { backgroundColor: pressed ? "#003459" : "#00a7e1" },
-        styles.button
-      ]}
-      onPress={onPress}>
-      <Text>{text}</Text>
-    </Pressable>
-  )
-}
-
 export default function FoodTracker() {
-  const items = [
+  const items: Food[] = [
     { amount: 1, name: "Food item 1", calories: 100 },
     { amount: 2, name: "Food item 2", calories: 120 },
     { amount: 2, name: "Food item 3", calories: 300 },
@@ -49,13 +37,13 @@ export default function FoodTracker() {
         </Text>
 
         <Link href="/addFood" asChild>
-          <Button text="+" />
+          <Button text="+"/>
         </Link>
       </View>
 
       <FlatList
         contentContainerStyle={styles.list}
-        renderItem={(item) => FoodItem(item)}
+        renderItem={( { item } ) => <FoodItem item={item}/> }
         data={items}
       />
     </View>
@@ -72,11 +60,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     minHeight: 100,
     paddingHorizontal: 10
-  },
-  button: {
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 8,
   },
   list: {
     paddingBottom: 50, // Avoid item clipping
