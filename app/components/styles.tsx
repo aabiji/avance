@@ -13,6 +13,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+    backgroundColor: "#ffffff"
   },
   list: {
     paddingBottom: 50, // Avoid item clipping
