@@ -1,7 +1,8 @@
 import { Text, View, FlatList } from "react-native";
 import { Link } from "expo-router";
+import LinearGradient from "react-native-linear-gradient";
 
-import { Button, GradientSeparator } from "@/app/components/Elements";
+import { Button } from "@/app/components/Elements";
 import { colors, activeButton, stylesheet } from "@/app/components/design";
 
 interface Food {
@@ -43,7 +44,11 @@ export default function FoodTracker() {
           <Button label="+" styling={ activeButton } />
         </Link>
       </View>
-      <GradientSeparator colors={[ colors.aquamarine, colors.blue]} />
+      <LinearGradient
+        colors={[ colors.aquamarine, colors.blue ]}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 0}}
+        style={ stylesheet.hr } />
       <FlatList
         renderItem={( { item } ) => <FoodItem item={item}/> }
         data={items}

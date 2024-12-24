@@ -1,29 +1,33 @@
 import { Text, Pressable, View } from "react-native";
-import LinearGradient from "react-native-linear-gradient";
 import { forwardRef, ForwardedRef, useState } from "react";
-import { labelButton } from "./design";
 
-type ButtonProps = {
+interface ButtonProps {
   label: string;
-  onPress?: () => void;
-  styling: (pressed: boolean) => object;
-};
+  onPress?: () => void,
+  styling: (pressed: boolean) => object,
+  textColor?: string,
+}
 
-export const Button = forwardRef(function BasicButton(
-  { label: text, onPress, styling }: ButtonProps,
-  ref: ForwardedRef<any>) {
+export const Button = forwardRef((
+  { label: text, onPress, styling, textColor }: ButtonProps,
+  ref: ForwardedRef<any>
+) => {
   return (
     <Pressable
       ref={ref}
       onPressIn={onPress}
       style={({ pressed }) => styling(pressed)}>
-      <Text style={{ color: "white" }}>{text}</Text>
+      <Text style={{ color: textColor ?? "white" }}>{text}</Text>
     </Pressable>
   )
 });
 
-export function RadioButtonGroup({ options }: { options: string[] }) {
+export function RadioButtonGroup(
+  { options, styling }:
+  { options: string[], styling: (pressed: boolean) => object }
+) {
   const [selection, setSelection] = useState(0);
+  const [selected, unselected] = [styling(true), styling(false)];
 
   return (
     <View style={{ minHeight: 50, flexDirection: "row" }}>
@@ -31,21 +35,12 @@ export function RadioButtonGroup({ options }: { options: string[] }) {
           <Button
             key={index}
             label={option}
-            styling={(_) => index == selection ? labelButton(true) : labelButton(false)}
+            styling={(_) => index == selection ? selected : unselected}
             onPress={() => setSelection(index)}
+            textColor={index == selection ? selected.color : unselected.color}
           />
       )}
     </View>
-  )
-}
-
-export function GradientSeparator({ colors }: { colors: string[] }) {
-  return (
-      <LinearGradient
-        colors={colors}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}
-        style={{ height: 8, marginTop: 10, marginBottom: 10, borderRadius: 5 }} />
   )
 }
 

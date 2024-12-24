@@ -60,10 +60,27 @@ export const stylesheet = StyleSheet.create({
     marginBottom: 10,
   },
 
-  header: { fontSize: 24 },
+  hr: {
+    height: 8,
+    marginTop: 10,
+    marginBottom: 10,
+    borderRadius: 5
+  },
+
+  header: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: colors.fg
+  },
+
+  graph: {
+    width: "100%",
+    height: "100%",
+    overflow: "hidden",
+  },
+
   text: { textAlign: "justify" },
-  dimmed: { color: "grey" },
-  bold: { fontWeight: "bold", color: "black" }
+  dimmed: { color: colors.darkgrey },
 });
 
 export const activeButton = (pressed: boolean) => {
@@ -84,6 +101,7 @@ export const labelButton = (selected: boolean) => {
   return {
     borderColor: selected ? "#ffffff00" : colors.blue,
     backgroundColor: selected ? colors.blue : "#ffffff00",
+    color: selected ? colors.bg: colors.blue,
     ...stylesheet.hardButton,
   };
 }

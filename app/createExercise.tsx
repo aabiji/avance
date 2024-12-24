@@ -2,7 +2,7 @@ import { Text, View } from "react-native";
 import { Stack } from "expo-router";
 import { useNavigation } from "expo-router";
 
-import { activeButton } from "./components/design";
+import { activeButton, labelButton, stylesheet } from "./components/design";
 import { Button, RadioButtonGroup } from "@/app/components/Elements";
 
 export default function CreateExercise() {
@@ -14,7 +14,7 @@ export default function CreateExercise() {
   }
 
   return (
-    <View>
+    <View style={ stylesheet.container }>
       <Stack.Screen
         options={{
           title: "Create exercise",
@@ -22,7 +22,7 @@ export default function CreateExercise() {
             <Button label="✓" onPress={() => saveEntry()} styling={ activeButton } />
           }}
       />
-      <RadioButtonGroup options={["Interval", "Resistance"]} />
+      <RadioButtonGroup options={["Interval", "Resistance"]} styling={ labelButton } />
       <Text>hello?</Text>
     </View>
   )
