@@ -1,8 +1,8 @@
 import { NativeSyntheticEvent, TextInput, TextInputFocusEventData, View } from "react-native";
 import { Link, Stack, useNavigation } from "expo-router";
 
-import styles from "@/app/components/styles";
-import  Button from "@/app/components/Button";
+import { Button } from "@/app/components/Elements";
+import { activeButton, colors, stylesheet } from "@/app/components/design";
 
 function search(e: NativeSyntheticEvent<TextInputFocusEventData>) {
   const input = e.nativeEvent.text;
@@ -17,20 +17,31 @@ export default function FoodAdder() {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={ stylesheet.container }>
       <Stack.Screen
         options={{
           title: "Add food",
           headerRight: () =>
-            <Button text="✓" onPress={() => saveSelection()} />
+            <Button label="✓" onPress={() => saveSelection()} styling={activeButton} />
           }}
       />
 
-      <TextInput onChange={(event) => search(event)} />
+      <View
+        style={{
+          backgroundColor: colors.grey,
+          marginTop: -10, marginLeft: -10,
+          marginRight: -10, padding: 10
+        }}>
+        <TextInput
+          placeholder="Search food"
+          style={ stylesheet.input }
+          onChange={(event) => search(event)}
+        />
+        <Link href="/createFood" asChild>
+          <Button label="Create custom" styling={activeButton} />
+        </Link>
+      </View>
 
-      <Link href="/createFood" asChild>
-        <Button text="Create custom food"/>
-      </Link>
     </View>
   )
 }

@@ -1,15 +1,15 @@
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { Link } from "expo-router";
-import Button from "@/app/components/Button";
-import styles from "@/app/components/styles";
+
+import { Button } from "@/app/components/Elements";
+import { stylesheet, activeButton } from "@/app/components/design";
 
 export default function Exercises() {
   return (
-    <View style={styles.container}>
-      <Text>Exercises go here</Text>
+    <View style={stylesheet.container}>
 
       <Link href="/createExercise" asChild>
-        <Button text="+"/>
+        <Button label="+" styling={ activeButton } />
       </Link>
     </View>
   )

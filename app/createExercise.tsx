@@ -1,7 +1,9 @@
 import { Text, View } from "react-native";
 import { Stack } from "expo-router";
 import { useNavigation } from "expo-router";
-import Button from "@/app/components/Button";
+
+import { activeButton } from "./components/design";
+import { Button, RadioButtonGroup } from "@/app/components/Elements";
 
 export default function CreateExercise() {
   const navigation = useNavigation();
@@ -17,9 +19,10 @@ export default function CreateExercise() {
         options={{
           title: "Create exercise",
           headerRight: () =>
-            <Button text="✓" onPress={() => saveEntry()} />
+            <Button label="✓" onPress={() => saveEntry()} styling={ activeButton } />
           }}
       />
+      <RadioButtonGroup options={["Interval", "Resistance"]} />
       <Text>hello?</Text>
     </View>
   )

@@ -1,20 +1,21 @@
 import { Text, TextInput, View } from "react-native";
-import Button from "@/app/components/Button";
+
 import Graph from "@/app/components/Graph";
-import styles from "@/app/components/styles";
+import { Button } from "@/app/components/Elements";
+import { stylesheet, activeButton, inactiveButton } from "@/app/components/design";
 
 export default function HomeScreen() {
   return (
-    <View style={styles.container}>
-      <View style={[styles.row, { width: 100, alignSelf: "center" }]}>
-        <TextInput style={styles.header} keyboardType="numeric">100</TextInput>
-        <Text style={styles.header}> lbs</Text>
+    <View style={[stylesheet.container, { alignItems: "center" }]}>
+      <View style={[stylesheet.row, { width: 100 }]}>
+        <TextInput style={[stylesheet.header, stylesheet.bold]} keyboardType="numeric">100</TextInput>
+        <Text style={[stylesheet.header, stylesheet.bold]}> lbs</Text>
       </View>
 
-      <View style={[styles.row, { width: "80%", alignSelf: "center" }]}>
-        <Button text="Daily" />
-        <Button text="Weekly" />
-        <Button text="All" />
+      <View style={[stylesheet.row, { width: "80%" }]}>
+        <Button styling={ activeButton } label="Daily" />
+        <Button styling={ inactiveButton } label="Weekly" />
+        <Button styling={ inactiveButton } label="All" />
       </View>
 
       <Graph />

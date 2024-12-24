@@ -1,7 +1,8 @@
 import { Text, View, FlatList } from "react-native";
 import { Link } from "expo-router";
-import Button from "@/app/components/Button";
-import styles from "@/app/components/styles";
+
+import { Button, GradientSeparator } from "@/app/components/Elements";
+import { colors, activeButton, stylesheet } from "@/app/components/design";
 
 interface Food {
   amount: number,
@@ -11,10 +12,10 @@ interface Food {
 
 function FoodItem({ item }: { item: Food }) {
   return (
-    <View style={styles.row}>
-      <Text style={styles.text}> {item.amount} </Text>
-      <Text style={[styles.text, {fontWeight: "bold"}]}> {item.name} </Text>
-      <Text style={styles.text}> {item.calories} kCal</Text>
+    <View style={[stylesheet.row, stylesheet.card]}>
+      <Text style={stylesheet.text}> {item.amount} </Text>
+      <Text style={[stylesheet.text, {fontWeight: "bold"}]}> {item.name} </Text>
+      <Text style={[stylesheet.text, stylesheet.dimmed]}> {item.calories} kCal</Text>
     </View>
   )
 }
@@ -29,23 +30,24 @@ export default function FoodTracker() {
     { amount: 4, name: "Food item 5", calories: 50 },
   ];
   const total = items.reduce((a, b) => a + b.calories * b.amount, 0);
+  const max = 1500;
 
   return (
-    <View style={styles.container}>
-      <View style={styles.row}>
-        <Text style={styles.text}>
-          <Text style={styles.header}> {total} / 1500 </Text> kcal
+    <View style={stylesheet.container}>
+      <View style={[stylesheet.row, { width: "100%" }]}>
+        <Text style={[stylesheet.text, stylesheet.dimmed]}>
+          <Text style={[stylesheet.header, stylesheet.bold]}> {total} / {max} </Text> kcal
         </Text>
 
         <Link href="/addFood" asChild>
-          <Button text="+"/>
+          <Button label="+" styling={ activeButton } />
         </Link>
       </View>
-
+      <GradientSeparator colors={[ colors.aquamarine, colors.blue]} />
       <FlatList
-        contentContainerStyle={styles.list}
         renderItem={( { item } ) => <FoodItem item={item}/> }
         data={items}
+        style={{ marginLeft: -10, marginRight: -10 }}
       />
     </View>
   )

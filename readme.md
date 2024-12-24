@@ -9,8 +9,10 @@
 
 TODO
 ----
-- determine the app's colorscheme
-- understand how passwordless login would work when using OAuth
+- polish loose ends
+- dark theme
+- exercise page
+- graph component
 
 # App features
 - Track macros (calories, protein, etc) by inserting food items by:
