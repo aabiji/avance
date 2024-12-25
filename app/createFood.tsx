@@ -2,8 +2,8 @@ import { TextInput, ScrollView } from "react-native";
 import { Stack, useNavigation } from "expo-router";
 import { useState } from "react";
 
-import { AlignedInput, Button } from "@/app/components/Elements";
-import { colors, stylesheet, transparentButton } from "./components/design";
+import { AlignedInput, Button } from "@/components/Elements";
+import { colors, stylesheet, transparentButton } from "../components/design";
 
 export default function CreateFood() {
   const [name, setName] = useState("");

@@ -1,7 +1,7 @@
 import { NativeSyntheticEvent, TextInput, TextInputFocusEventData, View } from "react-native";
 import { Link, Stack, useNavigation } from "expo-router";
 
-import { Button } from "@/app/components/Elements";
+import { Button } from "@/components/Elements";
 import { activeButton, colors, stylesheet, transparentButton } from "@/app/components/design";
 
 function search(e: NativeSyntheticEvent<TextInputFocusEventData>) {

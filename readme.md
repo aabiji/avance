@@ -9,10 +9,10 @@
 
 TODO
 ----
-- polish loose ends
+- refactor the way we do styling
+- prototype the backend
 - dark theme
-- exercise page
-- graph component
+- polish loose ends
 
 # App features
 - Track macros (calories, protein, etc) by inserting food items by:

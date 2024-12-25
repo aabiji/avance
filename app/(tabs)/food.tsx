@@ -2,7 +2,7 @@ import { Text, View, FlatList } from "react-native";
 import { Link } from "expo-router";
 import LinearGradient from "react-native-linear-gradient";
 
-import { Button } from "@/app/components/Elements";
+import { Button } from "@/components/Elements";
 import { colors, activeButton, stylesheet } from "@/app/components/design";
 
 interface Food {

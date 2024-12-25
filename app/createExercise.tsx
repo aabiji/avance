@@ -3,8 +3,8 @@ import { Stack } from "expo-router";
 import { useNavigation } from "expo-router";
 import { useState } from "react";
 
-import { colors, labelButton, stylesheet, transparentButton } from "./components/design";
-import { AlignedInput, Button, RadioButtonGroup } from "@/app/components/Elements";
+import { colors, labelButton, stylesheet, transparentButton } from "../components/design";
+import { AlignedInput, Button, RadioButtonGroup } from "@/components/Elements";
 
 export default function CreateExercise() {
   const [value1, setValue1] = useState(0);

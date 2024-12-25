@@ -2,7 +2,7 @@ import { Text, TextInput, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import { useState } from "react";
 
-import { RadioButtonGroup } from "@/app/components/Elements";
+import { RadioButtonGroup } from "@/components/Elements";
 import { colors, labelButton, stylesheet } from "@/app/components/design";
 
 function PointerLabel(item: object[], _secondaryItem: object, _pointerIndex: number) {

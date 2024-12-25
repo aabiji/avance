@@ -1,7 +1,7 @@
 import { View, Text } from "react-native";
 import { Link } from "expo-router";
 
-import { Button } from "@/app/components/Elements";
+import { Button } from "@/components/Elements";
 import { colors, activeButton, stylesheet, transparentButton } from "@/app/components/design";
 import LinearGradient from "react-native-linear-gradient";
 
