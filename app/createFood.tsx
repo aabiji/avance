@@ -1,9 +1,9 @@
-import { TextInput, ScrollView } from "react-native";
 import { Stack, useNavigation } from "expo-router";
 import { useState } from "react";
 
-import { AlignedInput, Button } from "@/components/Elements";
-import { colors, stylesheet, transparentButton } from "../components/design";
+import { Container } from "@/components/containers";
+import { ClickableIcon } from "@/components/buttons";
+import { Input, NumericInput } from "@/components/inputs";
 
 export default function CreateFood() {
   const [name, setName] = useState("");
@@ -20,30 +20,22 @@ export default function CreateFood() {
   };
 
   return (
-    <ScrollView style={ stylesheet.container }>
+    <Container>
       <Stack.Screen
         options={{
           title: "Create food",
-          headerRight: () =>
-            <Button
-              label="checkmark"
-              hasIcon
-              color={ colors.blue }
-              onPress={() => saveEntry()} styling={ transparentButton }
-            />
-          }}
+          headerRight: () => (
+            <ClickableIcon name="checkmark" onPress={() => saveEntry()} />
+          ),
+        }}
       />
 
-      <TextInput
-        placeholder="Name"
-        style={ stylesheet.input }
-        onChange={(event) => setName(event.nativeEvent.text)}
-      />
+      <Input placeholder="Name" setData={setName} />
 
-      <AlignedInput setData={setCalories} prefix="Calories" suffix="kCal" />
-      <AlignedInput setData={setProtein} prefix="Protein" suffix="g" />
-      <AlignedInput setData={setCarbs} prefix="Carbs" suffix="g" />
-      <AlignedInput setData={setFats} prefix="Fat" suffix="g" />
-    </ScrollView>
-  )
+      <NumericInput setData={setCalories} prefix="Calories" suffix="kCal" />
+      <NumericInput setData={setProtein} prefix="Protein" suffix="g" />
+      <NumericInput setData={setCarbs} prefix="Carbs" suffix="g" />
+      <NumericInput setData={setFats} prefix="Fat" suffix="g" />
+    </Container>
+  );
 }

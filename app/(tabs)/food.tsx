@@ -1,24 +1,26 @@
-import { Text, View, FlatList } from "react-native";
+import { FlatList } from "react-native";
 import { Link } from "expo-router";
-import LinearGradient from "react-native-linear-gradient";
 
-import { Button } from "@/components/Elements";
-import { colors, activeButton, stylesheet } from "@/app/components/design";
+import { Card, Container, Row } from "@/components/containers";
+import { ClickableIcon } from "@/components/buttons";
+import { ThemedText } from "@/components/text";
+import { GradientSeparator } from "@/components/border";
+import getTheme from "@/components/theme";
 
 interface Food {
-  amount: number,
-  name: string,
-  calories: number,
+  amount: number;
+  name: string;
+  calories: number;
 }
 
 function FoodItem({ item }: { item: Food }) {
   return (
-    <View style={[stylesheet.row, stylesheet.card]}>
-      <Text style={stylesheet.text}> {item.amount} </Text>
-      <Text style={[stylesheet.text, {fontWeight: "bold"}]}> {item.name} </Text>
-      <Text style={[stylesheet.text, stylesheet.dimmed]}> {item.calories} kCal</Text>
-    </View>
-  )
+    <Card>
+      <ThemedText text={item.amount} />
+      <ThemedText bold text={item.name} />
+      <ThemedText dimmed text={item.calories} />
+    </Card>
+  );
 }
 
 export default function FoodTracker() {
@@ -34,28 +36,22 @@ export default function FoodTracker() {
   const max = 1500;
 
   return (
-    <View style={stylesheet.container}>
-      <View style={[stylesheet.row, { width: "100%" }]}>
-        <Text style={[stylesheet.text, stylesheet.dimmed]}>
-          <Text style={[stylesheet.header, stylesheet.bold]}> {total} / {max} </Text> kcal
-        </Text>
-
+    <Container noScroll>
+      <Row>
+        <ThemedText header text={`${total} / ${max}`} />
+        <ThemedText dimmed text={"kCal"} />
         <Link href="/addFood" asChild>
-          <Button label="add-outline" hasIcon styling={ activeButton } />
+          <ClickableIcon name="add-outline" />
         </Link>
-      </View>
+      </Row>
 
-      <LinearGradient
-        colors={[ colors.aquamarine, colors.blue ]}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 0}}
-        style={ stylesheet.hr } />
+      <GradientSeparator colors={[getTheme().primary, getTheme().secondary]} />
 
       <FlatList
-        renderItem={( { item } ) => <FoodItem item={item}/> }
+        renderItem={({ item }) => <FoodItem item={item} />}
         data={items}
         style={{ marginLeft: -10, marginRight: -10 }}
       />
-    </View>
-  )
+    </Container>
+  );
 }
