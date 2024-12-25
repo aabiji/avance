@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Container } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { Input, NumericInput } from "@/components/inputs";
+import getTheme from "@/components/theme";
 
 export default function CreateFood() {
   const [name, setName] = useState("");
@@ -24,8 +25,11 @@ export default function CreateFood() {
       <Stack.Screen
         options={{
           title: "Create food",
+          headerStyle: { backgroundColor: getTheme().tabBar },
+          headerTitleStyle: { color: getTheme().text },
+          headerTintColor: getTheme().text,
           headerRight: () => (
-            <ClickableIcon name="checkmark" onPress={() => saveEntry()} />
+            <ClickableIcon transparent name="checkmark" onPress={() => saveEntry()} />
           ),
         }}
       />

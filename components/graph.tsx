@@ -34,7 +34,12 @@ export default function Graph({ data }: { data: lineDataItem[] }) {
         stepHeight={35}
         initialSpacing={1}
         yAxisOffset={lowest}
+        yAxisColor={getTheme().textShade}
+        xAxisColor={getTheme().textShade}
+        dataPointsColor={getTheme().primary}
         color={getTheme().primary}
+        rulesColor={getTheme().textShade}
+        verticalLinesColor={getTheme().textShade}
         yAxisTextStyle={styles.labelText}
         xAxisLabelTextStyle={styles.labelText}
         pointerConfig={{
@@ -63,5 +68,6 @@ const styles = StyleSheet.create({
   labelText: {
     fontSize: 9,
     alignSelf: "center",
+    color: getTheme().text,
   },
 });

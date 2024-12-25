@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput } from "react-native";
+import { StyleSheet, TextInput } from "react-native";
 import { Row } from "@/components/containers";
 import { ThemedText } from "@/components/text";
 import getTheme from "./theme";
@@ -9,9 +9,10 @@ export function NumericInput({ prefix, suffix, setData }) {
 
   return (
     <Row>
-      <Text style={styles.left}>{prefix}</Text>
+      <ThemedText text={prefix} />
       <TextInput
         placeholder="0"
+        placeholderTextColor={getTheme().textShade}
         style={styles.input}
         onChange={(event) => set(event.nativeEvent.text)}
         keyboardType="numeric"
@@ -25,6 +26,7 @@ export function Input({ setData, placeholder }) {
   return (
     <TextInput
       placeholder={placeholder}
+      placeholderTextColor={getTheme().textShade}
       style={[ styles.input, { width: "100%" } ]}
       onChange={(event) => setData(event.nativeEvent.text)}
     />
@@ -36,13 +38,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     paddingVertical: 15,
     backgroundColor: getTheme().background,
-    borderColor: getTheme().secondary,
+    borderColor: getTheme().textShade,
+    color: getTheme().text,
     borderStyle: "solid",
     borderWidth: 1,
     marginBottom: 10,
-    marginRight: 10,
-  },
-  left: {
-    width: 100,
-  },
+  }
 });

@@ -5,7 +5,6 @@ import { Container, Row } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientProgressBorder } from "@/components/border";
-import getTheme from "@/components/theme";
 
 function ResistanceExercise() {
   return (
@@ -50,7 +49,6 @@ export default function Exercises() {
         width={325}
         height={100}
         thickness={5}
-        colors={[getTheme().primary, getTheme().secondary]}
         childElement={<IntervalExercise />}
       />
 
@@ -59,7 +57,6 @@ export default function Exercises() {
         width={325}
         height={100}
         thickness={5}
-        colors={[getTheme().primary, getTheme().secondary]}
         childElement={<ResistanceExercise />}
       />
     </Container>

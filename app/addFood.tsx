@@ -1,9 +1,10 @@
-import { View } from "react-native";
 import { Link, Stack, useNavigation } from "expo-router";
 
 import { Container } from "@/components/containers";
 import { Button, ClickableIcon } from "@/components/buttons";
 import { Input } from "@/components/inputs";
+
+import getTheme from "@/components/theme";
 
 export default function FoodAdder() {
   const navigation = useNavigation();
@@ -21,18 +22,19 @@ export default function FoodAdder() {
       <Stack.Screen
         options={{
           title: "Add food",
+          headerStyle: { backgroundColor: getTheme().tabBar },
+          headerTitleStyle: { color: getTheme().text },
+          headerTintColor: getTheme().text,
           headerRight: () => (
             <ClickableIcon transparent name="checkmark" onPress={() => saveSelection()} />
           ),
         }}
       />
 
-      <View>
-        <Input placeholder={"Search food"} setData={search} />
-        <Link href="/createFood" asChild>
-          <Button label={"Create custom"} />
-        </Link>
-      </View>
+      <Input placeholder={"Search food"} setData={search} />
+      <Link href="/createFood" asChild>
+        <Button label={"Create custom"} />
+      </Link>
     </Container>
   );
 }

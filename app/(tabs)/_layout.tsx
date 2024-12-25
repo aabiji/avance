@@ -13,13 +13,17 @@ export default function BottomNavbar() {
             food: "restaurant-outline",
             exercise: "barbell-outline",
           };
-          const c = focused ? getTheme().primary : getTheme().secondary;
+          const c = focused ? getTheme().accent : getTheme().textShade;
           return (
             <Ionicons name={iconNames[route.name]} size={size} color={c} />
           );
         },
         tabBarShowLabel: false,
-        tabBarStyle: { marginBottom: -10 }, // Remove bottom padding
+        tabBarStyle: {
+          marginBottom: -10,
+          backgroundColor: getTheme().tabBar,
+          borderColor: getTheme().tabBar
+        },
       })}
     >
       <Tabs.Screen name="index" options={{ headerShown: false }} />

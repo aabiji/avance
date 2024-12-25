@@ -1,21 +1,26 @@
 import { Appearance } from "react-native";
 
-// Generated using this: https://www.realtimecolors.com
-export const theme = {
+const theme = {
   light: {
-    text: "#050714",
-    background: "#f3f5fc",
-    primary: "#435dd0",
-    secondary: "#e189a7",
-    accent: "#d97f6d",
+    text: "#050707",
+    textShade: "#a5c0c0",
+    background: "#f8fafb",
+    backgroundShade: "#eff3f6",
+    tabBar: "#ffffff",
+    primary: "#54a7b3",
+    secondary: "#9bd6df",
+    accent: "#5fcbdb"
   },
   dark: {
-    text: "#ebedfa",
-    background: "#03050c",
-    primary: "#2f49bc",
-    secondary: "#761e3b",
-    accent: "#923826",
-  },
+    text: "#f9fbfb",
+    textShade: "#3d5c5c",
+    background: "#040606",
+    backgroundShade: "#141f1f",
+    tabBar: "#141f1f",
+    primary: "#4c9da9",
+    secondary: "#205c65",
+    accent: "#248e9e"
+  }
 };
 
 const getTheme = () => {

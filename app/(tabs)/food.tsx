@@ -5,7 +5,6 @@ import { Card, Container, Row } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientSeparator } from "@/components/border";
-import getTheme from "@/components/theme";
 
 interface Food {
   amount: number;
@@ -45,7 +44,7 @@ export default function FoodTracker() {
         </Link>
       </Row>
 
-      <GradientSeparator colors={[getTheme().primary, getTheme().secondary]} />
+      <GradientSeparator />
 
       <FlatList
         renderItem={({ item }) => <FoodItem item={item} />}

@@ -7,6 +7,7 @@ import { Container } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
+import getTheme from "@/components/theme";
 
 export default function CreateExercise() {
   const [value1, setValue1] = useState(0);
@@ -26,6 +27,9 @@ export default function CreateExercise() {
       <Stack.Screen
         options={{
           title: "Create exercise",
+          headerStyle: { backgroundColor: getTheme().tabBar },
+          headerTitleStyle: { color: getTheme().text },
+          headerTintColor: getTheme().text,
           headerRight: () => (
             <ClickableIcon transparent name="checkmark" onPress={() => saveEntry()} />
           ),

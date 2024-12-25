@@ -2,10 +2,10 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import getTheme from "./theme";
 
 export default function Selection({ options, selection, setSelection }) {
-  const [transparent, bg, accent] = [
+  const [transparent, bg, color] = [
     "#ffffff00",
     getTheme().background,
-    getTheme().accent,
+    getTheme().primary,
   ];
   return (
     <View style={styles.container}>
@@ -16,13 +16,13 @@ export default function Selection({ options, selection, setSelection }) {
           style={[
             styles.button,
             {
-              borderColor: index == selection ? transparent : accent,
-              backgroundColor: index == selection ? accent : transparent,
+              borderColor: index == selection ? transparent : color,
+              backgroundColor: index == selection ? color : transparent,
             },
           ]}
         >
           <Text
-            style={[styles.text, { color: index == selection ? bg : accent }]}
+            style={[styles.text, { color: index == selection ? bg : color }]}
           >
             {option}
           </Text>

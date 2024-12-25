@@ -9,16 +9,12 @@ interface TextProps {
 }
 
 export function ThemedText({ text, bold, dimmed, header }: TextProps) {
-  const isDimmed = dimmed !== undefined;
-  const isBold = bold !== undefined;
-  const isHeader = header !== undefined;
-
   return (
     <Text
       style={{
-        color: isDimmed ? getTheme().text : getTheme().text,
-        fontWeight: isBold || isHeader ? "bold" : "normal",
-        fontSize: isHeader ? 24 : 14,
+        color: dimmed ? getTheme().textShade: getTheme().text,
+        fontWeight: bold || header ? "bold" : "normal",
+        fontSize: header ? 24 : 14,
       }}
     >
       {text}

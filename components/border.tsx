@@ -1,10 +1,11 @@
 import { StyleSheet, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
+import getTheme from "@/components/theme";
 
-export function GradientSeparator({ colors }) {
+export function GradientSeparator() {
   return (
     <LinearGradient
-      colors={colors}
+      colors={[ getTheme().accent, getTheme().secondary ]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={styles.rule}
@@ -20,10 +21,11 @@ export function GradientProgressBorder({
   width,
   height,
   thickness,
-  colors,
   childElement,
 }) {
+  const colors = [getTheme().accent, getTheme().secondary];
   const perimeter = width * 2 + height * 2;
+
   let sides = [height, width, height, width]; // left, bottom, right, top
   let amount = Math.round(percentage * perimeter);
 
