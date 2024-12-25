@@ -41,14 +41,16 @@ export default function FoodTracker() {
         </Text>
 
         <Link href="/addFood" asChild>
-          <Button label="+" styling={ activeButton } />
+          <Button label="add-outline" hasIcon styling={ activeButton } />
         </Link>
       </View>
+
       <LinearGradient
         colors={[ colors.aquamarine, colors.blue ]}
         start={{x: 0, y: 0}}
         end={{x: 1, y: 0}}
         style={ stylesheet.hr } />
+
       <FlatList
         renderItem={( { item } ) => <FoodItem item={item}/> }
         data={items}

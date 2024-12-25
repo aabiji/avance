@@ -2,7 +2,7 @@ import { NativeSyntheticEvent, TextInput, TextInputFocusEventData, View } from "
 import { Link, Stack, useNavigation } from "expo-router";
 
 import { Button } from "@/app/components/Elements";
-import { activeButton, colors, stylesheet } from "@/app/components/design";
+import { activeButton, colors, stylesheet, transparentButton } from "@/app/components/design";
 
 function search(e: NativeSyntheticEvent<TextInputFocusEventData>) {
   const input = e.nativeEvent.text;
@@ -22,7 +22,12 @@ export default function FoodAdder() {
         options={{
           title: "Add food",
           headerRight: () =>
-            <Button label="✓" onPress={() => saveSelection()} styling={activeButton} />
+            <Button
+              label="checkmark"
+              hasIcon
+              color={ colors.blue }
+              onPress={() => saveSelection()} styling={transparentButton}
+            />
           }}
       />
 
