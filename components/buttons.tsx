@@ -1,7 +1,9 @@
 import { forwardRef, ForwardedRef } from "react";
 import { Text, Pressable, StyleSheet } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
 import getTheme from "@/components/theme";
+
+import Ionicons from "@expo/vector-icons/Ionicons";
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
 export const Button = forwardRef(
   (
@@ -31,7 +33,7 @@ export const ClickableIcon = forwardRef(
       name,
       onPress,
       transparent,
-    }: { name: string; onPress?: () => void; transparent?: boolean },
+    }: { name: IoniconsName; onPress?: () => void; transparent?: boolean },
     ref: ForwardedRef<any>,
   ) => {
     const color = transparent ? getTheme().accent : getTheme().background;

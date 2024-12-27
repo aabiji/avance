@@ -1,22 +1,22 @@
 import { Tabs } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-
 import getTheme from "@/components/theme";
+
+import Ionicons from "@expo/vector-icons/Ionicons";
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
 export default function BottomNavbar() {
   return (
     <Tabs
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, _, size }) => {
-          const iconNames = {
+        tabBarIcon: ({ focused, color, size }) => {
+          const iconNames: Record<string, string> = {
             index: "scale-outline",
             food: "restaurant-outline",
             exercise: "barbell-outline",
           };
+          const name = iconNames[route.name] as IoniconsName;
           const c = focused ? getTheme().accent : getTheme().textShade;
-          return (
-            <Ionicons name={iconNames[route.name]} size={size} color={c} />
-          );
+          return <Ionicons name={name} size={size} color={c} />;
         },
         tabBarShowLabel: false,
         tabBarStyle: {

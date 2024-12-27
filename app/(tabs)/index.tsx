@@ -49,7 +49,7 @@ export default function HomeScreen() {
       <Row>
         <NumericInput
           value={`${weight}`}
-          setData={setWeight}
+          setValue={setWeight}
           prefix={""}
           suffix={"lbs"}
           style={{

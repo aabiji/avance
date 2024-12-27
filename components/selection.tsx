@@ -1,7 +1,18 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Dispatch, SetStateAction } from "react";
 import getTheme from "./theme";
 
-export default function Selection({ options, selection, setSelection }) {
+interface SelectionProps {
+  options: string[];
+  selection: number;
+  setSelection: Dispatch<SetStateAction<number>>;
+}
+
+export default function Selection({
+  options,
+  selection,
+  setSelection,
+}: SelectionProps) {
   const [transparent, bg, color] = [
     "#ffffff00",
     getTheme().background,

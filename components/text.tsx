@@ -1,4 +1,4 @@
-import { Text } from "react-native";
+import { Text, TextStyle, StyleProp } from "react-native";
 import { fontSize, getTheme } from "./theme";
 
 interface TextProps {
@@ -6,6 +6,7 @@ interface TextProps {
   bold?: boolean;
   dimmed?: boolean;
   header?: boolean;
+  style?: StyleProp<TextStyle>;
 }
 
 export function ThemedText({ style, text, bold, dimmed, header }: TextProps) {

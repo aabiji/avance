@@ -1,15 +1,36 @@
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ReactNode } from "react";
+import {
+  ScrollView,
+  StyleSheet,
+  StyleProp,
+  View,
+  ViewStyle,
+} from "react-native";
 import getTheme from "./theme";
 
-export function Row({ children, style }) {
+export function Row({
+  children,
+  style,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) {
   return <View style={[styles.row, style]}>{children}</View>;
 }
 
-export function Card({ children }) {
+export function Card({ children }: { children: ReactNode }) {
   return <View style={[styles.row, styles.card]}>{children}</View>;
 }
 
-export function Container({ children, style, noScroll }) {
+export function Container({
+  children,
+  style,
+  noScroll,
+}: {
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+  noScroll?: boolean;
+}) {
   return noScroll ? (
     <View style={[styles.container, style]}>{children}</View>
   ) : (

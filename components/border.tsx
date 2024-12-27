@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import getTheme from "@/components/theme";
@@ -13,6 +14,14 @@ export function GradientSeparator() {
   );
 }
 
+interface BorderProps {
+  percentage: number;
+  width: number;
+  height: number;
+  thickness: number;
+  childElement: ReactNode;
+}
+
 // Gradient progress bar that wraps around an element
 // The percentage controls how much we wrap around
 // Basically we just assemble 4 linear gradients around in a box shape
@@ -22,7 +31,7 @@ export function GradientProgressBorder({
   height,
   thickness,
   childElement,
-}) {
+}: BorderProps) {
   const colors = [getTheme().accent, getTheme().secondary];
   const perimeter = width * 2 + height * 2;
 

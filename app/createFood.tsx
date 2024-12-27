@@ -40,10 +40,10 @@ export default function CreateFood() {
 
       <Input placeholder="Name" setData={setName} />
 
-      <NumericInput setData={setCalories} prefix="Calories" suffix="kCal" />
-      <NumericInput setData={setProtein} prefix="Protein" suffix="g" />
-      <NumericInput setData={setCarbs} prefix="Carbs" suffix="g" />
-      <NumericInput setData={setFats} prefix="Fat" suffix="g" />
+      <NumericInput setValue={setCalories} prefix="Calories" suffix="kCal" />
+      <NumericInput setValue={setProtein} prefix="Protein" suffix="g" />
+      <NumericInput setValue={setCarbs} prefix="Carbs" suffix="g" />
+      <NumericInput setValue={setFats} prefix="Fat" suffix="g" />
     </Container>
   );
 }

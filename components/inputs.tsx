@@ -1,11 +1,26 @@
-import { StyleSheet, TextInput } from "react-native";
+import { StyleSheet, StyleProp, TextInput, TextStyle } from "react-native";
+import { Dispatch, SetStateAction } from "react";
 import { Row } from "@/components/containers";
 import { ThemedText } from "@/components/text";
 import getTheme from "./theme";
 
-export function NumericInput({ style, prefix, suffix, setData, value }) {
+interface NumericInputProps {
+  value?: string;
+  style?: StyleProp<TextStyle>;
+  prefix: string;
+  suffix: string;
+  setValue: Dispatch<SetStateAction<number>>;
+}
+
+export function NumericInput({
+  style,
+  prefix,
+  suffix,
+  setValue,
+  value,
+}: NumericInputProps) {
   // Only to stop typescript from complaining
-  const set = (data: string) => setData(data as unknown as number);
+  const set = (data: string) => setValue(data as unknown as number);
 
   return (
     <Row>
@@ -35,7 +50,12 @@ export function NumericInput({ style, prefix, suffix, setData, value }) {
   );
 }
 
-export function Input({ setData, placeholder }) {
+interface InputProps {
+  placeholder: string;
+  setData: Dispatch<SetStateAction<any>>;
+}
+
+export function Input({ setData, placeholder }: InputProps) {
   return (
     <TextInput
       placeholder={placeholder}

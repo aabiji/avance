@@ -48,15 +48,15 @@ export default function CreateExercise() {
 
       {selection == 0 ? (
         <View>
-          <NumericInput prefix="Weight" suffix="lbs" setData={setValue3} />
-          <NumericInput prefix="# of reps" suffix="" setData={setValue1} />
-          <NumericInput prefix="# of sets" suffix="" setData={setValue2} />
+          <NumericInput prefix="Weight" suffix="lbs" setValue={setValue3} />
+          <NumericInput prefix="# of reps" suffix="" setValue={setValue1} />
+          <NumericInput prefix="# of sets" suffix="" setValue={setValue2} />
         </View>
       ) : (
         <View>
-          <NumericInput prefix="# of rounds" suffix="" setData={setValue3} />
-          <NumericInput prefix="Work time" suffix="s" setData={setValue1} />
-          <NumericInput prefix="Rest time" suffix="s" setData={setValue2} />
+          <NumericInput prefix="# of rounds" suffix="" setValue={setValue3} />
+          <NumericInput prefix="Work time" suffix="s" setValue={setValue1} />
+          <NumericInput prefix="Rest time" suffix="s" setValue={setValue2} />
         </View>
       )}
     </Container>
