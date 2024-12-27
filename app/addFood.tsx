@@ -26,7 +26,11 @@ export default function FoodAdder() {
           headerTitleStyle: { color: getTheme().text },
           headerTintColor: getTheme().text,
           headerRight: () => (
-            <ClickableIcon transparent name="checkmark" onPress={() => saveSelection()} />
+            <ClickableIcon
+              transparent
+              name="checkmark"
+              onPress={() => saveSelection()}
+            />
           ),
         }}
       />

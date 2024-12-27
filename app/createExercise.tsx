@@ -31,7 +31,11 @@ export default function CreateExercise() {
           headerTitleStyle: { color: getTheme().text },
           headerTintColor: getTheme().text,
           headerRight: () => (
-            <ClickableIcon transparent name="checkmark" onPress={() => saveEntry()} />
+            <ClickableIcon
+              transparent
+              name="checkmark"
+              onPress={() => saveEntry()}
+            />
           ),
         }}
       />

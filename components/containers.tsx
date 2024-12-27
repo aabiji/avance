@@ -1,23 +1,26 @@
 import { ScrollView, StyleSheet, View } from "react-native";
 import getTheme from "./theme";
 
-export function Row({ children }) {
-  return <View style={styles.row}>{children}</View>;
+export function Row({ children, style }) {
+  return <View style={[styles.row, style]}>{children}</View>;
 }
 
 export function Card({ children }) {
   return <View style={[styles.row, styles.card]}>{children}</View>;
 }
 
-export function Container({ children, noScroll }) {
-  return noScroll
-    ? <View style={styles.container}>{children}</View>
-    : <ScrollView contentContainerStyle={styles.container}>{children}</ScrollView>;
+export function Container({ children, style, noScroll }) {
+  return noScroll ? (
+    <View style={[styles.container, style]}>{children}</View>
+  ) : (
+    <ScrollView contentContainerStyle={[styles.container, style]}>
+      {children}
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
   row: {
-    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",

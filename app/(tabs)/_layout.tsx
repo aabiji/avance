@@ -22,7 +22,7 @@ export default function BottomNavbar() {
         tabBarStyle: {
           marginBottom: -10,
           backgroundColor: getTheme().tabBar,
-          borderColor: getTheme().tabBar
+          borderColor: getTheme().tabBar,
         },
       })}
     >

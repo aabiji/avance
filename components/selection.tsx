@@ -29,7 +29,7 @@ export default function Selection({ options, selection, setSelection }) {
         </Pressable>
       ))}
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({

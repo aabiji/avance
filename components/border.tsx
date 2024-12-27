@@ -5,7 +5,7 @@ import getTheme from "@/components/theme";
 export function GradientSeparator() {
   return (
     <LinearGradient
-      colors={[ getTheme().accent, getTheme().secondary ]}
+      colors={[getTheme().accent, getTheme().secondary]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 0 }}
       style={styles.rule}

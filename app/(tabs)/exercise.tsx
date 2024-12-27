@@ -9,7 +9,11 @@ import { GradientProgressBorder } from "@/components/border";
 function ResistanceExercise() {
   return (
     <Row>
-      <ClickableIcon transparent name="checkmark" onPress={() => console.log("done!")} />
+      <ClickableIcon
+        transparent
+        name="checkmark"
+        onPress={() => console.log("done!")}
+      />
       <ThemedText bold text="Lat pulldowns" />
       <View>
         <ThemedText dimmed text={"2 / 5 sets"} />
@@ -22,7 +26,11 @@ function ResistanceExercise() {
 function IntervalExercise() {
   return (
     <Row>
-      <ClickableIcon transparent name="play" onPress={() => console.log("done!")} />
+      <ClickableIcon
+        transparent
+        name="play"
+        onPress={() => console.log("done!")}
+      />
       <ThemedText bold text="Jump rope" />
       <View>
         <ThemedText dimmed text={"40s on"} />

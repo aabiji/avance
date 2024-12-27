@@ -1,17 +1,21 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 
+import { View } from "react-native";
 import { Container, Row } from "@/components/containers";
 import { NumericInput } from "@/components/inputs";
-import { ThemedText } from "@/components/text";
 import Graph from "@/components/graph";
 import Selection from "@/components/selection";
+import { fontSize, getTheme } from "@/components/theme";
+
+const today = () => {
+  const options = { month: "short", day: "numeric", year: "numeric" };
+  return new Date().toLocaleString("default", options);
+};
 
 export default function HomeScreen() {
   const [selection, setSelection] = useState(0);
-  const [weight, setWeight] = useState(0);
 
-  // Dummy data
-  const data = [
+  let data = [
     { value: 142.2, label: "Dec 11" },
     { value: 140.9, label: "Dec 12" },
     { value: 142.2, label: "Dec 13" },
@@ -26,21 +30,43 @@ export default function HomeScreen() {
     { value: 140.1, label: "Dec 23" },
     { value: 142.9, label: "Dec 24" },
   ];
+  const yesterday = data[data.length - 1];
+  const initialData = useMemo(() => {
+    return [...data, { value: yesterday.value, label: today() }];
+  }, [data]);
+  const [entries, setEntries] = useState(initialData);
+  const [weight, setWeight] = useState(yesterday.value);
+
+  useEffect(() => {
+    const data = [...entries];
+    data[data.length - 1] = { value: Number(weight), label: today() };
+    setEntries(data);
+  }, [weight]);
 
   return (
     <Container>
+      <View style={{ height: "2%" }}></View>
       <Row>
-        <NumericInput setData={setWeight} prefix={""} suffix={""} />
-        <ThemedText header text={"lbs"} />
+        <NumericInput
+          value={`${weight}`}
+          setData={setWeight}
+          prefix={""}
+          suffix={"lbs"}
+          style={{
+            fontWeight: "bold",
+            fontSize: fontSize.big,
+            color: getTheme().text,
+          }}
+        />
       </Row>
-
+      <View style={{ height: "2%" }}></View>
       <Selection
         options={["Daily", "Weekly", "Full"]}
         selection={selection}
         setSelection={setSelection}
       />
-
-      <Graph data={data} />
+      <View style={{ height: "2%" }}></View>
+      <Graph data={entries} />
     </Container>
   );
 }

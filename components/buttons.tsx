@@ -15,9 +15,7 @@ export const Button = forwardRef(
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: pressed
-              ? getTheme().secondary
-              : getTheme().accent,
+            backgroundColor: pressed ? getTheme().secondary : getTheme().accent,
           },
         ]}
       >
@@ -29,7 +27,11 @@ export const Button = forwardRef(
 
 export const ClickableIcon = forwardRef(
   (
-    { name, onPress, transparent }: { name: string; onPress?: () => void, transparent?: boolean },
+    {
+      name,
+      onPress,
+      transparent,
+    }: { name: string; onPress?: () => void; transparent?: boolean },
     ref: ForwardedRef<any>,
   ) => {
     const color = transparent ? getTheme().accent : getTheme().background;
@@ -43,7 +45,9 @@ export const ClickableIcon = forwardRef(
           {
             backgroundColor: pressed
               ? getTheme().secondary
-              : transparent ? "#ffffff00" : getTheme().accent,
+              : transparent
+                ? "#ffffff00"
+                : getTheme().accent,
           },
         ]}
       >

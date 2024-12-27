@@ -1,5 +1,5 @@
 import { Text } from "react-native";
-import getTheme from "./theme";
+import { fontSize, getTheme } from "./theme";
 
 interface TextProps {
   text: any;
@@ -8,14 +8,17 @@ interface TextProps {
   header?: boolean;
 }
 
-export function ThemedText({ text, bold, dimmed, header }: TextProps) {
+export function ThemedText({ style, text, bold, dimmed, header }: TextProps) {
   return (
     <Text
-      style={{
-        color: dimmed ? getTheme().textShade: getTheme().text,
-        fontWeight: bold || header ? "bold" : "normal",
-        fontSize: header ? 24 : 14,
-      }}
+      style={[
+        {
+          color: dimmed ? getTheme().textShade : getTheme().text,
+          fontWeight: bold || header ? "bold" : "normal",
+          fontSize: header ? fontSize.big : fontSize.normal,
+        },
+        style,
+      ]}
     >
       {text}
     </Text>

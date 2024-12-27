@@ -2,18 +2,19 @@
 
 - Language: Typescript
 - Frontend: React Native
-- Database: Postgresql
+- Database: Postgresql, https://github.com/ammarahm-ed/react-native-mmkv-storage on the client side
 - Backend
-  - gRPC with Protobuf for the client/server communication
-  - OAuth for user authentication -- passwordless login!!
+  - API: gRPC with Protobuf
+  - Authentication: Magic links with JSON Web Tokens
 - Deployment: Docker, Azure (see if we can get a free cloud instance)
 
-## TODO
-
-- refactor the way we do styling
-- prototype the backend
-- dark theme
-- polish loose ends
+- Frontend + Backend monorepo ideas
+  - Literally just 2 separate folders in the same git repository
+    - Not very practical since the frontend and backend would need to share api code
+  - Workspace with separate frontend, backend packages
+    - https://docs.expo.dev/guides/monorepos/
+    - https://blog.cvoice.io/how-to-setup-a-react-native-monorepo
+    - https://bun.sh/docs/install/workspaces
 
 # App features
 

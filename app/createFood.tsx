@@ -29,7 +29,11 @@ export default function CreateFood() {
           headerTitleStyle: { color: getTheme().text },
           headerTintColor: getTheme().text,
           headerRight: () => (
-            <ClickableIcon transparent name="checkmark" onPress={() => saveEntry()} />
+            <ClickableIcon
+              transparent
+              name="checkmark"
+              onPress={() => saveEntry()}
+            />
           ),
         }}
       />

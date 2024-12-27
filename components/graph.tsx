@@ -23,12 +23,13 @@ export default function Graph({ data }: { data: lineDataItem[] }) {
     <View style={styles.container}>
       <LineChart
         data={data}
-        curved
         isAnimated
         showFractionalValues
+        animateOnDataChange
         showVerticalLines
         hideOrigin
         rotateLabel
+        scrollToEnd
         thickness={3}
         dashGap={0}
         stepHeight={35}
