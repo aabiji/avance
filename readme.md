@@ -4,7 +4,7 @@
 - Frontend: React Native
 - Database: Postgresql, https://github.com/ammarahm-ed/react-native-mmkv-storage on the client side
 - Backend
-  - API: gRPC with Protobuf
+  - API: REST with ExpressJS
   - Authentication: Magic links with JSON Web Tokens
 - Deployment: Docker, Azure (see if we can get a free cloud instance)
 

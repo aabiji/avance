@@ -3,20 +3,24 @@ import { LineChart, lineDataItem } from "react-native-gifted-charts";
 import { fontSize, getTheme } from "./theme";
 
 function PointerLabel(
-  item: lineDataItem[],
+  items: lineDataItem[],
   _secondaryItem: object,
   _pointerIndex: number,
 ) {
-  const label = item[0].label;
+  const item = items[0];
   return (
-    <View style={styles.label}>
+    <View style={[styles.label, { width: 80 }]}>
       <Text style={[styles.labelText, { color: getTheme().background }]}>
-        {label}
+        {item.label}
+      </Text>
+      <Text style={[styles.labelText, { color: getTheme().background }]}>
+        {item.value}
       </Text>
     </View>
   );
 }
 
+// TODO: rewrite a better line graph implementation ourselves
 export default function Graph({
   data,
   showEverything,
@@ -48,13 +52,13 @@ export default function Graph({
         color={getTheme().primary}
         rulesColor={getTheme().textShade}
         verticalLinesColor={getTheme().textShade}
-        yAxisTextStyle={styles.labelText}
+        yAxisTextStyle={[styles.labelText, { width: 30 }]}
         xAxisLabelTextStyle={[styles.labelText, { width: 200 }]}
         pointerConfig={{
           activatePointersOnLongPress: true,
           pointerLabelComponent: PointerLabel,
           pointerColor: getTheme().primary,
-          showPointerStrip: false,
+          showPointerStrip: true
         }}
       />
     </View>
@@ -68,10 +72,9 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   label: {
-    width: 60,
     padding: 5,
     alignSelf: "center",
-    backgroundColor: getTheme().secondary,
+    backgroundColor: getTheme().primary,
   },
   labelText: {
     fontSize: fontSize.small,

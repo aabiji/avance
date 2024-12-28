@@ -115,7 +115,7 @@ export default function HomeScreen() {
         setSelection={setView}
       />
       <View style={{ height: "2%" }}></View>
-      <Graph data={graphData} showEverything={view == GraphView.Full} />
+      <Graph data={graphData} showEverything={view != GraphView.Daily} />
     </Container>
   );
 }

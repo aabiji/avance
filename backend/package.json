@@ -1,0 +1,16 @@
+{
+  "name": "backend",
+  "type": "module",
+  "scripts": {
+    "start": "bun src/index.ts",
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
