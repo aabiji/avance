@@ -1,6 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { LineChart, lineDataItem } from "react-native-gifted-charts";
-import getTheme from "./theme";
+import { fontSize, getTheme } from "./theme";
 
 function PointerLabel(
   item: lineDataItem[],
@@ -17,7 +17,13 @@ function PointerLabel(
   );
 }
 
-export default function Graph({ data }: { data: lineDataItem[] }) {
+export default function Graph({
+  data,
+  showEverything,
+}: {
+  data: lineDataItem[];
+  showEverything: boolean;
+}) {
   const lowest = Math.min(...data.map((entry) => entry.value)) - 1;
   return (
     <View style={styles.container}>
@@ -34,6 +40,7 @@ export default function Graph({ data }: { data: lineDataItem[] }) {
         dashGap={0}
         stepHeight={35}
         initialSpacing={1}
+        adjustToWidth={showEverything}
         yAxisOffset={lowest}
         yAxisColor={getTheme().textShade}
         xAxisColor={getTheme().textShade}
@@ -42,7 +49,7 @@ export default function Graph({ data }: { data: lineDataItem[] }) {
         rulesColor={getTheme().textShade}
         verticalLinesColor={getTheme().textShade}
         yAxisTextStyle={styles.labelText}
-        xAxisLabelTextStyle={styles.labelText}
+        xAxisLabelTextStyle={[styles.labelText, { width: 200 }]}
         pointerConfig={{
           activatePointersOnLongPress: true,
           pointerLabelComponent: PointerLabel,
@@ -67,7 +74,7 @@ const styles = StyleSheet.create({
     backgroundColor: getTheme().secondary,
   },
   labelText: {
-    fontSize: 9,
+    fontSize: fontSize.small,
     alignSelf: "center",
     color: getTheme().text,
   },
