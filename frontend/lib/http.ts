@@ -7,7 +7,7 @@ interface RequestInfo {
 }
 
 // Helper function to make an HTTP request with a json payload to our server
-export async function request(info: RequestInfo) {
+export default async function request(info: RequestInfo) {
   const payload: RequestInit = {
     method: info.method,
     body: JSON.stringify(info.body),
