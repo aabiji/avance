@@ -2,7 +2,7 @@
   "name": "backend",
   "type": "module",
   "scripts": {
-    "start": "bun src/index.ts",
+    "start": "bun src/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -11,6 +11,7 @@
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@types/express": "^5.0.0",
     "express": "^4.21.2"
   }
 }

@@ -10,10 +10,21 @@ import Selection from "@/components/selection";
 import Graph from "@/components/graph";
 
 import { today, formatDate, groupDatesByWeek } from "@/lib/date";
+import { request } from "@/lib/http";
 
 enum GraphView { Daily, Weekly, Full }
 
 function getWeightData(): [Record<string, number>, lineDataItem[]] {
+  // Should we set user data when the app is no longer active???
+  useEffect(() => {
+    request({
+      method: "GET",
+      endpoint: "/get_user_data",
+      handler: (response: object) => console.log("DATA", response),
+      onError: (msg: unknown) => console.log("ERROR", msg),
+    });
+  }, []);
+
   let data: Record<string, number> = {
     "2024-12-11": 142.2,
     "2024-12-12": 140.9,
