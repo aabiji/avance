@@ -21,6 +21,7 @@ function PointerLabel(
 }
 
 // TODO: rewrite a better line graph implementation ourselves
+// TODO: and stress test by drawing a full graph with thousands of data points
 export default function Graph({
   data,
   showEverything,

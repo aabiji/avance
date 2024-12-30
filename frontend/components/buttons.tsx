@@ -17,7 +17,7 @@ export const Button = forwardRef(
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: pressed ? getTheme().secondary : getTheme().accent,
+            backgroundColor: pressed ? getTheme().secondary : getTheme().primary,
           },
         ]}
       >
@@ -49,8 +49,8 @@ export const ClickableIcon = forwardRef(
               ? getTheme().secondary
               : transparent
                 ? "#ffffff00"
-                : getTheme().accent,
-          },
+                : getTheme().primary,
+          }
         ]}
       >
         <Ionicons name={name} color={color} size={size} />
@@ -63,7 +63,6 @@ const styles = StyleSheet.create({
   button: {
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderRadius: 5,
   },
   text: {
     color: getTheme().background,
