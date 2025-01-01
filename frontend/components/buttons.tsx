@@ -1,9 +1,8 @@
 import { forwardRef, ForwardedRef } from "react";
-import { Text, Pressable, StyleSheet } from "react-native";
+import { Text, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import getTheme from "@/components/theme";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
-type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
 
 export const Button = forwardRef(
   (
@@ -27,15 +26,17 @@ export const Button = forwardRef(
   },
 );
 
+type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
+interface ClickableIconProps {
+  name: IoniconsName,
+  onPress?: () => void,
+  transparent?: boolean;
+  style?: StyleProp<ViewStyle>;
+}
+
 export const ClickableIcon = forwardRef(
-  (
-    {
-      name,
-      onPress,
-      transparent,
-    }: { name: IoniconsName; onPress?: () => void; transparent?: boolean },
-    ref: ForwardedRef<any>,
-  ) => {
+  ( {name, onPress, transparent, style}: ClickableIconProps, ref: ForwardedRef<any>,
+) => {
     const color = transparent ? getTheme().accent : getTheme().background;
     const size = transparent ? 35 : 20;
     return (
@@ -50,7 +51,8 @@ export const ClickableIcon = forwardRef(
               : transparent
                 ? "#ffffff00"
                 : getTheme().primary,
-          }
+          },
+          style
         ]}
       >
         <Ionicons name={name} color={color} size={size} />

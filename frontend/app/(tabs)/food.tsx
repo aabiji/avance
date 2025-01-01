@@ -1,9 +1,7 @@
-import { useRef } from "react";
-
-import { Animated, FlatList, PanResponder, View } from "react-native";
+import { FlatList, View } from "react-native";
 import { Link } from "expo-router";
 
-import { Card, Container, Row } from "@/components/containers";
+import { SwipeableCard, Container, Row } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientSeparator } from "@/components/border";
@@ -15,53 +13,21 @@ interface Food {
 }
 
 function FoodItem({ item }: { item: Food }) {
-  const pan = useRef(new Animated.ValueXY()).current;
-
-  // Show hidden controls on left swipe
-  // TODO: style this better
-  // TODO: should make this a component
-  const panResponder = useRef(PanResponder.create({
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderMove: (_event, gestureState) => {
-      const x = Math.min(Math.max(-100, gestureState.dx), 0);
-      pan.setValue({ x: x, y: 0 });
-    },
-    onPanResponderRelease: (_event, gestureState) => {
-      if (gestureState.dx < -100) { // left swipe
-        Animated.timing(pan, {
-          toValue: { x: -100, y: 0 },
-          useNativeDriver: true,
-          duration: 200
-        }).start();
-      } else {
-        Animated.spring(pan, {
-          toValue: { x: 0, y: 0 },
-          useNativeDriver: true,
-          friction: 7,
-          tension: 40,
-        }).start();
-      }
-    },
-  })).current;
-
-  const handlePress = () => {
-    console.log("Deleting food item!");
-    Animated.timing(pan, {
-      toValue: { x: 0, y: 0 },
-      duration: 200,
-      useNativeDriver: true
-    }).start();
+  const handleDelete = () => {
+    console.log("deleting!");
   }
 
   return (
-    <Animated.View {...panResponder.panHandlers} style={{ flexDirection: "row", transform: [{translateX: pan.x}, {translateY: pan.y}] }}>
-      <Card>
+    <SwipeableCard maxXOffset={-50}>
+      <Row>
         <ThemedText text={item.amount} />
         <ThemedText bold text={item.name} />
         <ThemedText dimmed text={`${item.calories} cal`} />
-      </Card>
-      <ClickableIcon style={{ height: "100%", width: 100 }} name={"trash-bin"} onPress={handlePress} />
-    </Animated.View>
+      </Row>
+      <View>
+        <ClickableIcon style={{ backgroundColor: "red", height: "100%" }} name={"trash-bin"} onPress={handleDelete} />
+      </View>
+    </SwipeableCard>
   );
 }
 

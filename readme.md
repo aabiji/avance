@@ -7,6 +7,8 @@
   - API: REST with ExpressJS
   - Authentication: Magic links with JSON Web Tokens
 - Deployment: Docker, Azure (see if we can get a free cloud instance)
+- TODO: make an architecture diagram when the app is finished
+- TODO: look into Bento Boxes as a design style
 
 # App features
 
