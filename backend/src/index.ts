@@ -26,8 +26,17 @@ const weightData: Record<string, number> = {
   "2024-12-29": 141.3,
 };
 
+const foodData = [
+  { servings: 1, name: "Food item 1", calories: 100 },
+  { servings: 2, name: "Food item 2", calories: 120 },
+  { servings: 2, name: "Food item 3", calories: 300 },
+  { servings: 1, name: "Food item 4", calories: 100 },
+  { servings: 4, name: "Food item 5", calories: 50 },
+  { servings: 4, name: "Food item 6", calories: 50 },
+];
+
 app.get("/get_user_data", (_request, response) => {
-  response.json({ weightData: weightData });
+  response.json({ weightData: weightData, foodLog: foodData });
 });
 
 app.listen(8080, () => console.log("Backend listening on port 8080"));

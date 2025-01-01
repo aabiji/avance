@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { Link } from "expo-router";
 
@@ -6,48 +7,63 @@ import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientSeparator } from "@/components/border";
 
+import request from "@/lib/http";
+
 interface Food {
-  amount: number;
   name: string;
+  servings: number;
   calories: number;
 }
 
-function FoodItem({ item }: { item: Food }) {
-  const handleDelete = () => {
-    console.log("deleting!");
-  }
-
+function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) {
   return (
-    <SwipeableCard maxXOffset={-50}>
-      <Row>
-        <ThemedText text={item.amount} />
-        <ThemedText bold text={item.name} />
-        <ThemedText dimmed text={`${item.calories} cal`} />
+    <SwipeableCard maxXOffset={-50} style={{ height: 100 }}>
+      <Row style={{ width: "100%", height: "100%", paddingHorizontal: 20 }}>
+        <ThemedText text={food.servings} />
+        <ThemedText bold text={food.name} />
+        <ThemedText dimmed text={`${food.calories} cal`} />
       </Row>
       <View>
-        <ClickableIcon style={{ backgroundColor: "red", height: "100%" }} name={"trash-bin"} onPress={handleDelete} />
+        <ClickableIcon
+          style={{ backgroundColor: "red", height: "100%" }}
+          name={"trash-bin"}
+          onPress={removeSelf}
+        />
       </View>
     </SwipeableCard>
   );
 }
 
 export default function FoodTracker() {
-  const items: Food[] = [
-    { amount: 1, name: "Food item 1", calories: 100 },
-    { amount: 2, name: "Food item 2", calories: 120 },
-    { amount: 2, name: "Food item 3", calories: 300 },
-    { amount: 1, name: "Food item 4", calories: 100 },
-    { amount: 4, name: "Food item 5", calories: 50 },
-    { amount: 4, name: "Food item 5", calories: 50 },
-  ];
-  const total = items.reduce((a, b) => a + b.calories * b.amount, 0);
+  const [foods, setFoods] = useState<Food[]>([]);
+  const [calorieTotal, setCalorieTotal] = useState<number>(0);
   const max = 1500;
+
+  useEffect(() => {
+    request({
+      method: "GET",
+      endpoint: "/get_user_data",
+      onError: (msg: unknown) => console.log("ERROR", msg),
+      handler: (response: object) => {
+        const data = response["foodLog"];
+        const total = data.reduce((a: number, b: Food) => a + b.calories * b.servings, 0);
+        setFoods(data);
+        setCalorieTotal(total);
+      }
+    })
+  }, []);
+
+  const removeFood = (index: number) => {
+    let copy = [...foods];
+    copy.splice(index, 1);
+    setFoods(copy);
+  };
 
   return (
     <Container noScroll>
       <Row style={{ width: "100%" }}>
         <Row>
-          <ThemedText header text={`${total} / ${max}`} />
+          <ThemedText header text={`${calorieTotal} / ${max}`} />
           <ThemedText text={"cal"} style={{ marginLeft: 10, marginTop: 5 }} />
         </Row>
         <Link href="/addFood" asChild>
@@ -58,9 +74,11 @@ export default function FoodTracker() {
       <GradientSeparator />
 
       <FlatList
-        renderItem={({ item }) => <FoodItem item={item} />}
-        data={items}
-        style={{ marginLeft: -10, marginRight: -10 }}
+        data={foods}
+        renderItem={({ item, index }) =>
+          <FoodCard food={item} removeSelf={() => removeFood(index)} />
+        }
+        contentContainerStyle={{ width: "100%", marginHorizontal: -10 }}
       />
     </Container>
   );

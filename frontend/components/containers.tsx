@@ -39,7 +39,13 @@ export function Container({
   );
 }
 
-export function SwipeableCard({ maxXOffset, children }: { maxXOffset: number, children: ReactNode }) {
+interface SwipeableCardProps {
+  maxXOffset: number;
+  children: ReactNode;
+  style?: StyleProp<ViewStyle>;
+}
+
+export function SwipeableCard({ maxXOffset, children, style }: SwipeableCardProps) {
   const pan = useRef(new Animated.ValueXY()).current;
 
   const move = (goLeft: boolean) => {
@@ -52,6 +58,9 @@ export function SwipeableCard({ maxXOffset, children }: { maxXOffset: number, ch
 
   // Handle swiping to the left
   const panResponder = useRef(PanResponder.create({
+    // To make scrolling inside a FlatList work as usual
+    onStartShouldSetPanResponder: () => false,
+
     onMoveShouldSetPanResponder: () => true,
 
     onPanResponderMove: (_event, gestureState) => {
@@ -75,15 +84,16 @@ export function SwipeableCard({ maxXOffset, children }: { maxXOffset: number, ch
   })).current;
 
   return (
-    <Animated.View
-      {...panResponder.panHandlers}
-      style={[
-        styles.card, styles.row,
-        {transform: [{translateX: pan.x}, {translateY: pan.y}
-      ]}
-    ]}>
-      {children}
-    </Animated.View>
+    <View style={[ styles.card, style ]}>
+      <Animated.View
+        {...panResponder.panHandlers}
+        style={[
+          styles.row,
+          {transform: [{translateX: pan.x}, {translateY: pan.y}]}
+        ]}>
+        {children}
+      </Animated.View>
+    </View>
   );
 }
 
@@ -92,20 +102,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 10,
     backgroundColor: getTheme().background,
   },
   card: {
-    width: "100%",
-    height: 100,
+    width: "95%",
     marginBottom: 15,
     alignSelf: "center",
     backgroundColor: getTheme().backgroundShade,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.20,
-    shadowRadius: 1.41,
-    elevation: 3,
   },
   container: {
     flex: 1,

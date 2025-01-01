@@ -22,6 +22,8 @@ function PointerLabel(
 
 // TODO: rewrite a better line graph implementation ourselves
 // TODO: and stress test by drawing a full graph with thousands of data points
+// TODO: could we use the Ramer-Douglas-Peuker algorithm to simplify the graph when
+//       we could also use the MinMax algorithm to "downsample" the poitns
 export default function Graph({
   data,
   showEverything,
