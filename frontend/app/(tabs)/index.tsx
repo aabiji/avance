@@ -4,7 +4,7 @@ import { View } from "react-native";
 import { lineDataItem } from "react-native-gifted-charts";
 
 import { fontSize, getTheme } from "@/components/theme";
-import { Container, Row } from "@/components/containers";
+import { Container } from "@/components/containers";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
 import Graph from "@/components/graph";
@@ -77,7 +77,7 @@ export default function HomeScreen() {
 
   // Update the graph rendering when the inputted weight value changes
   useEffect(() => {
-    let copy = {...entries};
+    let copy = { ...entries };
     copy[today()] = Number(weight);
     setEntries(copy);
     setGraphData(prepareData(copy));
@@ -93,7 +93,7 @@ export default function HomeScreen() {
   return (
     <Container>
       <View style={{ height: "2%" }}></View>
-      <Row>
+      <Container row>
         <NumericInput
           value={`${weight}`}
           setValue={setWeight}
@@ -105,7 +105,7 @@ export default function HomeScreen() {
             color: getTheme().text,
           }}
         />
-      </Row>
+      </Container>
       <View style={{ height: "2%" }}></View>
       <Selection
         options={enumToString(GraphView)}

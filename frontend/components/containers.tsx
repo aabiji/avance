@@ -2,7 +2,6 @@ import { ReactNode, useRef } from "react";
 import {
   Animated,
   PanResponder,
-  ScrollView,
   StyleSheet,
   StyleProp,
   View,
@@ -11,32 +10,18 @@ import {
 
 import getTheme from "./theme";
 
-export function Row({
-  children,
-  style,
-}: {
+interface ContainerProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
-}) {
-  return <View style={[styles.row, style]}>{children}</View>;
+  row?: boolean;
 }
 
-export function Container({
-  children,
-  style,
-  noScroll,
-}: {
-  children: ReactNode;
-  style?: StyleProp<ViewStyle>;
-  noScroll?: boolean;
-}) {
-  return noScroll ? (
-    <View style={[styles.container, style]}>{children}</View>
-  ) : (
-    <ScrollView contentContainerStyle={[styles.container, style]}>
+export function Container({ children, row, style }: ContainerProps) {
+  return (
+    <View style={[row ? styles.row : styles.container, style]}>
       {children}
-    </ScrollView>
-  );
+    </View>
+  )
 }
 
 interface SwipeableCardProps {
@@ -84,12 +69,12 @@ export function SwipeableCard({ maxXOffset, children, style }: SwipeableCardProp
   })).current;
 
   return (
-    <View style={[ styles.card, style ]}>
+    <View style={[styles.card, style]}>
       <Animated.View
         {...panResponder.panHandlers}
         style={[
           styles.row,
-          {transform: [{translateX: pan.x}, {translateY: pan.y}]}
+          { transform: [{ translateX: pan.x }, { translateY: pan.y }] }
         ]}>
         {children}
       </Animated.View>

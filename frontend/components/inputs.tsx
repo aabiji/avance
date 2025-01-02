@@ -1,6 +1,6 @@
 import { StyleSheet, StyleProp, TextInput, TextStyle } from "react-native";
 import { Dispatch, SetStateAction } from "react";
-import { Row } from "@/components/containers";
+import { Container } from "@/components/containers";
 import { ThemedText } from "@/components/text";
 import getTheme from "./theme";
 
@@ -23,30 +23,32 @@ export function NumericInput({
   const set = (data: string) => setValue(data as unknown as number);
 
   return (
-    <Row>
+    <Container row>
       {prefix.length > 0 && (
         <ThemedText
           text={prefix}
           style={[{ marginRight: 10, marginTop: -8 }, style]}
         />
       )}
-      <TextInput
-        maxLength={10}
-        defaultValue={value}
-        placeholder="0"
-        placeholderTextColor={getTheme().textShade}
-        style={[styles.input, style]}
-        onChange={(event) => set(event.nativeEvent.text)}
-        keyboardType="numeric"
-      />
-      {suffix.length > 0 && (
-        <ThemedText
-          dimmed
-          text={suffix}
-          style={[{ marginLeft: 10, marginTop: -8 }, style]}
+      <Container row style={{ justifyContent: "flex-start" }}>
+        <TextInput
+          maxLength={10}
+          defaultValue={value}
+          placeholder="0"
+          placeholderTextColor={getTheme().textShade}
+          style={[styles.input, style]}
+          onChange={(event) => set(event.nativeEvent.text)}
+          keyboardType="numeric"
         />
-      )}
-    </Row>
+        {suffix.length > 0 && (
+          <ThemedText
+            dimmed
+            text={suffix}
+            style={[{ marginLeft: 10, marginTop: -8 }, style]}
+          />
+        )}
+      </Container>
+    </Container>
   );
 }
 

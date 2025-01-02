@@ -41,22 +41,22 @@ export default function CreateExercise() {
       />
 
       <Selection
-        options={["Resistance", "Interval"]}
+        options={["Strength", "HIIT"]}
         selection={selection}
         setSelection={setSelection}
       />
 
       {selection == 0 ? (
-        <View>
+        <View style={{ width: "100%" }}>
+          <NumericInput prefix="Reps" suffix="     " setValue={setValue1} />
+          <NumericInput prefix="Sets" suffix="     " setValue={setValue2} />
           <NumericInput prefix="Weight" suffix="lbs" setValue={setValue3} />
-          <NumericInput prefix="# of reps" suffix="" setValue={setValue1} />
-          <NumericInput prefix="# of sets" suffix="" setValue={setValue2} />
         </View>
       ) : (
-        <View>
-          <NumericInput prefix="# of rounds" suffix="" setValue={setValue3} />
-          <NumericInput prefix="Work time" suffix="s" setValue={setValue1} />
+        <View style={{ width: "100%" }}>
+          <NumericInput prefix="Rounds" suffix="  " setValue={setValue3} />
           <NumericInput prefix="Rest time" suffix="s" setValue={setValue2} />
+          <NumericInput prefix="Work time" suffix="s" setValue={setValue1} />
         </View>
       )}
     </Container>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { FlatList, View } from "react-native";
 import { Link } from "expo-router";
 
-import { SwipeableCard, Container, Row } from "@/components/containers";
+import { Container, SwipeableCard } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientSeparator } from "@/components/border";
@@ -19,11 +19,11 @@ interface Food {
 function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) {
   return (
     <SwipeableCard maxXOffset={-50} style={{ height: 100 }}>
-      <Row style={{ width: "100%", height: "100%", paddingHorizontal: 20 }}>
+      <Container row style={{ width: "100%", height: "100%", paddingHorizontal: 20 }}>
         <ThemedText text={food.servings} />
         <ThemedText bold text={food.name} />
         <ThemedText dimmed text={`${food.calories} cal`} />
-      </Row>
+      </Container>
       <View>
         <ClickableIcon
           style={{ backgroundColor: "red", height: "100%" }}
@@ -61,16 +61,16 @@ export default function FoodTracker() {
   };
 
   return (
-    <Container noScroll>
-      <Row style={{ width: "100%" }}>
-        <Row>
+    <Container>
+      <Container row style={{ width: "100%" }}>
+        <Container row>
           <ThemedText header text={`${calorieTotal} / ${max}`} />
           <ThemedText text={"cal"} style={{ marginLeft: 10, marginTop: 5 }} />
-        </Row>
+        </Container>
         <Link href="/addFood" asChild>
           <ClickableIcon name="add-outline" />
         </Link>
-      </Row>
+      </Container>
 
       <GradientSeparator
         colors={[getTheme().secondary, getTheme().accent]}
