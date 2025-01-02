@@ -4,7 +4,8 @@ import { Link } from "expo-router";
 import { Container, Row } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
-import { GradientProgressBorder } from "@/components/border";
+import { ProgressBorder } from "@/components/border";
+import getTheme from "@/components/theme";
 
 function ResistanceExercise() {
   return (
@@ -52,21 +53,22 @@ export default function Exercises() {
         </Link>
       </Row>
 
-      <GradientProgressBorder
-        percentage={0.8}
-        width={325}
-        height={100}
-        thickness={5}
-        childElement={<IntervalExercise />}
-      />
+      <ProgressBorder
+        percentage={1.0}
+        thickness={3}
+        colors={[getTheme().secondary, getTheme().primary]}
+      >
+        <IntervalExercise />
+      </ProgressBorder>
 
-      <GradientProgressBorder
-        percentage={0.2}
-        width={325}
-        height={100}
-        thickness={5}
-        childElement={<ResistanceExercise />}
-      />
+
+      <ProgressBorder
+        percentage={1.0}
+        thickness={3}
+        colors={[getTheme().secondary, getTheme().primary]}
+      >
+        <ResistanceExercise />
+      </ProgressBorder>
     </Container>
   );
 }

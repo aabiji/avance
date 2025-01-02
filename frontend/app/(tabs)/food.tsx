@@ -6,6 +6,7 @@ import { SwipeableCard, Container, Row } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import { GradientSeparator } from "@/components/border";
+import getTheme from "@/components/theme";
 
 import request from "@/lib/http";
 
@@ -71,7 +72,10 @@ export default function FoodTracker() {
         </Link>
       </Row>
 
-      <GradientSeparator />
+      <GradientSeparator
+        colors={[getTheme().secondary, getTheme().accent]}
+        percentage={1.0}
+      />
 
       <FlatList
         data={foods}
