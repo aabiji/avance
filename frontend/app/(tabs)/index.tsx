@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { View } from "react-native";
 import { lineDataItem } from "react-native-gifted-charts";
 
-import { fontSize, getTheme } from "@/components/theme";
+import { fontSize, getColors } from "@/components/theme";
 import { Container } from "@/components/containers";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
@@ -102,7 +102,7 @@ export default function HomeScreen() {
           style={{
             fontWeight: "bold",
             fontSize: fontSize.big,
-            color: getTheme().text,
+            color: getColors().text["default"],
           }}
         />
       </Container>

@@ -1,6 +1,7 @@
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { LineChart, lineDataItem } from "react-native-gifted-charts";
-import { fontSize, getTheme } from "./theme";
+import { fontSize, getColors } from "./theme";
 
 function PointerLabel(
   items: lineDataItem[],
@@ -10,10 +11,10 @@ function PointerLabel(
   const item = items[0];
   return (
     <View style={[styles.label, { width: 80 }]}>
-      <Text style={[styles.labelText, { color: getTheme().background }]}>
+      <Text style={[styles.labelText, { color: getColors().background["default"] }]}>
         {item.label}
       </Text>
-      <Text style={[styles.labelText, { color: getTheme().background }]}>
+      <Text style={[styles.labelText, { color: getColors().background["default"] }]}>
         {item.value}
       </Text>
     </View>
@@ -24,6 +25,8 @@ function PointerLabel(
 // TODO: and stress test by drawing a full graph with thousands of data points
 // TODO: could we use the Ramer-Douglas-Peuker algorithm to simplify the graph when
 //       we could also use the MinMax algorithm to "downsample" the poitns
+// TODO: or, we could fix the annoying bugs in react-native-gifted-charts. what to do???
+// TODO: remove the extra space at the end of the graph.
 export default function Graph({
   data,
   showEverything,
@@ -31,37 +34,40 @@ export default function Graph({
   data: lineDataItem[];
   showEverything: boolean;
 }) {
-  const lowest = Math.min(...data.map((entry) => entry.value)) - 1;
+  const [lowest, setLowest] = useState(0);
+  useEffect(() => {
+    const values = data.map((entry: lineDataItem) => entry.value!);
+    if (values.length > 0) setLowest(Math.min(...values) - 1);
+  }, [data]);
+
   return (
-    <View style={styles.container}>
+    <View style={{ width: "100%", overflow: "hidden" }}>
       <LineChart
         data={data}
-        isAnimated
         showFractionalValues
         animateOnDataChange
-        showVerticalLines
         hideOrigin
-        rotateLabel
         scrollToEnd
+        rotateLabel
+        hideRules
+        curved
         thickness={3}
-        dashGap={0}
-        stepHeight={35}
-        initialSpacing={1}
-        adjustToWidth={showEverything}
         yAxisOffset={lowest}
-        yAxisColor={getTheme().textShade}
-        xAxisColor={getTheme().textShade}
-        dataPointsColor={getTheme().primary}
-        color={getTheme().primary}
-        rulesColor={getTheme().textShade}
-        verticalLinesColor={getTheme().textShade}
-        yAxisTextStyle={[styles.labelText, { width: 30 }]}
+        stepHeight={25}
+        endSpacing={0}
+        initialSpacing={0}
+        adjustToWidth={showEverything ?? false}
+        yAxisColor={getColors().background["300"]}
+        xAxisColor={getColors().background["300"]}
+        dataPointsColor={getColors().primary["default"]}
+        backgroundColor={getColors().background["default"]}
+        color={getColors().primary["default"]}
+        yAxisTextStyle={[styles.labelText]}
         xAxisLabelTextStyle={[styles.labelText, { width: 200 }]}
         pointerConfig={{
           activatePointersOnLongPress: true,
           pointerLabelComponent: PointerLabel,
-          pointerColor: getTheme().primary,
-          showPointerStrip: true
+          pointerColor: getColors().primary["default"],
         }}
       />
     </View>
@@ -69,19 +75,14 @@ export default function Graph({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: "100%",
-    height: "100%",
-    overflow: "hidden",
-  },
   label: {
     padding: 5,
     alignSelf: "center",
-    backgroundColor: getTheme().primary,
+    backgroundColor: getColors().primary["600"],
   },
   labelText: {
     fontSize: fontSize.small,
     alignSelf: "center",
-    color: getTheme().text,
+    color: getColors().text["default"]
   },
 });

@@ -1,10 +1,10 @@
-import { Stack, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { useState } from "react";
+import { View } from "react-native";
 
 import { Container } from "@/components/containers";
-import { ClickableIcon } from "@/components/buttons";
 import { Input, NumericInput } from "@/components/inputs";
-import getTheme from "@/components/theme";
+import Screen from "@/components/screen";
 
 export default function CreateFood() {
   const [name, setName] = useState("");
@@ -22,28 +22,16 @@ export default function CreateFood() {
 
   return (
     <Container>
-      <Stack.Screen
-        options={{
-          title: "Create food",
-          headerStyle: { backgroundColor: getTheme().tabBar },
-          headerTitleStyle: { color: getTheme().text },
-          headerTintColor: getTheme().text,
-          headerRight: () => (
-            <ClickableIcon
-              transparent
-              name="checkmark"
-              onPress={() => saveEntry()}
-            />
-          ),
-        }}
-      />
+      <Screen name={"Create food"} handleGoingBack={saveEntry} />
 
       <Input placeholder="Name" setData={setName} />
 
-      <NumericInput setValue={setCalories} prefix="Calories" suffix="kCal" />
-      <NumericInput setValue={setProtein} prefix="Protein" suffix="g" />
-      <NumericInput setValue={setCarbs} prefix="Carbs" suffix="g" />
-      <NumericInput setValue={setFats} prefix="Fat" suffix="g" />
+      <View style={{ width: "100%" }}>
+        <NumericInput setValue={setCalories} prefix="Calories" suffix="cal" />
+        <NumericInput setValue={setProtein} prefix="Protein" suffix="g   " />
+        <NumericInput setValue={setCarbs} prefix="Carbs" suffix="g   " />
+        <NumericInput setValue={setFats} prefix="Fat" suffix="g   " />
+      </View>
     </Container>
   );
 }

@@ -1,13 +1,11 @@
 import { View } from "react-native";
-import { Stack } from "expo-router";
 import { useNavigation } from "expo-router";
 import { useState } from "react";
 
 import { Container } from "@/components/containers";
-import { ClickableIcon } from "@/components/buttons";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
-import getTheme from "@/components/theme";
+import Screen from "@/components/screen";
 
 export default function CreateExercise() {
   const [value1, setValue1] = useState(0);
@@ -24,21 +22,7 @@ export default function CreateExercise() {
 
   return (
     <Container>
-      <Stack.Screen
-        options={{
-          title: "Create exercise",
-          headerStyle: { backgroundColor: getTheme().tabBar },
-          headerTitleStyle: { color: getTheme().text },
-          headerTintColor: getTheme().text,
-          headerRight: () => (
-            <ClickableIcon
-              transparent
-              name="checkmark"
-              onPress={() => saveEntry()}
-            />
-          ),
-        }}
-      />
+      <Screen name={"Create exercise"} handleGoingBack={saveEntry} />
 
       <Selection
         options={["Strength", "HIIT"]}

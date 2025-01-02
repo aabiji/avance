@@ -1,6 +1,6 @@
 import { forwardRef, ForwardedRef } from "react";
 import { Text, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
-import getTheme from "@/components/theme";
+import getColors from "@/components/theme";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
@@ -16,7 +16,7 @@ export const Button = forwardRef(
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: pressed ? getTheme().secondary : getTheme().primary,
+            backgroundColor: pressed ? getColors().primary["400"] : getColors().primary["500"],
           },
         ]}
       >
@@ -35,23 +35,19 @@ interface ClickableIconProps {
 }
 
 export const ClickableIcon = forwardRef(
-  ( {name, onPress, transparent, style}: ClickableIconProps, ref: ForwardedRef<any>,
-) => {
-    const color = transparent ? getTheme().accent : getTheme().background;
-    const size = transparent ? 35 : 20;
+  ({ name, onPress, transparent, style }: ClickableIconProps, ref: ForwardedRef<any>,
+  ) => {
+    const color = transparent ? getColors().primary["default"] : getColors().background["default"];
+    const size = transparent ? 35 : 25;
+    const base = transparent ? "#00000000" : getColors().primary["500"];
+    const hover = transparent ? `${getColors().primary["400"]}10` : getColors().primary["400"];
     return (
       <Pressable
         ref={ref}
         onPressIn={onPress}
         style={({ pressed }) => [
-          styles.button,
-          {
-            backgroundColor: pressed
-              ? getTheme().secondary
-              : transparent
-                ? "#ffffff00"
-                : getTheme().primary,
-          },
+          styles.icon,
+          { backgroundColor: pressed ? hover : base },
           style
         ]}
       >
@@ -63,11 +59,19 @@ export const ClickableIcon = forwardRef(
 
 const styles = StyleSheet.create({
   button: {
-    paddingHorizontal: 15,
-    paddingVertical: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+    borderRadius: 10
+  },
+  icon: {
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    borderRadius: "50%",
+    justifyContent: "center",
+    alignContent: "center",
   },
   text: {
-    color: getTheme().background,
+    color: getColors().background["default"],
     textAlign: "center",
   },
 });

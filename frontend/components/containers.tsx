@@ -8,7 +8,7 @@ import {
   ViewStyle,
 } from "react-native";
 
-import getTheme from "./theme";
+import getColors from "./theme";
 
 interface ContainerProps {
   children: ReactNode;
@@ -74,7 +74,7 @@ export function SwipeableCard({ maxXOffset, children, style }: SwipeableCardProp
         {...panResponder.panHandlers}
         style={[
           styles.row,
-          { transform: [{ translateX: pan.x }, { translateY: pan.y }] }
+          { transform: [{ translateX: pan.x }, { translateY: pan.y }] },
         ]}>
         {children}
       </Animated.View>
@@ -87,18 +87,25 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: getTheme().background,
-  },
-  card: {
-    width: "95%",
-    marginBottom: 15,
-    alignSelf: "center",
-    backgroundColor: getTheme().backgroundShade,
+    backgroundColor: getColors().background["default"],
   },
   container: {
     flex: 1,
     padding: 10,
     alignItems: "center",
-    backgroundColor: getTheme().background,
+    backgroundColor: getColors().background["default"],
   },
+  card: {
+    width: "95%",
+    overflow: "hidden",
+    alignSelf: "center",
+    marginBottom: 15,
+    borderWidth: 2,
+    borderRadius: 20,
+    borderColor: getColors().background["800"],
+    backgroundColor: getColors().background["default"],
+    // TODO: also make this work for ios also
+    shadowColor: "rgba(99, 99, 99, 0.2)",
+    elevation: 20
+  }
 });

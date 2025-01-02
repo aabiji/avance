@@ -1,5 +1,5 @@
 import { Text, TextStyle, StyleProp } from "react-native";
-import { fontSize, getTheme } from "./theme";
+import { fontSize, getColors } from "./theme";
 
 interface TextProps {
   text: any;
@@ -14,7 +14,7 @@ export function ThemedText({ style, text, bold, dimmed, header }: TextProps) {
     <Text
       style={[
         {
-          color: dimmed ? getTheme().textShade : getTheme().text,
+          color: dimmed ? getColors().text["800"] : getColors().text["default"],
           fontWeight: bold || header ? "bold" : "normal",
           fontSize: header ? fontSize.big : fontSize.normal,
         },

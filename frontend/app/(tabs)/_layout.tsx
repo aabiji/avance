@@ -1,5 +1,5 @@
 import { Tabs } from "expo-router";
-import getTheme from "@/components/theme";
+import getColors from "@/components/theme";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
@@ -15,14 +15,14 @@ export default function BottomNavbar() {
             exercise: "barbell-outline",
           };
           const name = iconNames[route.name] as IoniconsName;
-          const c = focused ? getTheme().accent : getTheme().textShade;
+          const c = focused ? getColors().primary["500"] : getColors().primary["900"];
           return <Ionicons name={name} size={size} color={c} />;
         },
         tabBarShowLabel: false,
         tabBarStyle: {
           marginBottom: -10,
-          backgroundColor: getTheme().tabBar,
-          borderColor: getTheme().tabBar,
+          backgroundColor: getColors().background["default"],
+          borderColor: getColors().background["default"],
         },
       })}
     >

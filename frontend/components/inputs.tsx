@@ -2,7 +2,7 @@ import { StyleSheet, StyleProp, TextInput, TextStyle } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import { Container } from "@/components/containers";
 import { ThemedText } from "@/components/text";
-import getTheme from "./theme";
+import getColors from "./theme";
 
 interface NumericInputProps {
   value?: string;
@@ -35,7 +35,7 @@ export function NumericInput({
           maxLength={10}
           defaultValue={value}
           placeholder="0"
-          placeholderTextColor={getTheme().textShade}
+          placeholderTextColor={getColors().text["800"]}
           style={[styles.input, style]}
           onChange={(event) => set(event.nativeEvent.text)}
           keyboardType="numeric"
@@ -61,7 +61,7 @@ export function Input({ setData, placeholder }: InputProps) {
   return (
     <TextInput
       placeholder={placeholder}
-      placeholderTextColor={getTheme().textShade}
+      placeholderTextColor={getColors().text["800"]}
       style={[styles.input, { width: "100%" }]}
       onChange={(event) => setData(event.nativeEvent.text)}
     />
@@ -70,13 +70,12 @@ export function Input({ setData, placeholder }: InputProps) {
 
 const styles = StyleSheet.create({
   input: {
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    backgroundColor: getTheme().background,
-    borderColor: getTheme().textShade,
-    color: getTheme().text,
-    borderStyle: "solid",
-    borderWidth: 1,
     marginBottom: 10,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
+    color: getColors().text["default"],
+    backgroundColor: getColors().background["default"],
+    borderBottomColor: getColors().primary["default"],
+    borderBottomWidth: 2,
   },
 });

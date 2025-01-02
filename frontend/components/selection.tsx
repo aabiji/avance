@@ -1,6 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Dispatch, SetStateAction } from "react";
-import getTheme from "./theme";
+import getColors from "./theme";
 
 interface SelectionProps {
   options: string[];
@@ -13,11 +13,7 @@ export default function Selection({
   selection,
   setSelection,
 }: SelectionProps) {
-  const [transparent, bg, color] = [
-    "#ffffff00",
-    getTheme().background,
-    getTheme().primary,
-  ];
+  const [bg, color] = [getColors().background["default"], getColors().primary["default"]];
   return (
     <View style={styles.container}>
       {options.map((option, index) => (
@@ -26,14 +22,11 @@ export default function Selection({
           onPressIn={() => setSelection(index)}
           style={[
             styles.button,
-            {
-              borderColor: index == selection ? transparent : color,
-              backgroundColor: index == selection ? color : transparent,
-            },
+            { backgroundColor: index == selection ? color : bg },
           ]}
         >
           <Text
-            style={[styles.text, { color: index == selection ? bg : color }]}
+            style={{ color: index == selection ? bg : color, textAlign: "center" }}
           >
             {option}
           </Text>
@@ -48,16 +41,14 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     marginBottom: 25,
+    overflow: "hidden",
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: getColors().primary["default"]
   },
   button: {
+    flex: 1,
     paddingHorizontal: 15,
     paddingVertical: 8,
-    borderWidth: 2,
-    borderRightWidth: 1,
-    flex: 1, // Fill remaining horizantal space
-  },
-  text: {
-    color: getTheme().accent,
-    textAlign: "center",
-  },
+  }
 });

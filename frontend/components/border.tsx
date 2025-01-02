@@ -2,25 +2,6 @@ import { ReactNode, useState } from "react";
 import { LayoutChangeEvent, View } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 
-export function GradientSeparator(
-  { colors, percentage }: { colors: string[], percentage: number }
-) {
-  return (
-    <LinearGradient
-      colors={colors}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 0 }}
-      style={{
-        height: 5,
-        borderRadius: 5,
-        marginVertical: 10,
-        alignSelf: "flex-start",
-        width: `${percentage * 100}%`
-      }}
-    />
-  );
-}
-
 interface ProgressBorderProps {
   children: ReactNode;
   percentage: number;
