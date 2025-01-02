@@ -91,28 +91,28 @@ export default function HomeScreen() {
   }, [view]);
 
   return (
-    <Container>
-      <View style={{ height: "2%" }}></View>
-      <Container row>
-        <NumericInput
-          value={`${weight}`}
-          setValue={setWeight}
-          prefix={""}
-          suffix={"lbs"}
-          style={{
-            fontWeight: "bold",
-            fontSize: fontSize.big,
-            color: getColors().text["default"],
-          }}
+    <Container style={{ flexDirection: "column" }}>
+      <View style={{ alignItems: "center", justifyContent: "center", height: "40%" }}>
+        <Container row>
+          <NumericInput
+            value={`${weight}`}
+            setValue={setWeight}
+            prefix={""}
+            suffix={"lbs"}
+            style={{
+              fontWeight: "bold",
+              fontSize: fontSize.big,
+              color: getColors().text["100"],
+            }}
+          />
+        </Container>
+        <Selection
+          options={enumToString(GraphView)}
+          selection={view}
+          setSelection={setView}
+          style={{ marginTop: "10%" }}
         />
-      </Container>
-      <View style={{ height: "2%" }}></View>
-      <Selection
-        options={enumToString(GraphView)}
-        selection={view}
-        setSelection={setView}
-      />
-      <View style={{ height: "2%" }}></View>
+      </View>
       <Graph data={graphData} showEverything={view != GraphView.Daily} />
     </Container>
   );

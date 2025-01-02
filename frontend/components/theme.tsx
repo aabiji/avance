@@ -6,72 +6,53 @@ export const fontSize = {
   big: 24,
 };
 
+// The shades of the colors are defined from lightest to darkest
 const colors = {
-  text: {
-    default: "#04080f",
-    100: "#010203",
-    200: "#020306",
-    300: "#03050a",
-    400: "#03070d",
-    500: "#04080f",
-    600: "#19325d",
-    700: "#2d5bab",
-    800: "#648ed6",
-    900: "#b2c6ea"
+  light: {
+    text: {
+      100: "#0A0A0A",
+      200: "#666666",
+      300: "#b8b8b8",
+    },
+    background: {
+      100: "#b8b8b8",
+      200: "#ebebeb",
+      300: "#ffffff",
+    },
+    primary: {
+      100: "#4E9AD0",
+      200: "#3E92CC",
+      300: "#3386C1",
+      400: "#7EB5DD",
+    },
+    red: "#ed1c24",
+    green: "#03C959",
   },
-  background: {
-    default: "#ffffff",
-    100: "#a3a3a3",
-    200: "#adadad",
-    300: "#b8b8b8",
-    400: "#c2c2c2",
-    500: "#cccccc",
-    600: "#d6d6d6",
-    700: "#e0e0e0",
-    800: "#ebebeb",
-    900: "#f5f5f5"
+  dark: {
+    text: {
+      100: "#0A0A0A",
+      200: "#666666",
+      300: "#b8b8b8",
+    },
+    background: {
+      100: "#b8b8b8",
+      200: "#ebebeb",
+      300: "#ffffff",
+    },
+    primary: {
+      100: "#4E9AD0",
+      200: "#3E92CC",
+      300: "#3386C1",
+      400: "#7EB5DD",
+    },
+    red: "#ed1c24",
+    green: "#03C959",
   },
-  green: {
-    default: "#04f06a",
-    100: "#013015",
-    200: "#01602b",
-    300: "#029140",
-    400: "#03c155",
-    500: "#04f06a",
-    600: "#2efc87",
-    700: "#62fda5",
-    800: "#97fdc3",
-    900: "#cbfee1"
-  },
-  primary: {
-    default: "#2b42f3",
-    100: "#030936",
-    200: "#06126c",
-    300: "#091ba2",
-    400: "#0d24d8",
-    500: "#2b42f3",
-    600: "#5568f5",
-    700: "#808ef8",
-    800: "#aab3fa",
-    900: "#d5d9fd"
-  },
-  red: {
-    default: "#ed1c24",
-    100: "#310405",
-    200: "#62080b",
-    300: "#930c10",
-    400: "#c41016",
-    500: "#ed1c24",
-    600: "#f04a4f",
-    700: "#f4777b",
-    800: "#f8a4a7",
-    900: "#fbd2d3"
-  }
 };
 
 export const getColors = () => {
-  const _variant = Appearance.getColorScheme() ?? "light";
-  return colors; // TODO: also support dark theme
+  const variant = Appearance.getColorScheme() ?? "light";
+  return colors[variant]; // TODO: also implement proper dark theme
 };
 
 export default getColors;

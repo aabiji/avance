@@ -14,7 +14,7 @@ export function ThemedText({ style, text, bold, dimmed, header }: TextProps) {
     <Text
       style={[
         {
-          color: dimmed ? getColors().text["800"] : getColors().text["default"],
+          color: dimmed ? getColors().text["200"] : getColors().text["100"],
           fontWeight: bold || header ? "bold" : "normal",
           fontSize: header ? fontSize.big : fontSize.normal,
         },

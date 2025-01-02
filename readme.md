@@ -9,8 +9,6 @@
 - Deployment: Docker, Azure (see if we can get a free cloud instance)
 - TODO: make an architecture diagram when the app is finished
 
-TODO: look into Bento Boxes as a design style
-TODO: complete ui overhaul -- ACTUALLY make the UI look nice and modern
 TODO: create a new exercise
 TODO: plan how we'll implement the Graph component
 TODO: play with the USDA api

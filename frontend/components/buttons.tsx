@@ -16,7 +16,7 @@ export const Button = forwardRef(
         style={({ pressed }) => [
           styles.button,
           {
-            backgroundColor: pressed ? getColors().primary["400"] : getColors().primary["500"],
+            backgroundColor: pressed ? getColors().primary["100"] : getColors().primary["200"],
           },
         ]}
       >
@@ -32,15 +32,19 @@ interface ClickableIconProps {
   onPress?: () => void,
   transparent?: boolean;
   style?: StyleProp<ViewStyle>;
+  dimmed?: boolean;
 }
 
 export const ClickableIcon = forwardRef(
-  ({ name, onPress, transparent, style }: ClickableIconProps, ref: ForwardedRef<any>,
+  ({ name, onPress, transparent, style, dimmed }: ClickableIconProps,
+    ref: ForwardedRef<any>
   ) => {
-    const color = transparent ? getColors().primary["default"] : getColors().background["default"];
+    let color = transparent ? getColors().primary["200"] : getColors().background["300"];
+    if (dimmed) color = getColors().primary["400"];
+
     const size = transparent ? 35 : 25;
-    const base = transparent ? "#00000000" : getColors().primary["500"];
-    const hover = transparent ? `${getColors().primary["400"]}10` : getColors().primary["400"];
+    const base = transparent ? "#00000000" : getColors().primary["200"];
+    const hover = transparent ? `${getColors().primary["100"]}10` : getColors().primary["100"];
     return (
       <Pressable
         ref={ref}
@@ -71,7 +75,7 @@ const styles = StyleSheet.create({
     alignContent: "center",
   },
   text: {
-    color: getColors().background["default"],
+    color: getColors().background["300"],
     textAlign: "center",
   },
 });

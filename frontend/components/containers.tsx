@@ -87,13 +87,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: getColors().background["default"],
+    backgroundColor: getColors().background["300"],
   },
   container: {
     flex: 1,
     padding: 10,
     alignItems: "center",
-    backgroundColor: getColors().background["default"],
+    backgroundColor: getColors().background["300"],
   },
   card: {
     width: "95%",
@@ -102,8 +102,8 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     borderWidth: 2,
     borderRadius: 20,
-    borderColor: getColors().background["800"],
-    backgroundColor: getColors().background["default"],
+    borderColor: getColors().background["200"],
+    backgroundColor: getColors().background["300"],
     // TODO: also make this work for ios also
     shadowColor: "rgba(99, 99, 99, 0.2)",
     elevation: 20

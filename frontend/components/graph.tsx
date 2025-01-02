@@ -11,10 +11,10 @@ function PointerLabel(
   const item = items[0];
   return (
     <View style={[styles.label, { width: 80 }]}>
-      <Text style={[styles.labelText, { color: getColors().background["default"] }]}>
+      <Text style={[styles.labelText, { color: getColors().background["300"] }]}>
         {item.label}
       </Text>
-      <Text style={[styles.labelText, { color: getColors().background["default"] }]}>
+      <Text style={[styles.labelText, { color: getColors().background["300"] }]}>
         {item.value}
       </Text>
     </View>
@@ -57,17 +57,17 @@ export default function Graph({
         endSpacing={0}
         initialSpacing={0}
         adjustToWidth={showEverything ?? false}
-        yAxisColor={getColors().background["300"]}
-        xAxisColor={getColors().background["300"]}
-        dataPointsColor={getColors().primary["default"]}
-        backgroundColor={getColors().background["default"]}
-        color={getColors().primary["default"]}
+        yAxisColor={getColors().background["100"]}
+        xAxisColor={getColors().background["100"]}
+        dataPointsColor={getColors().primary["200"]}
+        backgroundColor={getColors().background["300"]}
+        color={getColors().primary["200"]}
         yAxisTextStyle={[styles.labelText]}
         xAxisLabelTextStyle={[styles.labelText, { width: 200 }]}
         pointerConfig={{
           activatePointersOnLongPress: true,
           pointerLabelComponent: PointerLabel,
-          pointerColor: getColors().primary["default"],
+          pointerColor: getColors().primary["200"],
         }}
       />
     </View>
@@ -78,11 +78,11 @@ const styles = StyleSheet.create({
   label: {
     padding: 5,
     alignSelf: "center",
-    backgroundColor: getColors().primary["600"],
+    backgroundColor: getColors().primary["300"],
   },
   labelText: {
     fontSize: fontSize.small,
     alignSelf: "center",
-    color: getColors().text["default"]
+    color: getColors().text["100"]
   },
 });

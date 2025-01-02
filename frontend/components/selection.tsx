@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import getColors from "./theme";
 
@@ -6,16 +6,18 @@ interface SelectionProps {
   options: string[];
   selection: number;
   setSelection: Dispatch<SetStateAction<number>>;
+  style?: StyleProp<ViewStyle>;
 }
 
 export default function Selection({
   options,
   selection,
   setSelection,
+  style
 }: SelectionProps) {
-  const [bg, color] = [getColors().background["default"], getColors().primary["default"]];
+  const [bg, color] = [getColors().background["300"], getColors().primary["200"]];
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, style]}>
       {options.map((option, index) => (
         <Pressable
           key={index}
@@ -44,7 +46,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderRadius: 20,
     borderWidth: 2,
-    borderColor: getColors().primary["default"]
+    borderColor: getColors().primary["200"]
   },
   button: {
     flex: 1,

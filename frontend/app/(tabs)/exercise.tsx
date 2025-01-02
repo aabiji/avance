@@ -32,12 +32,14 @@ function Exercise({ info }: { info: Exercise }) {
           hiit
             ? <ClickableIcon
               transparent
+              dimmed
               name="play"
               style={{ marginLeft: -20 }}
               onPress={() => console.log("done!")}
             />
             : <ClickableIcon
               transparent
+              dimmed
               name="checkmark"
               style={{ marginLeft: -20 }}
               onPress={() => console.log("done!")}
@@ -57,7 +59,7 @@ function Exercise({ info }: { info: Exercise }) {
         <ClickableIcon
           name="pencil"
           style={{
-            backgroundColor: getColors().green["default"],
+            backgroundColor: getColors().green,
             borderRadius: 0, width: "110%", height: "50%"
           }}
           onPress={() => console.log("editing!")}
@@ -65,7 +67,7 @@ function Exercise({ info }: { info: Exercise }) {
         <ClickableIcon
           name="trash-bin"
           style={{
-            backgroundColor: getColors().red["default"],
+            backgroundColor: getColors().red,
             borderRadius: 0, width: "110%", height: "50%"
           }}
           onPress={() => console.log("deleting!")}

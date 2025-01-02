@@ -15,14 +15,14 @@ export default function BottomNavbar() {
             exercise: "barbell-outline",
           };
           const name = iconNames[route.name] as IoniconsName;
-          const c = focused ? getColors().primary["500"] : getColors().primary["900"];
+          const c = focused ? getColors().primary["200"] : getColors().text["300"];
           return <Ionicons name={name} size={size} color={c} />;
         },
         tabBarShowLabel: false,
         tabBarStyle: {
           marginBottom: -10,
-          backgroundColor: getColors().background["default"],
-          borderColor: getColors().background["default"],
+          backgroundColor: getColors().background["300"],
+          borderColor: getColors().background["300"],
         },
       })}
     >

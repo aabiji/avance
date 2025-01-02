@@ -35,7 +35,7 @@ export function NumericInput({
           maxLength={10}
           defaultValue={value}
           placeholder="0"
-          placeholderTextColor={getColors().text["800"]}
+          placeholderTextColor={getColors().text["300"]}
           style={[styles.input, style]}
           onChange={(event) => set(event.nativeEvent.text)}
           keyboardType="numeric"
@@ -61,7 +61,7 @@ export function Input({ setData, placeholder }: InputProps) {
   return (
     <TextInput
       placeholder={placeholder}
-      placeholderTextColor={getColors().text["800"]}
+      placeholderTextColor={getColors().text["300"]}
       style={[styles.input, { width: "100%" }]}
       onChange={(event) => setData(event.nativeEvent.text)}
     />
@@ -73,9 +73,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingVertical: 5,
     paddingHorizontal: 15,
-    color: getColors().text["default"],
-    backgroundColor: getColors().background["default"],
-    borderBottomColor: getColors().primary["default"],
+    color: getColors().text["100"],
+    backgroundColor: getColors().background["300"],
+    borderBottomColor: getColors().primary["200"],
     borderBottomWidth: 2,
   },
 });

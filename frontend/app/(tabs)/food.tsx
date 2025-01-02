@@ -20,7 +20,7 @@ function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) 
     <SwipeableCard maxXOffset={-50} style={{ height: 100 }}>
       <Container row style={{
         width: "100%", height: "100%", paddingHorizontal: 20,
-        backgroundColor: getColors().background["default"],
+        backgroundColor: getColors().background["300"],
       }}>
         <ThemedText text={food.servings} />
         <ThemedText bold text={food.name} />
@@ -29,7 +29,7 @@ function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) 
       <View>
         <ClickableIcon
           style={{
-            backgroundColor: getColors().red["default"],
+            backgroundColor: getColors().red,
             height: "100%", borderRadius: 0, width: "110%"
           }}
           name={"trash-bin"}
