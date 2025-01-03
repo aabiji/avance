@@ -1,10 +1,10 @@
-// NOTE: This is just a mock backend for now
 import express from "express";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// NOTE: these values are hardcoded for now!
 const weightData: Record<string, number> = {
   "2024-12-11": 142.2,
   "2024-12-12": 140.9,
@@ -24,6 +24,11 @@ const weightData: Record<string, number> = {
   "2024-12-27": 141.5,
   "2024-12-28": 140.4,
   "2024-12-29": 141.3,
+  "2024-12-30": 140.4,
+  "2024-12-31": 140.4,
+  "2025-01-01": 142.0,
+  "2025-01-02": 140.7,
+  "2025-01-03": 140.3,
 };
 
 const foodData = [
@@ -35,8 +40,15 @@ const foodData = [
   { servings: 4, name: "Food item 6", calories: 50 },
 ];
 
-app.get("/get_user_data", (_request, response) => {
-  response.json({ weightData: weightData, foodLog: foodData });
+const exercises = [
+  { name: "Push ups", sets: 3, reps: 20, weight: 10 },
+  { name: "Jump rope", workDuration: 40, restDuration: 20, rounds: 15 },
+  { name: "Pull ups", sets: 2, reps: 15, weight: 0 },
+  { name: "Squats", sets: 5, reps: 50, weight: 20 },
+];
+
+app.get("/user_data", (_request, response) => {
+  response.json({ weightEntries: weightData, foodLog: foodData, exercises: exercises });
 });
 
 app.listen(8080, () => console.log("Backend listening on port 8080"));

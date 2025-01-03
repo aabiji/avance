@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
+import { MMKVLoader, useMMKVStorage } from "react-native-mmkv-storage";
 
 import { View } from "react-native";
 import { lineDataItem } from "react-native-gifted-charts";
 
-import { fontSize, getColors } from "@/components/theme";
 import { Container } from "@/components/containers";
+import Graph from "@/components/graph";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
-import Graph from "@/components/graph";
+import { ThemedText } from "@/components/text";
+import { fontSize, getColors } from "@/components/theme";
 
 import { today, formatDate, groupDatesByWeek } from "@/lib/date";
 import request from "@/lib/http";
@@ -37,6 +39,13 @@ function weeklyWeights(entries: WeightEntries): WeightEntries {
   return newEntries;
 }
 
+// Get the last recorded weight
+function getLastWeight(entries: WeightEntries): number {
+  const days = Object.keys(entries);
+  const last = days[days.length - 1];
+  return entries[last];
+}
+
 // Map our data into the data format the graph expects
 function prepareData(entries: WeightEntries): lineDataItem[] {
   let graphData = [];
@@ -46,49 +55,66 @@ function prepareData(entries: WeightEntries): lineDataItem[] {
   return graphData;
 }
 
-// Get the last recorded weight
-function getLastWeight(entries: WeightEntries): number {
-  const days = Object.keys(entries);
-  const last = days[days.length - 1];
-  return entries[last];
-}
+const storage = new MMKVLoader().withEncryption().initialize();
 
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0);
-  const [entries, setEntries] = useState<WeightEntries>({});
   const [graphData, setGraphData] = useState<lineDataItem[]>([]);
 
-  // Load the weight data
-  const init = (data: WeightEntries) => {
-    setEntries(data);
-    setGraphData(prepareData(data));
-    setWeight(getLastWeight(data));
-  };
+  const [weightEntries, setWeightEntries] = useMMKVStorage("weightEntries", storage, {});
+  const [_foodLog, setFoodLog] = useMMKVStorage("foodLog", storage, []);
+  const [_exercises, setExercises] = useMMKVStorage("exercises", storage, []);
 
+  const [loaded, setLoaded] = useState(false);
+
+  // Update the user data that's stored locally
   useEffect(() => {
     request({
-      method: "GET",
-      endpoint: "/get_user_data",
-      onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: (response: object) => init(response["weightData"] as WeightEntries),
+      method: "GET", endpoint: "/user_data",
+
+      // Don't do anything when we error trying to call the api.
+      // For example, in the event that the user is disconnected from the
+      // internet, the app will just fallback on the data stored locally.
+      onError: (_msg: unknown) => { },
+
+      handler: (response: object) => {
+        // Put the user data in the local storage
+        setWeightEntries(response["weightEntries"]);
+        setFoodLog(response["foodLog"]);
+        setExercises(response["exercises"]);
+
+        // Set the data for this component
+        setGraphData(prepareData(weightEntries));
+        setWeight(getLastWeight(weightEntries));
+
+        setLoaded(true);
+      }
     });
   }, []);
 
   // Update the graph rendering when the inputted weight value changes
   useEffect(() => {
-    let copy = { ...entries };
+    let copy = { ...weightEntries };
     copy[today()] = Number(weight);
-    setEntries(copy);
+    setWeightEntries(copy);
     setGraphData(prepareData(copy));
   }, [weight]);
 
   // Change the graph's data points based
   // on the way we choose to view the graph
   useEffect(() => {
-    const data = view == GraphView.Weekly ? weeklyWeights(entries) : entries;
+    const data = view == GraphView.Weekly ? weeklyWeights(weightEntries) : weightEntries;
     setGraphData(prepareData(data));
   }, [view]);
+
+  if (!loaded) {
+    return (
+      <Container>
+        <ThemedText text={"Loading..."} />
+      </Container>
+    )
+  }
 
   return (
     <Container style={{ flexDirection: "column" }}>
