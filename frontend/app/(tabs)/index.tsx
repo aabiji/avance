@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { MMKVLoader, useMMKVStorage } from "react-native-mmkv-storage";
 
 import { View } from "react-native";
 import { lineDataItem } from "react-native-gifted-charts";
@@ -13,6 +12,7 @@ import { fontSize, getColors } from "@/components/theme";
 
 import { today, formatDate, groupDatesByWeek } from "@/lib/date";
 import request from "@/lib/http";
+import useStorage from "@/lib/storage";
 
 enum GraphView { Daily, Weekly, Full }
 const enumToString = <T extends object>(enumType: T) =>
@@ -55,20 +55,21 @@ function prepareData(entries: WeightEntries): lineDataItem[] {
   return graphData;
 }
 
-const storage = new MMKVLoader().withEncryption().initialize();
-
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0);
   const [graphData, setGraphData] = useState<lineDataItem[]>([]);
 
-  const [weightEntries, setWeightEntries] = useMMKVStorage("weightEntries", storage, {});
-  const [_foodLog, setFoodLog] = useMMKVStorage("foodLog", storage, []);
-  const [_exercises, setExercises] = useMMKVStorage("exercises", storage, []);
+  const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
+  const [_foodLog, setFoodLog] = useStorage("foodLog", []);
+  const [_exercises, setExercises] = useStorage("exercises", []);
 
   const [loaded, setLoaded] = useState(false);
 
   // Update the user data that's stored locally
+  // TODO: Ideally, this should be done in the splash screen
+  // TODO: call the update_user_data when the app is out of focus
+  //       if our previous http request failed
   useEffect(() => {
     request({
       method: "GET", endpoint: "/user_data",

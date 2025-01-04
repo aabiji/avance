@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+
 import { FlatList, View } from "react-native";
 import { Link } from "expo-router";
 
@@ -7,7 +8,7 @@ import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
-import request from "@/lib/http";
+import useStorage from "@/lib/storage";
 
 interface Food {
   name: string;
@@ -41,22 +42,13 @@ function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) 
 }
 
 export default function FoodTracker() {
-  const [foods, setFoods] = useState<Food[]>([]);
+  const [foods, setFoods] = useStorage("foodLog", []);
   const [calorieTotal, setCalorieTotal] = useState<number>(0);
   const max = 1500;
 
   useEffect(() => {
-    request({
-      method: "GET",
-      endpoint: "/get_user_data",
-      onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: (response: object) => {
-        const data = response["foodLog"];
-        const total = data.reduce((a: number, b: Food) => a + b.calories * b.servings, 0);
-        setFoods(data);
-        setCalorieTotal(total);
-      }
-    })
+    const sum = foods.reduce((a: number, b: Food) => a + b.calories * b.servings, 0);
+    setCalorieTotal(sum);
   }, []);
 
   const removeFood = (index: number) => {

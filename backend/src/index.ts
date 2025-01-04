@@ -51,4 +51,9 @@ app.get("/user_data", (_request, response) => {
   response.json({ weightEntries: weightData, foodLog: foodData, exercises: exercises });
 });
 
+app.post("/create_exercise", (request, response) => {
+  console.log(request.body);
+  response.json({ success: true });
+});
+
 app.listen(8080, () => console.log("Backend listening on port 8080"));

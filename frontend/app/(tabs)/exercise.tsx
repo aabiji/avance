@@ -6,23 +6,25 @@ import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
-interface HIITExercise {
+import useStorage from "@/lib/storage";
+
+export interface HIITExercise {
   name: string;
   workDuration: number,
   restDuration: number,
   rounds: number,
 }
 
-interface StrengthExercise {
+export interface StrengthExercise {
   name: string;
   reps: number;
   sets: number;
   weight: number;
 }
 
-type Exercise = HIITExercise | StrengthExercise;
+export type Exercise = HIITExercise | StrengthExercise;
 
-function Exercise({ info }: { info: Exercise }) {
+function ExerciseCard({ info, removeSelf }: { info: Exercise, removeSelf: () => void }) {
   const hiit = (info as HIITExercise).rounds !== undefined;
 
   return (
@@ -70,20 +72,20 @@ function Exercise({ info }: { info: Exercise }) {
             backgroundColor: getColors().red,
             borderRadius: 0, width: "110%", height: "50%"
           }}
-          onPress={() => console.log("deleting!")}
+          onPress={removeSelf}
         />
       </View>
     </SwipeableCard>
   );
 }
 
-export default function Exercises() {
-  const exercises: Exercise[] = [
-    { name: "Push ups", sets: 3, reps: 20, weight: 10 },
-    { name: "Jump rope", workDuration: 40, restDuration: 20, rounds: 15 },
-    { name: "Pull ups", sets: 2, reps: 15, weight: 0 },
-    { name: "Squats", sets: 5, reps: 50, weight: 20 },
-  ];
+export default function ExerciseScreen() {
+  const [exercises, setExercises] = useStorage("exercises", []);
+  const removeExercise = (index: number) => {
+    const copy = [...exercises];
+    copy.splice(index, 1);
+    setExercises(copy);
+  };
 
   return (
     <Container>
@@ -96,7 +98,9 @@ export default function Exercises() {
 
       <FlatList
         data={exercises}
-        renderItem={({ item }) => <Exercise info={item} />}
+        renderItem={({ item, index }) =>
+          <ExerciseCard info={item} removeSelf={() => removeExercise(index)} />
+        }
         style={{ width: "100%" }}
         contentContainerStyle={{ marginHorizontal: -10, paddingHorizontal: 5 }}
       />
