@@ -13,3 +13,8 @@ Tech stack:
 - Database using Postgresql
 - Authentication using magic links and JWTs
 - Deployment using Docker and Azure
+
+TODO
+- Make the exercise card functional
+- Call the usda api to search for foods in the backend
+- Start implementing the addFood screen

@@ -7,11 +7,9 @@ import { Container } from "@/components/containers";
 import Graph from "@/components/graph";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
-import { ThemedText } from "@/components/text";
 import { fontSize, getColors } from "@/components/theme";
 
 import { today, formatDate, groupDatesByWeek } from "@/lib/date";
-import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 enum GraphView { Daily, Weekly, Full }
@@ -59,39 +57,12 @@ export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0);
   const [graphData, setGraphData] = useState<lineDataItem[]>([]);
-
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
-  const [_foodLog, setFoodLog] = useStorage("foodLog", []);
-  const [_exercises, setExercises] = useStorage("exercises", []);
 
-  const [loaded, setLoaded] = useState(false);
-
-  // Update the user data that's stored locally
-  // TODO: Ideally, this should be done in the splash screen
-  // TODO: call the update_user_data when the app is out of focus
-  //       if our previous http request failed
+  // Update the graph data when the component loads
   useEffect(() => {
-    request({
-      method: "GET", endpoint: "/user_data",
-
-      // Don't do anything when we error trying to call the api.
-      // For example, in the event that the user is disconnected from the
-      // internet, the app will just fallback on the data stored locally.
-      onError: (_msg: unknown) => { },
-
-      handler: (response: object) => {
-        // Put the user data in the local storage
-        setWeightEntries(response["weightEntries"]);
-        setFoodLog(response["foodLog"]);
-        setExercises(response["exercises"]);
-
-        // Set the data for this component
-        setGraphData(prepareData(weightEntries));
-        setWeight(getLastWeight(weightEntries));
-
-        setLoaded(true);
-      }
-    });
+    setGraphData(prepareData(weightEntries));
+    setWeight(getLastWeight(weightEntries));
   }, []);
 
   // Update the graph rendering when the inputted weight value changes
@@ -108,14 +79,6 @@ export default function HomeScreen() {
     const data = view == GraphView.Weekly ? weeklyWeights(weightEntries) : weightEntries;
     setGraphData(prepareData(data));
   }, [view]);
-
-  if (!loaded) {
-    return (
-      <Container>
-        <ThemedText text={"Loading..."} />
-      </Container>
-    )
-  }
 
   return (
     <Container style={{ flexDirection: "column" }}>
