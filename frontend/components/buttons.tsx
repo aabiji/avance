@@ -33,16 +33,17 @@ interface ClickableIconProps {
   transparent?: boolean;
   style?: StyleProp<ViewStyle>;
   dimmed?: boolean;
+  size?: number;
 }
 
 export const ClickableIcon = forwardRef(
-  ({ name, onPress, transparent, style, dimmed }: ClickableIconProps,
+  ({ name, onPress, transparent, style, dimmed, size }: ClickableIconProps,
     ref: ForwardedRef<any>
   ) => {
     let color = transparent ? getColors().primary["200"] : getColors().background["300"];
     if (dimmed) color = getColors().primary["400"];
 
-    const size = transparent ? 35 : 25;
+    const baseSize = transparent ? 35 : 25;
     const base = transparent ? "#00000000" : getColors().primary["200"];
     const hover = transparent ? `${getColors().primary["100"]}10` : getColors().primary["100"];
     return (
@@ -55,7 +56,7 @@ export const ClickableIcon = forwardRef(
           style
         ]}
       >
-        <Ionicons name={name} color={color} size={size} />
+        <Ionicons name={name} color={color} size={size ?? baseSize} />
       </Pressable>
     );
   },

@@ -1,19 +1,16 @@
 import { Link } from "expo-router";
-import { FlatList, Pressable, View } from "react-native";
-import { useState } from "react";
+import { FlatList, View } from "react-native";
+import { useEffect, useState } from "react";
 
 import { Container, SwipeableCard } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
-import { ProgressBorder } from "@/components/border";
 import getColors from "@/components/theme";
 
 import useStorage from "@/lib/storage";
 
-// TODO: actually --- what if we just didn't have a progress border and redesigned the exercise cards
-//       instead of having buttons and stuff we can just highlight the current set or things like that
-// TODO: for strength exercises, we should update the number of sets when clicking on the card
-//       center the text
+// TODO: manage font sizes better (the same way we handle color shades)
+// TODO: not happy with the design of the exercise cards. What's a better layout???
 
 export interface HIITExercise {
   name: string;
@@ -35,18 +32,10 @@ function CardOptions({ remove, edit }: { remove: () => void, edit: () => void })
   return (
     <View style={{ height: "100%" }}>
       <ClickableIcon
-        name="reload"
-        style={{
-          backgroundColor: getColors().primary["100"],
-          borderRadius: 0, width: "110%", height: "33%"
-        }}
-        onPress={edit}
-      />
-      <ClickableIcon
         name="pencil"
         style={{
           backgroundColor: getColors().green,
-          borderRadius: 0, width: "110%", height: "33%"
+          borderRadius: 0, width: "110%", height: "50%"
         }}
         onPress={edit}
       />
@@ -54,7 +43,7 @@ function CardOptions({ remove, edit }: { remove: () => void, edit: () => void })
         name="trash-bin"
         style={{
           backgroundColor: getColors().red,
-          borderRadius: 0, width: "110%", height: "34%"
+          borderRadius: 0, width: "110%", height: "50%"
         }}
         onPress={remove}
       />
@@ -62,79 +51,106 @@ function CardOptions({ remove, edit }: { remove: () => void, edit: () => void })
   );
 }
 
-function HIITCard({ info, removeSelf }: { info: Exercise, removeSelf: () => void }) {
-  const colors = [getColors().green, getColors().red];
+// TODO: output sound effects when toggling the session
+// TODO: refactor the jsx
+// TODO: how should we persist this temporary data??? (should we put it in local storage???)
+// TODO: comment code
+function HIITCard({ info, removeSelf }: { info: HIITExercise, removeSelf: () => void }) {
   const [icon, setIcon] = useState("play");
+  const [seconds, setSeconds] = useState(info.workDuration);
+  const [rounds, setRounds] = useState(info.rounds);
+  const [working, setWorking] = useState(true);
+  const [done, setDone] = useState(false);
 
   const edit = () => console.log("editing!");
-
   const toggleTimer = () => {
-    const paused = icon == "play";
-    setIcon(paused ? "pause" : "play");
+    setIcon(icon == "play" || done ? "pause" : "play");
+    setDone(false);
+  }
+
+  const toggleSession = () => {
+    if (working) {
+      setSeconds(info.restDuration);
+      setWorking(false);
+    } else {
+      setSeconds(info.workDuration);
+      setWorking(true);
+      setRounds(rounds - 1);
+
+      const done = rounds - 1 == 0;
+      if (done) {
+        setIcon("reload");
+        setDone(true);
+        setRounds(info.rounds);
+      }
+    }
   };
 
-  // NOTE: setting the key prop forces the component to rerender when reps changes
+  useEffect(() => {
+    if (icon == "play" || done) return;
+    const interval = setInterval(() => {
+      setSeconds(seconds - 1);
+      if (seconds == 0) toggleSession();
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [icon, seconds]);
 
   return (
-    <ProgressBorder percentage={0.0} colors={colors}>
-      <SwipeableCard maxXOffset={-50} style={{ height: 100, borderRadius: 0 }}>
-        <Container row style={{ width: "100%", height: "100%", paddingHorizontal: 20 }}>
-          <ClickableIcon
-            transparent
-            dimmed
-            name={icon}
-            style={{ marginLeft: -10 }}
-            onPress={toggleTimer}
-          />
+    <SwipeableCard maxXOffset={-50} style={{ marginBottom: 20, height: 125, borderRadius: 0 }}>
 
-          <ThemedText bold text={info.name} />
+      <Container row style={{ width: "100%" }}>
+        <Container style={{ height: "100%", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <ThemedText text={info.name} bold style={{ fontSize: 16 }} />
 
-          <View>
-            <ThemedText dimmed text={`${info.workDuration}s work`} />
-            <ThemedText dimmed text={`${info.restDuration}s rest`} />
-            <ThemedText dimmed text={`${info.rounds} rounds`} />
-          </View>
+          <Container row>
+            <ThemedText bold text={`${seconds} `} style={{ color: getColors().green }} />
+            <ThemedText text={`s ${working ? "work" : "rest"}`} />
+          </Container>
+
+          <Container row style={{ width: "50%" }}>
+            <ThemedText dimmed text={`${working ? info.restDuration : info.workDuration} s ${working ? "rest" : "work"}`} style={{ fontSize: 13 }} />
+            <ThemedText dimmed text={`x${rounds}`} style={{ fontSize: 13, color: getColors().green }} />
+          </Container>
         </Container>
 
-        <CardOptions remove={removeSelf} edit={edit} />
-      </SwipeableCard>
-    </ProgressBorder>
+        <ClickableIcon name={icon} transparent onPress={toggleTimer} />
+      </Container>
+
+      <CardOptions remove={removeSelf} edit={edit} />
+    </SwipeableCard>
   );
 }
 
-function StrengthCard({ info, removeSelf }: { info: Exercise, removeSelf: () => void }) {
+function StrengthCard({ info, removeSelf }: { info: StrengthExercise, removeSelf: () => void }) {
   const [sets, setSets] = useState(0);
 
   const edit = () => console.log("editing!");
 
-  const countReps = () => {
-    if (sets < info.sets) {
-      setSets(sets + 1);
-    }
+  const countSets = () => {
+    const num = sets == info.sets ? 0 : sets + 1;
+    setSets(Math.min(info.sets, num));
   }
 
   return (
-    <SwipeableCard maxXOffset={-50} style={{ height: 100, marginBottom: 20, height: 150 }}>
+    <SwipeableCard maxXOffset={-50} style={{ marginBottom: 20, height: 125, borderRadius: 0 }}>
 
+      <Container row style={{ width: "100%" }}>
+        <Container style={{ height: "100%", alignItems: "flex-start", justifyContent: "space-between" }}>
+          <ThemedText text={info.name} bold style={{ fontSize: 16 }} />
 
-      <Container row style={{ width: "100%", height: "100%", paddingHorizontal: 20 }}>
-
-        <Container row style={{ width: "60%", backgroundColor: "red" }}>
-          <ThemedText bold text={info.name} />
-        </Container>
-
-        <Container style={{ width: "40" }}>
           <Container row>
-            <ThemedText style={{ color: getColors().green, fontSize: 16 }} text={`${sets}`} />
-            <ThemedText text={` / ${info.sets} sets`} />
+            <ThemedText bold text={`${sets} `} style={{ color: getColors().green }} />
+            <ThemedText text={`/ ${info.sets} sets`} />
           </Container>
 
-          <ThemedText dimmed text={`${info.reps} reps`} />
-          <ThemedText dimmed text={`${info.weight} lbs`} />
+          <Container row style={{ width: "50%" }}>
+            <ThemedText dimmed text={`${info.reps} reps`} style={{ fontSize: 13 }} />
+            {info.weight > 0 && <ThemedText dimmed text={`${info.weight} lbs`} style={{ fontSize: 13 }} />}
+          </Container>
         </Container>
 
+        <ClickableIcon name={sets == info.sets ? "reload" : "add"} transparent onPress={countSets} />
       </Container>
-
 
       <CardOptions remove={removeSelf} edit={edit} />
     </SwipeableCard>

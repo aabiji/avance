@@ -99,8 +99,7 @@ const styles = StyleSheet.create({
     width: "95%",
     overflow: "hidden",
     alignSelf: "center",
-    borderWidth: 2,
-    borderRadius: 20,
+    borderWidth: 1,
     borderColor: getColors().background["200"],
     backgroundColor: getColors().background["300"],
     // TODO: also make this work for ios also

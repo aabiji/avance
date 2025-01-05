@@ -30,6 +30,7 @@ const weightData: Record<string, number> = {
   "2025-01-02": 140.7,
   "2025-01-03": 140.3,
   "2025-01-04": 139.8,
+  "2025-01-05": 139.9,
 };
 
 const foodData = [
