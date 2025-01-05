@@ -5,14 +5,13 @@ import LinearGradient from "react-native-linear-gradient";
 interface ProgressBorderProps {
   children: ReactNode;
   percentage: number;
-  thickness: number;
   colors: string[];
 }
 
 // A progress bar that wraps around an element with linear gradients.
 // The percentage controls howmuchthe border is wrapped around the child elements.
 export function ProgressBorder(
-  { children, percentage, thickness, colors }: ProgressBorderProps
+  { children, percentage, colors }: ProgressBorderProps
 ) {
   const [sideLengths, setSideLengths] = useState<number[]>([]);
 
@@ -39,29 +38,31 @@ export function ProgressBorder(
   };
 
   return (
-    <View style={{ position: "relative" }}>
+    <View style={{ position: "relative", marginBottom: 15 }}>
       {sideLengths.map((length, i) => {
+        const thickness = 2;
         const vertical = i % 2 == 0; // Left (index 0) and right (index 2) are vertical
         const end = vertical ? { x: 0, y: 1 } : { x: 1, y: 0 };
-        const realLength = length > 0 ? length + thickness : 0;
-        const positions = {
-          left: i == 0 ? -thickness : undefined,
-          bottom: i == 1 ? -thickness : undefined,
-          right: i == 2 ? -thickness : undefined,
-          top: i == 3 ? 0 : undefined,
-        };
+        const positions = [
+          { left: thickness * 5 }, // Left
+          { left: thickness * 5, bottom: 0 }, // Bottom
+          { right: thickness * 5, bottom: 0 }, // Right
+          { right: thickness * 5, top: 0 } // Top
+        ];
+        const width = length - thickness * 10;
+
         return (
           <LinearGradient
             key={i}
             end={end}
             start={{ x: 0, y: 0 }}
-            colors={vertical ? colors : colors.reverse()}
+            colors={vertical ? colors : [...colors].reverse()}
             style={{
               zIndex: 1,
-              width: vertical ? thickness : realLength,
-              height: vertical ? realLength : thickness,
+              width: vertical ? thickness : width,
+              height: vertical ? length : thickness,
               position: "absolute",
-              ...positions
+              ...positions[i]
             }}
           />
         )

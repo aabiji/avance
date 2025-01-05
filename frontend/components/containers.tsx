@@ -99,7 +99,6 @@ const styles = StyleSheet.create({
     width: "95%",
     overflow: "hidden",
     alignSelf: "center",
-    marginBottom: 15,
     borderWidth: 2,
     borderRadius: 20,
     borderColor: getColors().background["200"],

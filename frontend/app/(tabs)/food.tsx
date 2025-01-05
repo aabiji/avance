@@ -18,7 +18,7 @@ interface Food {
 
 function FoodCard({ food, removeSelf }: { food: Food, removeSelf: () => void }) {
   return (
-    <SwipeableCard maxXOffset={-50} style={{ height: 100 }}>
+    <SwipeableCard maxXOffset={-50} style={{ height: 100, marginBottom: 15 }}>
       <Container row style={{
         width: "100%", height: "100%", paddingHorizontal: 20,
         backgroundColor: getColors().background["300"],

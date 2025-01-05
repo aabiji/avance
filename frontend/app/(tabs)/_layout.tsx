@@ -45,7 +45,7 @@ function BottomNavbar() {
 // Keep the splashscreen visible while we fetch ressources
 SplashScreen.preventAutoHideAsync();
 
-SplashScreen.setOptions({ duration: 3000, fade: true });
+SplashScreen.setOptions({ duration: 3000, fade: false });
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
