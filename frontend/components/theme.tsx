@@ -25,6 +25,9 @@ const colors = {
       300: "#3386C1",
       400: "#7EB5DD",
     },
+    secondary: {
+      100: "#D264B6",
+    },
     red: "#ed1c24",
     green: "#03C959",
   },
@@ -44,6 +47,9 @@ const colors = {
       200: "#3E92CC",
       300: "#3386C1",
       400: "#7EB5DD",
+    },
+    secondary: {
+      100: "#83A9C4"
     },
     red: "#ed1c24",
     green: "#03C959",

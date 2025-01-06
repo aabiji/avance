@@ -5,7 +5,7 @@ import { ThemedText } from "@/components/text";
 import getColors from "./theme";
 
 interface NumericInputProps {
-  value?: string;
+  value?: any;
   style?: StyleProp<TextStyle>;
   prefix: string;
   suffix: string;
@@ -21,6 +21,7 @@ export function NumericInput({
 }: NumericInputProps) {
   // Only to stop typescript from complaining
   const set = (data: string) => setValue(data as unknown as number);
+  const strValue = value !== undefined ? `${value}` : undefined;
 
   return (
     <Container row>
@@ -33,7 +34,7 @@ export function NumericInput({
       <Container row style={{ justifyContent: "flex-start" }}>
         <TextInput
           maxLength={10}
-          defaultValue={value}
+          defaultValue={strValue}
           placeholder="0"
           placeholderTextColor={getColors().text["300"]}
           style={[styles.input, style]}
@@ -53,17 +54,19 @@ export function NumericInput({
 }
 
 interface InputProps {
+  value?: any;
   placeholder: string;
   setData: Dispatch<SetStateAction<any>>;
 }
 
-export function Input({ setData, placeholder }: InputProps) {
+export function Input({ setData, placeholder, value }: InputProps) {
   return (
     <TextInput
       placeholder={placeholder}
       placeholderTextColor={getColors().text["300"]}
+      value={value}
       style={[styles.input, { width: "100%" }]}
-      onChange={(event) => setData(event.nativeEvent.text)}
+      onChange={(event) => setData(event.nativeEvent.text.trim())}
     />
   );
 }
@@ -75,7 +78,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     color: getColors().text["100"],
     backgroundColor: getColors().background["300"],
-    borderBottomColor: getColors().primary["200"],
+    borderBottomColor: getColors().primary["400"],
     borderBottomWidth: 2,
   },
 });

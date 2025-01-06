@@ -50,11 +50,17 @@ const exercises = [
 ];
 
 app.get("/user_data", (_request, response) => {
-  response.json({ weightEntries: weightData, foodLog: foodData, exercises: exercises });
+  console.log("LOG: getting user data");
+  response.json({ success: true, weightEntries: weightData, foodLog: foodData, exercises: exercises });
 });
 
-app.post("/create_exercise", (request, response) => {
-  console.log(request.body);
+app.post("/update_exercise", (request, response) => {
+  console.log("LOG: updating exercise", request.body);
+  response.json({ success: true });
+});
+
+app.delete("/delete_exercise", (request, response) => {
+  console.log("LOG: deleting exercise", request.body);
   response.json({ success: true });
 });
 

@@ -13,7 +13,7 @@ import { today, formatDate, groupDatesByWeek } from "@/lib/date";
 import useStorage from "@/lib/storage";
 
 enum GraphView { Daily, Weekly, Full }
-const enumToString = <T extends object>(enumType: T) =>
+const strEnumMembers = <T extends object>(enumType: T) =>
   Object.keys(enumType).filter((member) => isNaN(Number(member)));
 
 type WeightEntries = Record<string, number>;
@@ -97,7 +97,7 @@ export default function HomeScreen() {
           />
         </Container>
         <Selection
-          options={enumToString(GraphView)}
+          options={strEnumMembers(GraphView)}
           selection={view}
           setSelection={setView}
           style={{ marginTop: "10%" }}

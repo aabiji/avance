@@ -11,10 +11,6 @@ Tech stack:
 - Frontend using React Native and various React Native libraries
 - REST API backend using ExpressJS
 - Database using Postgresql
+    - ** Actually, what if we let each user have their own sqlite database? Then it'd just be a matter of querying their specific .db file**
 - Authentication using magic links and JWTs
 - Deployment using Docker and Azure
-
-TODO
-- Make the exercise card functional
-- Call the usda api to search for foods in the backend
-- Start implementing the addFood screen

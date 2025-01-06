@@ -68,6 +68,12 @@ export default function RootLayout() {
           onError: (_msg: unknown) => { },
 
           handler: (response: object) => {
+            // TODO: figure out what to do on error
+            if (!response.success) {
+              console.log(`ERROR: ${JSON.stringify(response)}`);
+              return;
+            }
+
             // Put the user data in the local storage
             setWeightEntries(response["weightEntries"]);
             setFoodLog(response["foodLog"]);
