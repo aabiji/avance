@@ -7,6 +7,8 @@ import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
+import { Exercise, HIITExercise, StrengthExercise, ExerciseType } from "@/lib/types";
+
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
@@ -15,22 +17,6 @@ import useStorage from "@/lib/storage";
 // TODO: output sound effects when toggling the session
 // TODO: how should we persist this temporary data??? (should we put it in local storage???)
 // TODO: refactor the components
-
-export interface HIITExercise {
-  name: string;
-  workDuration: number,
-  restDuration: number,
-  rounds: number,
-}
-
-export interface StrengthExercise {
-  name: string;
-  reps: number;
-  sets: number;
-  weight: number;
-}
-
-export type Exercise = HIITExercise | StrengthExercise;
 
 function CardOptions({ remove, edit }: { remove: () => void, edit: () => void }) {
   return (

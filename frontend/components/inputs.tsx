@@ -9,7 +9,7 @@ interface NumericInputProps {
   style?: StyleProp<TextStyle>;
   prefix: string;
   suffix: string;
-  setValue: Dispatch<SetStateAction<number>>;
+  setValue: (value: number) => void | Dispatch<SetStateAction<number>>;
 }
 
 export function NumericInput({
@@ -56,7 +56,7 @@ export function NumericInput({
 interface InputProps {
   value?: any;
   placeholder: string;
-  setData: Dispatch<SetStateAction<any>>;
+  setData: (value: string) => void | Dispatch<SetStateAction<any>>;
 }
 
 export function Input({ setData, placeholder, value }: InputProps) {

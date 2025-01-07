@@ -10,45 +10,31 @@ import Screen from "@/components/screen";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
+import { HIITExercise, StrengthExercise, ExerciseType } from "@/lib/types";
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
-enum ExerciseType { Strength, HIIT }
-// TODO: we already have another strEnumMembers function in index.tsx
-const strEnumMembers = <T extends object>(enumType: T) =>
-  Object.keys(enumType).filter((member) => isNaN(Number(member)));
-
 export default function CreateExercise() {
+  const navigation = useNavigation();
+  const routeParams = useLocalSearchParams();
+
   const [exercises, setExercises] = useStorage("exercises", []);
   const [inputError, setInputError] = useState("");
   const [selection, setSelection] = useState(ExerciseType.Strength);
 
-  // TODO: this is dodgy....
-  // TODO: fix all typescript errors
-  const [name, setName] = useState(undefined);
-  const [value1, setValue1] = useState(undefined);
-  const [value2, setValue2] = useState(undefined);
-  const [value3, setValue3] = useState(undefined);
+  const [hiit, setHiit] = useState<HIITExercise>({});
+  const [strength, setStrength] = useState<StrengthExercise>({});
 
-  const navigation = useNavigation();
-  const routeParams = useLocalSearchParams();
+  const currentExercise = (): object =>
+    selection == ExerciseType.Strength ? strength : hiit;
 
-  // Create a new exercise depending on the type of exercise
-  const exerciseObject = (): object => {
-    const strength = {
-      name: name,
-      reps: value1,
-      sets: value2,
-      weight: value3
-    };
-    const hiit = {
-      name: name,
-      rounds: value1,
-      workDuration: value2,
-      restDuration: value3
-    };
-    return selection == ExerciseType.Strength ? strength : hiit;
-  };
+  const setName = (value: string) => {
+    if (selection == ExerciseType.Strength) {
+      setStrength({ ...strength, name: value });
+    } else {
+      setHiit({ ...hiit, name: value });
+    }
+  }
 
   // Set the pre-existing values if we're editing an exercise
   useEffect(() => {
@@ -57,17 +43,14 @@ export default function CreateExercise() {
 
     const index = exercises.findIndex(e => e.name == key);
     const exercise = exercises[index];
-    const isHIIT = exercise.rounds !== undefined;
+    const isHiit = exercise.rounds !== undefined;
 
-    setSelection(isHIIT ? ExerciseType.HIIT : ExerciseType.Strength);
-    setValue1(exercise.reps ?? exercise.rounds);
-    setValue2(exercise.sets ?? exercise.restDuration);
-    setValue3(exercise.weight ?? exercise.workDuration);
-    setName(exercise.name);
+    (isHiit) ? setHiit(exercise) : setStrength(exercise);
+    setSelection(isHiit ? ExerciseType.HIIT : ExerciseType.Strength);
   }, []);
 
   const createOrUpdateExercise = () => {
-    const exercise = exerciseObject();
+    const exercise = currentExercise();
     let copy = [...exercises];
     const index = copy.findIndex(e => e.name == exercise.name);
     if (index == -1) { // Create a new exercise
@@ -91,14 +74,17 @@ export default function CreateExercise() {
 
   const saveEntry = () => {
     // Make sure the user has entered in all the fields
-    if (value1 === undefined || value2 === undefined ||
-      value3 === undefined || name === undefined) {
-      setInputError("Must fill out all fields");
-      return;
+    const exercise = currentExercise();
+    for (const key of Object.keys(exercise)) {
+      if (exercise[key] === undefined) {
+        setInputError("Must fill out all fields");
+        return;
+      }
     }
     createOrUpdateExercise();
     navigation.goBack();
   };
+
 
   return (
     <Container>
@@ -109,24 +95,48 @@ export default function CreateExercise() {
       }
 
       <Selection
-        options={strEnumMembers(ExerciseType)}
         selection={selection}
         setSelection={setSelection}
+        options={Object.keys(ExerciseType).filter((member) => isNaN(Number(member)))}
       />
 
-      <Input placeholder={"Name"} setData={setName} value={name} />
+      <Input placeholder={"Name"} setData={setName} value={currentExercise().name} />
 
-      {selection == 0 ? (
+      {selection == ExerciseType.Strength ? (
         <View style={{ width: "100%" }}>
-          <NumericInput prefix="Reps" suffix="     " value={value1} setValue={setValue1} />
-          <NumericInput prefix="Sets" suffix="     " value={value2} setValue={setValue2} />
-          <NumericInput prefix="Weight" suffix="lbs" value={value3} setValue={setValue3} />
+          <NumericInput
+            prefix="Reps" suffix="     "
+            value={strength.reps}
+            setValue={(value: number) => setStrength({ ...strength, reps: value })}
+          />
+          <NumericInput
+            prefix="Reps" suffix="     "
+            value={strength.sets}
+            setValue={(value: number) => setStrength({ ...strength, sets: value })}
+          />
+          <NumericInput
+            prefix="Weight" suffix="lbs"
+            value={strength.weight}
+            setValue={(value: number) => setStrength({ ...strength, weight: value })}
+          />
         </View>
       ) : (
         <View style={{ width: "100%" }}>
-          <NumericInput prefix="Rounds" suffix="  " value={value1} setValue={setValue1} />
-          <NumericInput prefix="Rest time" suffix="s" value={value2} setValue={setValue2} />
-          <NumericInput prefix="Work time" suffix="s" value={value3} setValue={setValue3} />
+          <NumericInput
+            prefix="Rounds" suffix=" "
+            value={hiit.rounds}
+            setValue={(value: number) => setHiit({ ...hiit, rounds: value })}
+          />
+          <NumericInput
+            prefix="Work time" suffix="x"
+            value={hiit.workDuration}
+            setValue={(value: number) => setHiit({ ...hiit, workDuration: value })}
+          />
+          <NumericInput
+            prefix="Rest time" suffix="s"
+            value={hiit.restDuration}
+            setValue={(value: number) => setHiit({ ...hiit, restDuration: value })}
+          />
         </View>
       )}
     </Container>
