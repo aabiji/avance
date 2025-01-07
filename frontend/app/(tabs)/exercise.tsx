@@ -7,18 +7,19 @@ import { ClickableIcon } from "@/components/buttons";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
-import { Exercise, HIITExercise, StrengthExercise, ExerciseType } from "@/lib/types";
+import { HIITExercise, StrengthExercise } from "@/lib/types";
 
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 // TODO: manage font sizes better (the same way we handle color shades)
-// TODO: not happy with the design of the exercise cards. What's a better layout???
 // TODO: output sound effects when toggling the session
 // TODO: how should we persist this temporary data??? (should we put it in local storage???)
-// TODO: refactor the components
 
-function CardOptions({ remove, edit }: { remove: () => void, edit: () => void }) {
+function CardOptions({ name, remove }: { name: string, remove: () => void }) {
+  const navigation = useNavigation();
+  const edit = () => navigation.navigate("createExercise", { name: name });
+
   return (
     <View style={{ height: "100%" }}>
       <ClickableIcon
@@ -45,19 +46,23 @@ function HIITCard(
   { exercise, removeSelf }: {
     exercise: HIITExercise, removeSelf: () => void
   }) {
+  // Can either be "play", "pause" or "reload". Using the icon
+  // name to determine whether we're playing the timer, pausing
+  // the timer or reloading the timer.
   const [icon, setIcon] = useState("play");
+
   const [seconds, setSeconds] = useState(exercise.workDuration);
   const [rounds, setRounds] = useState(exercise.rounds);
 
-  const [working, setWorking] = useState(true);
-  const [done, setDone] = useState(false);
+  const [working, setWorking] = useState(true); // Whether we're in a work session
+  const [done, setDone] = useState(false); // Whether we've completed all rounds
 
-  const edit = () => console.log("editing!");
-  const toggleTimer = () => {
+  const toggleIcon = () => {
     setIcon(icon == "play" || done ? "pause" : "play");
     setDone(false);
-  }
+  };
 
+  // Transistion between work and rest session
   const toggleSession = () => {
     if (working) {
       setSeconds(exercise.restDuration);
@@ -76,37 +81,57 @@ function HIITCard(
     }
   };
 
+  // Count down the duration of the current session
   useEffect(() => {
     if (icon == "play" || done) return;
+
     const interval = setInterval(() => {
       setSeconds(seconds - 1);
       if (seconds == 0) toggleSession();
     }, 1000);
+
     return () => clearInterval(interval);
   }, [icon, seconds]);
 
+  const upcomingSession = () => {
+    const secs = working ? exercise.restDuration : exercise.workDuration;
+    return `${secs}s ${working ? "rest" : "work"}`;
+  }
+
   return (
     <SwipeableCard maxXOffset={-50} style={styles.card}>
-
       <Container row style={{ width: "100%" }}>
-        <Container style={{ height: "100%", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <Container style={styles.infoColumn}>
           <ThemedText text={exercise.name} bold style={{ fontSize: 16 }} />
 
+          {/* Emphasize the current session */}
           <Container row>
-            <ThemedText bold text={`${seconds} `} style={{ color: getColors().secondary["100"] }} />
+            <ThemedText
+              bold
+              text={`${seconds} `}
+              style={{ color: getColors().secondary["100"] }}
+            />
             <ThemedText text={`s ${working ? "work" : "rest"}`} />
           </Container>
 
           <Container row style={{ width: "50%" }}>
-            <ThemedText dimmed text={`${working ? exercise.restDuration : exercise.workDuration} s ${working ? "rest" : "work"}`} style={{ fontSize: 13 }} />
-            <ThemedText dimmed text={`x${rounds}`} style={{ fontSize: 13, color: getColors().secondary["100"] }} />
+            <ThemedText
+              dimmed
+              text={upcomingSession()}
+              style={{ fontSize: 13 }}
+            />
+            <ThemedText
+              dimmed
+              text={`x${rounds}`}
+              style={{ fontSize: 13, color: getColors().secondary["100"] }}
+            />
           </Container>
         </Container>
 
-        <ClickableIcon dimmed name={icon} transparent onPress={toggleTimer} />
+        <ClickableIcon dimmed name={icon} transparent onPress={toggleIcon} />
       </Container>
 
-      <CardOptions remove={removeSelf} edit={edit} />
+      <CardOptions remove={removeSelf} name={exercise.name} />
     </SwipeableCard>
   );
 }
@@ -116,43 +141,54 @@ function StrengthCard(
     exercise: StrengthExercise, removeSelf: () => void
   }) {
   const [sets, setSets] = useState(0);
-
-  const navigation = useNavigation();
-  const edit = () => navigation.navigate("createExercise", { name: exercise.name });
-
-  const countSets = () => {
-    const num = sets == exercise.sets ? 0 : sets + 1;
-    setSets(Math.min(exercise.sets, num));
-  }
+  const countSets = () => setSets((sets + 1) % (exercise.sets + 1));
 
   return (
     <SwipeableCard maxXOffset={-50} style={styles.card}>
-
       <Container row style={{ width: "100%" }}>
-        <Container style={{ height: "100%", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <Container style={styles.infoColumn}>
           <ThemedText text={exercise.name} bold style={{ fontSize: 16 }} />
 
           <Container row>
-            <ThemedText bold text={`${sets} `} style={{ color: getColors().secondary["100"] }} />
+            <ThemedText
+              bold
+              text={`${sets} `}
+              style={{ color: getColors().secondary["100"] }}
+            />
             <ThemedText text={`/ ${exercise.sets} sets`} />
           </Container>
 
           <Container row style={{ width: "50%" }}>
-            <ThemedText dimmed text={`${exercise.reps} reps`} style={{ fontSize: 13 }} />
-            {exercise.weight > 0 && <ThemedText dimmed text={`${exercise.weight} lbs`} style={{ fontSize: 13 }} />}
+            <ThemedText
+              dimmed
+              text={`${exercise.reps} reps`}
+              style={{ fontSize: 13 }}
+            />
+            {exercise.weight > 0 &&
+              <ThemedText
+                dimmed
+                text={`${exercise.weight} lbs`}
+                style={{ fontSize: 13 }}
+              />
+            }
           </Container>
         </Container>
 
-        <ClickableIcon dimmed transparent name={sets == exercise.sets ? "reload" : "add"} onPress={countSets} />
+        <ClickableIcon
+          dimmed transparent
+          name={sets == exercise.sets ? "reload" : "add"}
+          onPress={countSets}
+        />
       </Container>
 
-      <CardOptions remove={removeSelf} edit={edit} />
+      <CardOptions remove={removeSelf} name={exercise.name} />
     </SwipeableCard>
   );
 }
 
 export default function ExerciseScreen() {
   const [exercises, setExercises] = useStorage("exercises", []);
+
   const remove = (index: number) => {
     const name = exercises[index].name;
     const copy = [...exercises];
@@ -197,7 +233,12 @@ export default function ExerciseScreen() {
 const styles = StyleSheet.create({
   card: {
     height: 125,
-    marginBottom: 20,
-    borderRadius: 0
+    marginBottom: 20
+  },
+  infoColumn: {
+    height: "100%",
+    alignItems: "flex-start",
+    justifyContent: "space-between",
+    flexDirection: "column"
   }
 });

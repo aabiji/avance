@@ -12,6 +12,4 @@ export interface StrengthExercise {
   weight: number;
 }
 
-export type Exercise = HIITExercise | StrengthExercise;
-
 export enum ExerciseType { Strength, HIIT }

@@ -73,13 +73,17 @@ export default function CreateExercise() {
   };
 
   const saveEntry = () => {
-    // Make sure the user has entered in all the fields
+    // Validate the user input
     const exercise = currentExercise();
     for (const key of Object.keys(exercise)) {
       if (exercise[key] === undefined) {
         setInputError("Must fill out all fields");
         return;
       }
+
+      // TODO: this isn't actually fixiing the underlying problem. Why are these strings in the first place?
+      if (key != "name")
+        exercise[key] = Number(exercise[key]);
     }
     createOrUpdateExercise();
     navigation.goBack();
