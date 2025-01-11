@@ -1,5 +1,53 @@
-import express from "express";
 
+// Use the USDA Food Central API to get information for various food results
+async function searchFood(query: string): Promise<object> {
+  const key = process.env.USDA_API_KEY;
+  const url = `https://api.nal.usda.gov/fdc/v1/foods/search?api_key=${key}`;
+  const response = await fetch(url, {
+    method: "POST",
+    body: JSON.stringify({ query: query, pageNumber: 1 }),
+    headers: {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    }
+  });
+
+  if (response.status != 200) {
+    throw new Error("Uh oh, problem calling the USDA api");
+  }
+
+  const nutrientInfo = (nutrients: object[], id: number) => {
+    const nutrient = nutrients.filter((n) => n["nutrientId"] == id)[0];
+    return `${nutrient["value"]} ${nutrient["unitName"].toLowerCase()}`;
+  }
+
+  let foods = [];
+  const json = await response.json();
+  for (const foodData of json["foods"]) {
+    const nutrients = foodData["foodNutrients"];
+
+    // TODO: extract more nutrient info
+    // It would be cool to display said info in a
+    // nutrition label in the frontend when showing the food info
+    // TODO: How to get portion sizes and nutrients per portion sizes??
+    console.log(Object.keys(foodData), foodData["foodMeasures"]);
+
+    foods.push({
+      name: foodData["description"],
+      protein: nutrientInfo(nutrients, 1003),
+      calories: nutrientInfo(nutrients, 1008),
+      fat: nutrientInfo(nutrients, 1004),
+      carbohydrates: nutrientInfo(nutrients, 1005),
+    });
+  }
+
+  return foods;
+}
+
+searchFood("cheese cracker");
+
+/*
+import express from "express";
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -31,6 +79,11 @@ const weightData: Record<string, number> = {
   "2025-01-03": 140.3,
   "2025-01-04": 139.8,
   "2025-01-05": 139.9,
+  "2025-01-06": 141.6,
+  "2025-01-07": 139.3,
+  "2025-01-08": 140.8,
+  "2025-01-09": 139.4,
+  "2025-01-10": 138.9,
 };
 
 const foodData = [
@@ -65,3 +118,4 @@ app.delete("/delete_exercise", (request, response) => {
 });
 
 app.listen(8080, () => console.log("Backend listening on port 8080"));
+*/
