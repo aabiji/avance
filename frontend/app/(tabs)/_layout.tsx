@@ -20,7 +20,6 @@ function BottomNavbar() {
         tabBarIcon: ({ focused, size }) => {
           const iconNames: Record<string, string> = {
             index: "scale-outline",
-            food: "restaurant-outline",
             exercise: "barbell-outline",
           };
           const name = iconNames[route.name] as IoniconsName;
@@ -36,7 +35,6 @@ function BottomNavbar() {
       })}
     >
       <Tabs.Screen name="index" options={{ headerShown: false }} />
-      <Tabs.Screen name="food" options={{ headerShown: false }} />
       <Tabs.Screen name="exercise" options={{ headerShown: false }} />
     </Tabs>
   );
@@ -50,7 +48,6 @@ SplashScreen.setOptions({ duration: 3000, fade: false });
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const [_weightEntires, setWeightEntries] = useStorage("weightEntries", {});
-  const [_foodLog, setFoodLog] = useStorage("foodLog", []);
   const [_exercises, setExercises] = useStorage("exercises", []);
 
   useEffect(() => {
@@ -76,7 +73,6 @@ export default function RootLayout() {
 
             // Put the user data in the local storage
             setWeightEntries(response["weightEntries"]);
-            setFoodLog(response["foodLog"]);
             setExercises(response["exercises"]);
 
             setReady(true);
