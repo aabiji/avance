@@ -15,17 +15,17 @@ import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); console
   const routeParams = useLocalSearchParams();
 
   const [exercises, setExercises] = useStorage("exercises", []);
   const [inputError, setInputError] = useState("");
   const [selection, setSelection] = useState(ExerciseType.Strength);
 
-  const [hiit, setHiit] = useState<HIITExercise>({});
-  const [strength, setStrength] = useState<StrengthExercise>({});
+  const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise());
+  const [strength, setStrength] = useState<StrengthExercise>(new StrengthExercise());
 
-  const currentExercise = (): object =>
+  const currentExercise = (): HIITExercise | StrengthExercise =>
     selection == ExerciseType.Strength ? strength : hiit;
 
   const setName = (value: string) => {
@@ -80,15 +80,10 @@ export default function CreateExercise() {
         setInputError("Must fill out all fields");
         return;
       }
-
-      // TODO: this isn't actually fixiing the underlying problem. Why are these strings in the first place?
-      if (key != "name")
-        exercise[key] = Number(exercise[key]);
     }
     createOrUpdateExercise();
     navigation.goBack();
   };
-
 
   return (
     <Container>

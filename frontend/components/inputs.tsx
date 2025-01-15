@@ -20,7 +20,7 @@ export function NumericInput({
   value,
 }: NumericInputProps) {
   // Only to stop typescript from complaining
-  const set = (data: string) => setValue(data as unknown as number);
+  const set = (data: string) => setValue(Number(data));
   const strValue = value !== undefined ? `${value}` : undefined;
 
   return (

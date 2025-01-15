@@ -1,15 +1,16 @@
-export interface HIITExercise {
-  name: string;
-  workDuration: number,
-  restDuration: number,
-  rounds: number,
+
+export class HIITExercise {
+  name: string | undefined = undefined;
+  workDuration: number | undefined = undefined;
+  restDuration: number | undefined = undefined;
+  rounds: number | undefined = undefined;
 }
 
-export interface StrengthExercise {
-  name: string;
-  reps: number;
-  sets: number;
-  weight: number;
+export class StrengthExercise {
+  name: string | undefined = undefined;
+  reps: number | undefined = undefined;
+  sets: number | undefined = undefined;
+  weight: number | undefined = undefined;
 }
 
 export enum ExerciseType { Strength, HIIT }
