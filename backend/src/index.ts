@@ -3,6 +3,8 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// TODO: actually store this data in a sql database
+
 // NOTE: these values are hardcoded for now!
 const weightData: Record<string, number> = {
   "2024-12-11": 142.2,
@@ -36,6 +38,7 @@ const weightData: Record<string, number> = {
   "2025-01-09": 139.4,
   "2025-01-10": 138.9,
   "2025-01-11": 140.3,
+  "2025-01-14": 139.9,
 };
 
 const exercises = [

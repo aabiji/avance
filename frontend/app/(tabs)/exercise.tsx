@@ -1,4 +1,5 @@
 import { Link, useNavigation } from "expo-router";
+import { Audio } from "expo-av"
 import { FlatList, View, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 
@@ -14,7 +15,7 @@ import useStorage from "@/lib/storage";
 
 // TODO: manage font sizes better (the same way we handle color shades)
 // TODO: output sound effects when toggling the session
-// TODO: how should we persist this temporary data??? (should we put it in local storage???)
+// TODO: how should we persist the temporary data from when we increment sets??? (should we put it in local storage???)
 
 function CardOptions({ name, remove }: { name: string, remove: () => void }) {
   const navigation = useNavigation();
@@ -43,8 +44,8 @@ function CardOptions({ name, remove }: { name: string, remove: () => void }) {
 }
 
 function HIITCard(
-  { exercise, removeSelf }: {
-    exercise: HIITExercise, removeSelf: () => void
+  { exercise, removeSelf, sound }: {
+    exercise: HIITExercise, removeSelf: () => void, sound: Audio.Sound
   }) {
   // Can either be "play", "pause" or "reload". Using the icon
   // name to determine whether we're playing the timer, pausing
@@ -63,7 +64,10 @@ function HIITCard(
   };
 
   // Transistion between work and rest session
-  const toggleSession = () => {
+  const toggleSession = async () => {
+    // TODO: decide between a play and a pause sound
+    await sound.playAsync();
+
     if (working) {
       setSeconds(exercise.restDuration);
       setWorking(false);
@@ -189,6 +193,12 @@ function StrengthCard(
 export default function ExerciseScreen() {
   const [exercises, setExercises] = useStorage("exercises", []);
 
+  const sound = new Audio.Sound();
+  useEffect(() => {
+    const load = async () => await sound.loadAsync(require("@/assets/beep.mp3"));
+    load().catch(console.error); // TODO: need to call unloadAsync when done
+  }, []);
+
   const remove = (index: number) => {
     const name = exercises[index].name;
     const copy = [...exercises];
@@ -219,7 +229,7 @@ export default function ExerciseScreen() {
         renderItem={({ item, index }) => {
           const isHiit = (item as HIITExercise).rounds !== undefined;
           return isHiit
-            ? <HIITCard exercise={item} removeSelf={() => remove(index)} />
+            ? <HIITCard exercise={item} sound={sound} removeSelf={() => remove(index)} />
             : <StrengthCard exercise={item} removeSelf={() => remove(index)} />;
         }
         }
