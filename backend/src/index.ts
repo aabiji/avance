@@ -39,13 +39,14 @@ const weightData: Record<string, number> = {
   "2025-01-10": 138.9,
   "2025-01-11": 140.3,
   "2025-01-14": 139.9,
+  "2025-01-15": 139.7,
 };
 
 const exercises = [
-  { name: "Push ups", sets: 3, reps: 20, weight: 10 },
-  { name: "Jump rope", workDuration: 40, restDuration: 20, rounds: 15 },
-  { name: "Pull ups", sets: 2, reps: 15, weight: 0 },
-  { name: "Squats", sets: 5, reps: 50, weight: 20 },
+  { id: 1, weekDay: 3, name: "Push ups", sets: 3, reps: 20, weight: 10 },
+  { id: 2, weekDay: 3, name: "Jump rope", workDuration: 40, restDuration: 20, rounds: 15 },
+  { id: 3, weekDay: 3, name: "Pull ups", sets: 2, reps: 15, weight: 0 },
+  { id: 4, weekDay: 3, name: "Squats", sets: 5, reps: 50, weight: 20 },
 ];
 
 app.get("/user_data", (_request, response) => {
@@ -55,7 +56,8 @@ app.get("/user_data", (_request, response) => {
 
 app.post("/update_exercise", (request, response) => {
   console.log("LOG: updating exercise", request.body);
-  response.json({ success: true });
+  const exercise = request.body.exercise;
+  response.json({ success: true, id: exercise.id == "-1" ? 123 : Number(exercise.id) });
 });
 
 app.delete("/delete_exercise", (request, response) => {

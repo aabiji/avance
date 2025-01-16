@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: getColors().background["200"],
     backgroundColor: getColors().background["300"],
+    borderRadius: 10,
     // TODO: also make this work for ios also
     shadowColor: "rgba(99, 99, 99, 0.2)",
     elevation: 20

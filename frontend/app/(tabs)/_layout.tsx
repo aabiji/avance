@@ -47,7 +47,7 @@ SplashScreen.setOptions({ duration: 3000, fade: false });
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
-  const [_weightEntires, setWeightEntries] = useStorage("weightEntries", {});
+  const [_weightEntries, setWeightEntries] = useStorage("weightEntries", {});
   const [_exercises, setExercises] = useStorage("exercises", []);
 
   useEffect(() => {

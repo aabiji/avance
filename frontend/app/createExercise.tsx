@@ -15,74 +15,80 @@ import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
-  const navigation = useNavigation(); console
+  const navigation = useNavigation();
   const routeParams = useLocalSearchParams();
 
   const [exercises, setExercises] = useStorage("exercises", []);
-  const [inputError, setInputError] = useState("");
+  const [weekDay, _setWeekDay] = useStorage("weekDay", new Date().getDay());
+
   const [selection, setSelection] = useState(ExerciseType.Strength);
+  const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise(weekDay));
+  const [strength, setStrength] = useState<StrengthExercise>(new StrengthExercise(weekDay));
 
-  const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise());
-  const [strength, setStrength] = useState<StrengthExercise>(new StrengthExercise());
+  const [inputError, setInputError] = useState("");
 
-  const currentExercise = (): HIITExercise | StrengthExercise =>
+  const currentExercise = () =>
     selection == ExerciseType.Strength ? strength : hiit;
-
-  const setName = (value: string) => {
-    if (selection == ExerciseType.Strength) {
-      setStrength({ ...strength, name: value });
-    } else {
-      setHiit({ ...hiit, name: value });
-    }
-  }
 
   // Set the pre-existing values if we're editing an exercise
   useEffect(() => {
-    const key = routeParams["name"];
-    if (key === undefined) return;
+    const index = exercises.findIndex(e => e.id == routeParams["id"]);
+    if (index == -1) return;
 
-    const index = exercises.findIndex(e => e.name == key);
-    const exercise = exercises[index];
+    let exercise = exercises[index];
+    exercise.id = routeParams["id"];
+
     const isHiit = exercise.rounds !== undefined;
-
     (isHiit) ? setHiit(exercise) : setStrength(exercise);
     setSelection(isHiit ? ExerciseType.HIIT : ExerciseType.Strength);
   }, []);
 
-  const createOrUpdateExercise = () => {
+  const isValid = () => {
+    // Make sure all the data is filled out
     const exercise = currentExercise();
-    let copy = [...exercises];
-    const index = copy.findIndex(e => e.name == exercise.name);
+    for (const key of Object.keys(exercise)) {
+      if (exercise[key] === undefined) {
+        setInputError("Must fill out all fields");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const createOrUpdateExercise = (id: number) => {
+    const exercise = { ...currentExercise(), id: id };
+    const copy = [...exercises];
+    const index = copy.findIndex(e => e.id == id);
     if (index == -1) { // Create a new exercise
       copy.push(exercise);
     } else { // Update the exercise
       copy[index] = exercise;
     }
     setExercises(copy);
-
-    // TODO: figure out what to do on error
-    request({
-      endpoint: "/update_exercise",
-      method: "POST", body: exercise,
-      onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: (response: object) => {
-        if (!response.success)
-          console.log("ERROR", response);
-      }
-    })
   };
 
   const saveEntry = () => {
-    // Validate the user input
-    const exercise = currentExercise();
-    for (const key of Object.keys(exercise)) {
-      if (exercise[key] === undefined) {
-        setInputError("Must fill out all fields");
-        return;
+    if (!isValid()) return;
+    request({
+      method: "POST",
+      endpoint: "/update_exercise",
+      body: { exercise: currentExercise() },
+      onError: (msg: unknown) => console.log("ERROR", msg),
+      handler: (response: object) => {
+        if (!response.success) {
+          // TODO: figure out what to do on error
+          console.log("ERROR", response);
+          return;
+        }
+        createOrUpdateExercise(response.id);
+        navigation.goBack();
       }
-    }
-    createOrUpdateExercise();
-    navigation.goBack();
+    });
+  };
+
+  const setName = (value: string) => {
+    setStrength({ ...strength, name: value });
+    setHiit({ ...hiit, name: value });
   };
 
   return (
@@ -127,7 +133,7 @@ export default function CreateExercise() {
             setValue={(value: number) => setHiit({ ...hiit, rounds: value })}
           />
           <NumericInput
-            prefix="Work time" suffix="x"
+            prefix="Work time" suffix="s"
             value={hiit.workDuration}
             setValue={(value: number) => setHiit({ ...hiit, workDuration: value })}
           />

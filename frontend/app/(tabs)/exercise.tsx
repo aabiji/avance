@@ -1,10 +1,11 @@
-import { Link, useNavigation } from "expo-router";
+import { useNavigation } from "expo-router";
 import { Audio } from "expo-av"
 import { FlatList, View, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 
 import { Container, SwipeableCard } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
+import Selection from "@/components/selection";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
@@ -17,9 +18,8 @@ import useStorage from "@/lib/storage";
 // TODO: output sound effects when toggling the session
 // TODO: how should we persist the temporary data from when we increment sets??? (should we put it in local storage???)
 
-function CardOptions({ name, remove }: { name: string, remove: () => void }) {
+function CardOptions({ id, remove }: { id: number, remove: () => void }) {
   const navigation = useNavigation();
-  const edit = () => navigation.navigate("createExercise", { name: name });
 
   return (
     <View style={{ height: "100%" }}>
@@ -29,7 +29,7 @@ function CardOptions({ name, remove }: { name: string, remove: () => void }) {
           backgroundColor: getColors().green,
           borderRadius: 0, width: "110%", height: "50%"
         }}
-        onPress={edit}
+        onPress={() => navigation.navigate("createExercise", { id: id })}
       />
       <ClickableIcon
         name="trash-bin"
@@ -43,6 +43,7 @@ function CardOptions({ name, remove }: { name: string, remove: () => void }) {
   );
 }
 
+// FIXME: this is broken
 function HIITCard(
   { exercise, removeSelf, sound }: {
     exercise: HIITExercise, removeSelf: () => void, sound: Audio.Sound
@@ -135,14 +136,14 @@ function HIITCard(
         <ClickableIcon dimmed name={icon} transparent onPress={toggleIcon} />
       </Container>
 
-      <CardOptions remove={removeSelf} name={exercise.name} />
+      <CardOptions remove={removeSelf} id={exercise.id} />
     </SwipeableCard>
   );
 }
 
 function StrengthCard(
   { exercise, removeSelf }: {
-    exercise: StrengthExercise, removeSelf: () => void
+    exercise: StrengthExercise, removeSelf: () => void,
   }) {
   const [sets, setSets] = useState(0);
   const countSets = () => setSets((sets + 1) % (exercise.sets + 1));
@@ -185,13 +186,18 @@ function StrengthCard(
         />
       </Container>
 
-      <CardOptions remove={removeSelf} name={exercise.name} />
+      <CardOptions remove={removeSelf} id={exercise.id} />
     </SwipeableCard>
   );
 }
 
 export default function ExerciseScreen() {
+  const navigation = useNavigation();
+
   const [exercises, setExercises] = useStorage("exercises", []);
+  const [currentExercises, setCurrentExercises] = useState([]);
+  const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
+  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
   const sound = new Audio.Sound();
   useEffect(() => {
@@ -199,8 +205,12 @@ export default function ExerciseScreen() {
     load().catch(console.error); // TODO: need to call unloadAsync when done
   }, []);
 
+  useEffect(() => {
+    setCurrentExercises(exercises.filter((e) => e.weekDay == currentDay));
+  }, [currentDay, exercises]);
+
   const remove = (index: number) => {
-    const name = exercises[index].name;
+    const id = exercises[index].id;
     const copy = [...exercises];
     copy.splice(index, 1);
     setExercises(copy);
@@ -208,34 +218,39 @@ export default function ExerciseScreen() {
     request({
       method: "DELETE",
       endpoint: "/delete_exercise",
-      body: { name: name },
+      body: { id: id },
       // TODO: figure out what to do on error
       onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: () => console.log(`${name} deleted`),
+      handler: () => console.log(`${id} deleted`),
     });
   };
 
   return (
     <Container>
       <Container row style={{ width: "100%", marginBottom: 10 }}>
-        <ThemedText header text="Exercises" />
-        <Link href="/createExercise" asChild>
-          <ClickableIcon name="add" />
-        </Link>
+        <ThemedText header text={`${days[currentDay]}'s exercises`} style={{ fontSize: 20 }} />
+        <ClickableIcon name="add" onPress={() => navigation.navigate("createExercise", {})} />
       </Container>
 
-      <FlatList
-        data={exercises}
-        renderItem={({ item, index }) => {
-          const isHiit = (item as HIITExercise).rounds !== undefined;
-          return isHiit
-            ? <HIITCard exercise={item} sound={sound} removeSelf={() => remove(index)} />
-            : <StrengthCard exercise={item} removeSelf={() => remove(index)} />;
-        }
-        }
-        style={{ width: "100%" }}
-        contentContainerStyle={{ marginHorizontal: -10, paddingHorizontal: 5 }}
-      />
+      <Selection options={days.map((day) => day[0])} selection={currentDay} setSelection={setCurrentDay} />
+
+      {
+        currentExercises.length > 0
+          ? <FlatList
+            data={currentExercises}
+            renderItem={({ item, index }) => {
+              const isHiit = (item as HIITExercise).rounds !== undefined;
+              return isHiit
+                ? <HIITCard exercise={item} sound={sound} removeSelf={() => remove(index)} />
+                : <StrengthCard exercise={item} removeSelf={() => remove(index)} />;
+            }
+            }
+            style={{ width: "100%" }}
+            contentContainerStyle={{ marginHorizontal: -10, paddingHorizontal: 5 }}
+          />
+          : <ThemedText text="No exercises" />
+      }
+
     </Container>
   );
 }
