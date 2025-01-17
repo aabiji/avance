@@ -40,6 +40,7 @@ const weightData: Record<string, number> = {
   "2025-01-11": 140.3,
   "2025-01-14": 139.9,
   "2025-01-15": 139.7,
+  "2025-01-16": 138.8,
 };
 
 const exercises = [

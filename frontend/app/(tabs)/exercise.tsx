@@ -1,5 +1,5 @@
 import { useNavigation } from "expo-router";
-import { Audio } from "expo-av"
+import { useAudioPlayer } from "expo-audio";
 import { FlatList, View, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 
@@ -13,10 +13,6 @@ import { HIITExercise, StrengthExercise } from "@/lib/types";
 
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
-
-// TODO: manage font sizes better (the same way we handle color shades)
-// TODO: output sound effects when toggling the session
-// TODO: how should we persist the temporary data from when we increment sets??? (should we put it in local storage???)
 
 function CardOptions({ id, remove }: { id: number, remove: () => void }) {
   const navigation = useNavigation();
@@ -43,11 +39,12 @@ function CardOptions({ id, remove }: { id: number, remove: () => void }) {
   );
 }
 
-// FIXME: this is broken
 function HIITCard(
-  { exercise, removeSelf, sound }: {
-    exercise: HIITExercise, removeSelf: () => void, sound: Audio.Sound
+  { exercise, removeSelf }: {
+    exercise: HIITExercise, removeSelf: () => void
   }) {
+  const player = useAudioPlayer(require("@/assets/beep.mp3"));
+
   // Can either be "play", "pause" or "reload". Using the icon
   // name to determine whether we're playing the timer, pausing
   // the timer or reloading the timer.
@@ -66,9 +63,6 @@ function HIITCard(
 
   // Transistion between work and rest session
   const toggleSession = async () => {
-    // TODO: decide between a play and a pause sound
-    await sound.playAsync();
-
     if (working) {
       setSeconds(exercise.restDuration);
       setWorking(false);
@@ -84,6 +78,7 @@ function HIITCard(
         setRounds(exercise.rounds);
       }
     }
+    player.play(); // TODO: we don't seem to be playing multiple times
   };
 
   // Count down the duration of the current session
@@ -199,10 +194,8 @@ export default function ExerciseScreen() {
   const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  const sound = new Audio.Sound();
   useEffect(() => {
-    const load = async () => await sound.loadAsync(require("@/assets/beep.mp3"));
-    load().catch(console.error); // TODO: need to call unloadAsync when done
+    setCurrentDay(new Date().getDay());
   }, []);
 
   useEffect(() => {
@@ -241,7 +234,7 @@ export default function ExerciseScreen() {
             renderItem={({ item, index }) => {
               const isHiit = (item as HIITExercise).rounds !== undefined;
               return isHiit
-                ? <HIITCard exercise={item} sound={sound} removeSelf={() => remove(index)} />
+                ? <HIITCard exercise={item} removeSelf={() => remove(index)} />
                 : <StrengthCard exercise={item} removeSelf={() => remove(index)} />;
             }
             }
