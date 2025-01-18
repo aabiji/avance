@@ -1,64 +1,118 @@
+/*
+TODO:
+- STRESS TEST!!!!!
+  - Validate the response body to make sure we're not only getting the right fields, but also
+    the right data types. Return an error response otherwise
+  - Validate the user id to make sure it actually exists within the database 
+  - handle potential database errors
+  - Adjust the way the frontend calls the api. For example, the exercise id should be a string (UUID) not an int
+  - Yeah, each exercise is uniquely identified, but we don't actually have any safeguards to stop
+    us from defining a new exercise that has the exact same values, just with a different id since
+    we're not editing an existing exercise. You know what I mean? I think the solution would be
+    to ignore the id and make sure we don't have a similar exercise already.
+  - The update exercises endpoint is unnecessarily complicated
+  - Document, and explain each endpoint and query
+*/
+
+import { Database } from "bun:sqlite";
+import { randomUUIDv7 } from "bun";
 import express from "express";
+
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// TODO: actually store this data in a sql database
+const db = new Database("db.sqlite");
 
-// NOTE: these values are hardcoded for now!
-const weightData: Record<string, number> = {
-  "2024-12-11": 142.2,
-  "2024-12-12": 140.9,
-  "2024-12-13": 142.2,
-  "2024-12-14": 139.3,
-  "2024-12-16": 141.4,
-  "2024-12-17": 142.0,
-  "2024-12-18": 140.4,
-  "2024-12-19": 139.2,
-  "2024-12-20": 138.8,
-  "2024-12-21": 139.1,
-  "2024-12-22": 142.0,
-  "2024-12-23": 140.1,
-  "2024-12-24": 142.9,
-  "2024-12-25": 142.6,
-  "2024-12-26": 144.2,
-  "2024-12-27": 141.5,
-  "2024-12-28": 140.4,
-  "2024-12-29": 141.3,
-  "2024-12-30": 140.4,
-  "2024-12-31": 140.4,
-  "2025-01-01": 142.0,
-  "2025-01-02": 140.7,
-  "2025-01-03": 140.3,
-  "2025-01-04": 139.8,
-  "2025-01-05": 139.9,
-  "2025-01-06": 141.6,
-  "2025-01-07": 139.3,
-  "2025-01-08": 140.8,
-  "2025-01-09": 139.4,
-  "2025-01-10": 138.9,
-  "2025-01-11": 140.3,
-  "2025-01-14": 139.9,
-  "2025-01-15": 139.7,
-  "2025-01-16": 138.8,
-};
+db.run(`
+  CREATE TABLE IF NOT EXISTS user_info (
+    userId INTEGER PRIMARY KEY,
+    email TEXT NOT NULL
+  );
 
-const exercises = [
-  { id: 1, weekDay: 3, name: "Push ups", sets: 3, reps: 20, weight: 10 },
-  { id: 2, weekDay: 3, name: "Jump rope", workDuration: 40, restDuration: 20, rounds: 15 },
-  { id: 3, weekDay: 3, name: "Pull ups", sets: 2, reps: 15, weight: 0 },
-  { id: 4, weekDay: 3, name: "Squats", sets: 5, reps: 50, weight: 20 },
-];
+  CREATE TABLE IF NOT EXISTS weight_entries (
+    userId INTEGER NOT NULL,
+    date TEXT UNIQUE NOT NULL,
+    weight INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS strength_exercises (
+    id TEXT UNIQUE NOT NULL,
+    userId INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    reps INTEGER NOT NULL,
+    sets INTEGER NOT NULL,
+    weight INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS hiit_exercises (
+    id TEXT UNIQUE NOT NULL,
+    userId INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    workDuration INTEGER NOT NULL,
+    restDuration INTEGER NOT NULL,
+    rounds INTEGER NOT NULL
+  );
+`);
 
 app.get("/user_data", (_request, response) => {
-  console.log("LOG: getting user data");
-  response.json({ success: true, weightEntries: weightData, exercises: exercises });
+  const userId = Number(request.body.userId);
+
+  let weightEntries: Record<string, number> = {};
+  const sql1 = "SELECT * FROM weight_entries WHERE userId=?";
+  const entries = db.query(sql1).all([userId]);
+  for (const entry of entries) {
+    weightEntries[entry.date] = entry.weight;
+  }
+
+  let exercises = [];
+  for (const table of ["hiit_exercises", "strength_exercises"]) {
+    const sql2 = `SELECT * FROM ${table} WHERE userId=?`;
+    const values = db.query(sql2).all([userId]);
+    for (const value of values) {
+      delete value["userId"];
+      exercises.push(value);
+    }
+  }
+
+  response.json({ success: true, weightEntries: weightEntries, exercises: exercises });
+});
+
+app.post("/set_weight_entry", (request, response) => {
+  const date = request.body.date;
+  const weight = Number(request.body.weight);
+  const userId = Number(request.body.userId);
+  const sql = "INSERT OR REPLACE INTO weight_entries (userId, date, weight) VALUES (?, ?, ?)";
+  db.query(sql).run([userId, date, weight]);
+  response.json({ success: true });
 });
 
 app.post("/update_exercise", (request, response) => {
-  console.log("LOG: updating exercise", request.body);
+  const userId = Number(request.body.userId);
   const exercise = request.body.exercise;
-  response.json({ success: true, id: exercise.id == "-1" ? 123 : Number(exercise.id) });
+
+  const id = exercise.id !== undefined ? exercise.id : randomUUIDv7();
+  const isHiit = exercise.rounds !== undefined;
+
+  const hiitFields = "id, userId, name, workDuration, restDuration, rounds";
+  const hiitValues = [
+    id, userId, exercise.name,
+    Number(exercise.workDuration), Number(exercise.restDuration), Number(exercise.rounds)
+  ];
+
+  const strengthFields = "id, userId, name, reps, sets, weight";
+  const strengthValues = [
+    id, userId, exercise.name,
+    Number(exercise.reps), Number(exercise.sets), Number(exercise.weight)
+  ];
+
+  const sql = `
+    INSERT OR REPLACE INTO ${isHiit ? "hiit_exercises" : "strength_exercises"}
+    (${isHiit ? hiitFields : strengthFields}) VALUES (?, ?, ?, ?, ?, ?);
+  `;
+
+  db.query(sql).run(isHiit ? hiitValues : strengthValues);
+  response.json({ success: true, id: id });
 });
 
 app.delete("/delete_exercise", (request, response) => {
