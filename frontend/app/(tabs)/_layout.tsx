@@ -50,6 +50,10 @@ export default function RootLayout() {
   const [_weightEntries, setWeightEntries] = useStorage("weightEntries", {});
   const [_exercises, setExercises] = useStorage("exercises", []);
 
+  // TODO: we should be storing a jwt instead
+  const [userId, setUserId] = useStorage("userId", -1);
+  setUserId(1);
+
   useEffect(() => {
     async function prepare() {
       try {
@@ -57,16 +61,18 @@ export default function RootLayout() {
 
         // Update the user data that's stored locally
         request({
-          method: "GET", endpoint: "/user_data",
+          method: "POST", endpoint: "/userData",
+          body: { userId: userId },
 
           // Don't do anything when we error trying to call the api.
           // For example, in the event that the user is disconnected from the
           // internet, the app will just fallback on the data stored locally.
-          onError: (_msg: unknown) => { },
+          // TODO: we should send data we meant to send when we can if a request fails
+          onError: (_msg: unknown) => { setReady(true) },
 
           handler: (response: object) => {
             // TODO: figure out what to do on error
-            if (!response.success) {
+            if (response.error) {
               console.log(`ERROR: ${JSON.stringify(response)}`);
               return;
             }

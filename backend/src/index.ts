@@ -4,32 +4,34 @@ import { type Request, type Response, type NextFunction } from 'express';
 import express from "express";
 
 // Setup the database
-const db = new Database("db.sqlite");
+const db = new Database("example.sqlite");
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
-    user_id INTEGER PRIMARY KEY,
+    userId INTEGER PRIMARY KEY,
     email TEXT NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS weight_entries (
-    user_id INTEGER NOT NULL,
+  CREATE TABLE IF NOT EXISTS weightEntries (
+    userId INTEGER NOT NULL,
     date TEXT UNIQUE NOT NULL,
     weight INTEGER NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS strength_exercises (
-    user_id INTEGER NOT NULL,
+  CREATE TABLE IF NOT EXISTS strengthExercises (
+    userId INTEGER NOT NULL,
     name TEXT UNIQUE NOT NULL,
+    weekDay INTEGER NOT NULL,
     reps INTEGER NOT NULL,
     sets INTEGER NOT NULL,
     weight INTEGER NOT NULL
   );
 
-  CREATE TABLE IF NOT EXISTS hiit_exercises (
-    user_id INTEGER NOT NULL,
+  CREATE TABLE IF NOT EXISTS hiitExercises (
+    userId INTEGER NOT NULL,
     name TEXT UNIQUE NOT NULL,
-    work_duration INTEGER NOT NULL,
-    rest_duration INTEGER NOT NULL,
+    weekDay INTEGER NOT NULL,
+    workDuration INTEGER NOT NULL,
+    restDuration INTEGER NOT NULL,
     rounds INTEGER NOT NULL
   );
 `);
@@ -46,14 +48,15 @@ function getSchema(endpoint: string) {
   const numeric = strNum.or(num);
 
   const schemas: Record<string, z.ZodObject<any>> = {
-    "/user_data": z.object({ userId: numeric }),
-    "/set_weight_entry": z.object({
+    "/userData": z.object({ userId: numeric }),
+    "/setWeightEntry": z.object({
       userId: numeric,
       date: str,
       weight: numeric
     }),
-    "/update_exercise": z.object({
+    "/updateExercise": z.object({
       userId: numeric,
+      weekDay: numeric,
       hiit: z.optional(z.object({
         name: str,
         workDuration: numeric,
@@ -67,7 +70,7 @@ function getSchema(endpoint: string) {
         weight: numeric
       }))
     }),
-    "/delete_exercise": z.object({
+    "/deleteExercise": z.object({
       userId: numeric,
       name: str,
       isHiit: z.boolean(),
@@ -97,7 +100,7 @@ function validateRequest(request: Request, response: Response, next: NextFunctio
 
   // TODO: remove the userid from the schemas, instead get it from the authorization header
   // Check if it's a valid userId
-  const sql = `SELECT * FROM users WHERE user_id=?`;
+  const sql = `SELECT * FROM users WHERE userId=?`;
   const values = db.query(sql).all(result.data.userId);
   if (values.length != 1) {
     response.json({ error: true });
@@ -119,23 +122,23 @@ app.get("/authenticate", (request, response) => {
   // Return the json web token
 });
 
-app.post("/user_data", (_request, response) => {
-  console.log("LOG: /user_data");
+app.post("/userData", (_request, response) => {
+  console.log("LOG: /userData");
   const userId = Number(response.locals.params.userId);
 
   let weightEntries: Record<string, number> = {};
-  const sql1 = "SELECT * FROM weight_entries WHERE user_id=?";
+  const sql1 = "SELECT * FROM weightEntries WHERE userId=?";
   const entries = db.query(sql1).all(userId);
   for (const entry of entries) {
     weightEntries[entry.date] = entry.weight;
   }
 
   let exercises = [];
-  for (const table of ["hiit_exercises", "strength_exercises"]) {
-    const sql2 = `SELECT * FROM ${table} WHERE user_id=?`;
+  for (const table of ["hiitExercises", "strengthExercises"]) {
+    const sql2 = `SELECT * FROM ${table} WHERE userId=?`;
     const values = db.query(sql2).all(userId);
     for (const value of values) {
-      delete value["user_id"];
+      delete value["userId"];
       exercises.push(value);
     }
   }
@@ -143,36 +146,36 @@ app.post("/user_data", (_request, response) => {
   response.json({ error: false, weightEntries: weightEntries, exercises: exercises });
 });
 
-app.post("/set_weight_entry", (_request, response) => {
+app.post("/setWeightEntry", (_request, response) => {
   console.log("LOG: /weight_entry");
   const { userId, date, weight } = response.locals.params;
-  const sql = "INSERT OR REPLACE INTO weight_entries (user_id, date, weight) VALUES (?, ?, ?)";
+  const sql = "INSERT OR REPLACE INTO weightEntries (userId, date, weight) VALUES (?, ?, ?)";
   db.query(sql).run(userId, date, weight);
   response.json({ error: false });
 });
 
-app.post("/update_exercise", (_request, response) => {
-  console.log("LOG: /update_exercise");
-  const { userId, hiit, strength } = response.locals.params;
+app.post("/updateExercise", (_request, response) => {
+  console.log("LOG: /updateExercise");
+  const { userId, weekDay, hiit, strength } = response.locals.params;
 
   const values = hiit !== undefined
-    ? [userId, hiit.name, hiit.workDuration, hiit.restDuration, hiit.rounds]
-    : [userId, strength.name, strength.reps, strength.sets, strength.weight];
+    ? [userId, hiit.name, weekDay, hiit.workDuration, hiit.restDuration, hiit.rounds]
+    : [userId, strength.name, weekDay, strength.reps, strength.sets, strength.weight];
   const fields = hiit !== undefined
-    ? "user_id, name, work_duration, rest_duration, rounds"
-    : "user_id, name, reps, sets, weight";
-  const table = hiit !== undefined ? "hiit_exercises" : "strength_exercises";
-  const sql = `INSERT OR REPLACE INTO ${table} (${fields}) VALUES (?,?,?,?,?);`;
+    ? "userId, name, weekDay, workDuration, restDuration, rounds"
+    : "userId, name, weekDay, reps, sets, weight";
+  const table = hiit !== undefined ? "hiitExercises" : "strengthExercises";
+  const sql = `INSERT OR REPLACE INTO ${table} (${fields}) VALUES (?,?,?,?,?,?);`;
 
   db.query(sql).run(...values);
   response.json({ error: false });
 });
 
-app.delete("/delete_exercise", (_request, response) => {
-  console.log("LOG: /delete_exercise");
+app.delete("/deleteExercise", (_request, response) => {
+  console.log("LOG: /deleteExercise");
   const { userId, name, isHiit } = response.locals.params;
-  const table = isHiit ? "hiit_exercises" : "strength_exercises";
-  const sql = `DELETE FROM ${table} WHERE user_id=? AND name=?`;
+  const table = isHiit ? "hiitExercises" : "strengthExercises";
+  const sql = `DELETE FROM ${table} WHERE userId=? AND name=?`;
   const result = db.query(sql).run(userId, name);
   response.json({ error: result.changes != 1 });
 });

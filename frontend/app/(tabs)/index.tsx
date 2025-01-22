@@ -39,9 +39,10 @@ function weeklyWeights(entries: WeightEntries): WeightEntries {
 
 // Get the last recorded weight
 function getLastWeight(entries: WeightEntries): number {
+  // TODO: this should be sorted since we can't garantee that the keys will already be sorted
   const days = Object.keys(entries);
   const last = days[days.length - 1];
-  return entries[last];
+  return last === undefined ? 0 : entries[last];
 }
 
 // Map our data into the data format the graph expects
@@ -55,7 +56,7 @@ function prepareData(entries: WeightEntries): lineDataItem[] {
 
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
-  const [weight, setWeight] = useState<number>(0);
+  const [weight, setWeight] = useState<number>(0); // TODO: call setWeightEntry endpoint
   const [graphData, setGraphData] = useState<lineDataItem[]>([]);
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
 

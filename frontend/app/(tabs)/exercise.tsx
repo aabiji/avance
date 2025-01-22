@@ -14,7 +14,7 @@ import { HIITExercise, StrengthExercise } from "@/lib/types";
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
-function CardOptions({ id, remove }: { id: number, remove: () => void }) {
+function CardOptions({ exercise, remove }: { exercise: string, remove: () => void }) {
   const navigation = useNavigation();
 
   return (
@@ -25,7 +25,7 @@ function CardOptions({ id, remove }: { id: number, remove: () => void }) {
           backgroundColor: getColors().green,
           borderRadius: 0, width: "110%", height: "50%"
         }}
-        onPress={() => navigation.navigate("createExercise", { id: id })}
+        onPress={() => navigation.navigate("createExercise", { previousExercise: exercise })}
       />
       <ClickableIcon
         name="trash-bin"
@@ -131,7 +131,7 @@ function HIITCard(
         <ClickableIcon dimmed name={icon} transparent onPress={toggleIcon} />
       </Container>
 
-      <CardOptions remove={removeSelf} id={exercise.id} />
+      <CardOptions remove={removeSelf} exercise={JSON.stringify(exercise)} />
     </SwipeableCard>
   );
 }
@@ -181,7 +181,7 @@ function StrengthCard(
         />
       </Container>
 
-      <CardOptions remove={removeSelf} id={exercise.id} />
+      <CardOptions remove={removeSelf} exercise={JSON.stringify(exercise)} />
     </SwipeableCard>
   );
 }
@@ -189,6 +189,7 @@ function StrengthCard(
 export default function ExerciseScreen() {
   const navigation = useNavigation();
 
+  const [userId, _setUserId] = useStorage("userId", -1);
   const [exercises, setExercises] = useStorage("exercises", []);
   const [currentExercises, setCurrentExercises] = useState([]);
   const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
@@ -203,18 +204,19 @@ export default function ExerciseScreen() {
   }, [currentDay, exercises]);
 
   const remove = (index: number) => {
-    const id = exercises[index].id;
+    const name = exercises[index].name;
+    const isHiit = exercises[index].rounds !== undefined;
     const copy = [...exercises];
     copy.splice(index, 1);
     setExercises(copy);
 
     request({
       method: "DELETE",
-      endpoint: "/delete_exercise",
-      body: { id: id },
+      endpoint: "/deleteExercise",
+      body: { userId, name, isHiit },
       // TODO: figure out what to do on error
       onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: () => console.log(`${id} deleted`),
+      handler: () => console.log(`${name} deleted`),
     });
   };
 
@@ -233,9 +235,10 @@ export default function ExerciseScreen() {
             data={currentExercises}
             renderItem={({ item, index }) => {
               const isHiit = (item as HIITExercise).rounds !== undefined;
+              // TODO: 2 items with same key error when we create a new exercise
               return isHiit
-                ? <HIITCard exercise={item} removeSelf={() => remove(index)} />
-                : <StrengthCard exercise={item} removeSelf={() => remove(index)} />;
+                ? <HIITCard key={index} exercise={item} removeSelf={() => remove(index)} />
+                : <StrengthCard key={index} exercise={item} removeSelf={() => remove(index)} />;
             }
             }
             style={{ width: "100%" }}

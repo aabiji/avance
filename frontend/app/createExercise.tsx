@@ -20,6 +20,7 @@ export default function CreateExercise() {
 
   const [exercises, setExercises] = useStorage("exercises", []);
   const [weekDay, _setWeekDay] = useStorage("weekDay", new Date().getDay());
+  const [userId, _setUserId] = useStorage("userId", -1);
 
   const [selection, setSelection] = useState(ExerciseType.Strength);
   const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise(weekDay));
@@ -30,14 +31,21 @@ export default function CreateExercise() {
   const currentExercise = () =>
     selection == ExerciseType.Strength ? strength : hiit;
 
+  const findExisting = (exercise: HIITExercise | StrengthExercise) => {
+    return exercises.findIndex(e => {
+      const a = e.rounds !== undefined;
+      const b = exercise.rounds !== undefined;
+      return e.name == exercise.name && e.weekDay == exercise.weekDay && a == b;
+    });
+  };
+
   // Set the pre-existing values if we're editing an exercise
   useEffect(() => {
-    const index = exercises.findIndex(e => e.id == routeParams["id"]);
+    if (routeParams["previousExercise"] === undefined) return;
+    const index = findExisting(JSON.parse(routeParams["previousExercise"]));
     if (index == -1) return;
 
-    let exercise = exercises[index];
-    exercise.id = routeParams["id"];
-
+    const exercise = exercises[index];
     const isHiit = exercise.rounds !== undefined;
     (isHiit) ? setHiit(exercise) : setStrength(exercise);
     setSelection(isHiit ? ExerciseType.HIIT : ExerciseType.Strength);
@@ -55,10 +63,10 @@ export default function CreateExercise() {
     return true;
   };
 
-  const createOrUpdateExercise = (id: number) => {
-    const exercise = { ...currentExercise(), id: id };
+  const createOrUpdateExercise = () => {
+    const exercise = { ...currentExercise(), weekDay: weekDay };
     const copy = [...exercises];
-    const index = copy.findIndex(e => e.id == id);
+    const index = findExisting(exercise);
     if (index == -1) { // Create a new exercise
       copy.push(exercise);
     } else { // Update the exercise
@@ -71,16 +79,20 @@ export default function CreateExercise() {
     if (!isValid()) return;
     request({
       method: "POST",
-      endpoint: "/update_exercise",
-      body: { exercise: currentExercise() },
+      endpoint: "/updateExercise",
+      body: {
+        userId: userId, weekDay: weekDay,
+        strength: selection == ExerciseType.Strength ? strength : undefined,
+        hiit: selection == ExerciseType.Strength ? undefined : hiit
+      },
       onError: (msg: unknown) => console.log("ERROR", msg),
       handler: (response: object) => {
-        if (!response.success) {
+        if (response.error) {
           // TODO: figure out what to do on error
           console.log("ERROR", response);
           return;
         }
-        createOrUpdateExercise(response.id);
+        createOrUpdateExercise();
         navigation.goBack();
       }
     });
@@ -115,7 +127,7 @@ export default function CreateExercise() {
             setValue={(value: number) => setStrength({ ...strength, reps: value })}
           />
           <NumericInput
-            prefix="Reps" suffix="     "
+            prefix="Sets" suffix="     "
             value={strength.sets}
             setValue={(value: number) => setStrength({ ...strength, sets: value })}
           />

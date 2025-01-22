@@ -27,6 +27,7 @@ function PointerLabel(
 //       we could also use the MinMax algorithm to "downsample" the poitns
 // TODO: or, we could fix the annoying bugs in react-native-gifted-charts. what to do???
 // TODO: remove the extra space at the end of the graph.
+// TODO: test case where there's only 1 data point
 export default function Graph({
   data,
   showEverything,
