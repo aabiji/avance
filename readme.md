@@ -3,7 +3,7 @@
 **Avance is still under heavy development.**
 
 Avance is an app for tracking your weight and your exercises.
-TODO: workout scheduling???????
+TODO: use bun sql
 
 Tech stack:
 - Frontend and backend in Typescript
