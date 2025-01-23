@@ -1,29 +1,30 @@
-import { forwardRef, ForwardedRef } from "react";
-import { Text, Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
+import { forwardRef, ForwardedRef, ReactNode } from "react";
+import { Pressable, StyleSheet, StyleProp, ViewStyle } from "react-native";
 import getColors from "@/components/theme";
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-export const Button = forwardRef(
-  (
-    { label, onPress }: { label: string; onPress?: () => void },
-    ref: ForwardedRef<any>,
-  ) => {
-    return (
-      <Pressable
-        ref={ref}
-        onPressIn={onPress}
-        style={({ pressed }) => [
-          styles.button,
-          {
-            backgroundColor: pressed ? getColors().primary["100"] : getColors().primary["200"],
-          },
-        ]}
-      >
-        <Text style={styles.text}>{label}</Text>
-      </Pressable>
-    );
-  },
+interface ButtonProps {
+  children: ReactNode,
+  onPress?: () => void,
+}
+
+export const Button = forwardRef(({ onPress, children }: ButtonProps, ref: ForwardedRef<any>) => {
+  return (
+    <Pressable
+      ref={ref}
+      onPressIn={onPress}
+      style={({ pressed }) => [
+        styles.button,
+        {
+          backgroundColor: pressed ? getColors().primary["100"] : getColors().primary["200"],
+        },
+      ]}
+    >
+      {children}
+    </Pressable>
+  );
+},
 );
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>["name"];
@@ -74,9 +75,5 @@ const styles = StyleSheet.create({
     borderRadius: "50%",
     justifyContent: "center",
     alignContent: "center",
-  },
-  text: {
-    color: getColors().background["300"],
-    textAlign: "center",
-  },
+  }
 });

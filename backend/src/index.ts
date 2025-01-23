@@ -4,6 +4,7 @@ import { type Request, type Response, type NextFunction } from 'express';
 import express from "express";
 
 // Setup the database
+// TODO: use postgresql at some point: https://bun.sh/docs/api/sql
 const db = new Database("example.sqlite");
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
