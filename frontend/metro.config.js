@@ -16,4 +16,13 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
+// Configure react-native-svg-transformer to import svg files as source files
+const sourceExts = config.resolver.sourceExts;
+const assetExts = config.resolver.assetExts;
+
+config.resolver.assetExts = assetExts.filter(ext => ext !== "svg");
+config.resolver.sourceExts = [...sourceExts, "svg"];
+
+config.transformer.babelTransformerPath = require.resolve("react-native-svg-transformer");
+
 module.exports = config;

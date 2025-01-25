@@ -1,20 +1,49 @@
-import { useState } from "react";
-import { Text, View } from "react-native";
+import { useState, useEffect } from "react";
+import { Appearance, Platform, Text, View } from "react-native";
 
 import { Button } from "@/components/buttons";
 import { Container } from "@/components/containers";
 import { Input } from "@/components/inputs";
 import { ThemedText } from "@/components/text";
 
-// Here we show the login page, if the user has already logged in, setAuthenticated(true)
-// If they're not, make them login/create an account, then setAuthenticated(true)
-// If the user is logged in but their token expired, recreate a new jwt
-// But for now, work on how the login/create account screen looks
+import GoogleAuthAndroidDark from "@/assets/google-auth-android-dark.svg";
+import GoogleAuthAndroidLight from "@/assets/google-auth-android-light.svg";
+import GoogleAuthIOSDark from "@/assets/google-auth-ios-dark.svg";
+import GoogleAuthIOSLight from "@/assets/google-auth-ios-light.svg";
+
+import * as Google from "expo-auth-session/providers/google";
+
+function AuthIcon() {
+  const dark = Appearance.getColorScheme() === "dark";
+  if (Platform.OS === "android") {
+    return dark ? <GoogleAuthAndroidDark /> : <GoogleAuthAndroidLight />;
+  }
+  return dark ? <GoogleAuthIOSDark /> : <GoogleAuthIOSLight />;
+}
 
 export default function AuthPage({ setAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLogin, setIsLogin] = useState(true);
+
+  const [_request, response, promptAsync] = Google.useAuthRequest({
+    androidClientId: process.env.EXPO_GOOGLE_OAUTH_ANDROID_CLIENT_ID
+  });
+
+  /*
+  const handleGoogleLogin = async () => {
+    const token = response?.authentication?.accessToken;
+    const res = fetch("https://www.googleapis.com/userinfo/v2/me", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const user = await res.json();
+    console.log(user);
+  }
+
+  useEffect(() => {
+    if (response?.type === "success")
+      handleGoogleLogin();
+  }, [response]);
+  */
 
   /*
   const [_weightEntries, setWeightEntries] = useStorage("weightEntries", {});
@@ -51,21 +80,12 @@ export default function AuthPage({ setAuthenticated }) {
 
   return (
     <Container>
-      <ThemedText header text="Avance" /> {/*TODO: this should be our logo*/}
-      <Button><Text>Authenticate with Google</Text></Button>
-      <Text> Or continue with email </Text> {/*TODO: should be a line with OR in the middle separating the 2 modes of authentication*/}
+      <ThemedText header text="Avance" />
+      <Button onPress={() => promptAsync()}><AuthIcon /></Button>
       <View>
         <Input value={email} placeholder="Email" setData={setEmail} />
-        {/*TODO: should be input type password */}
         <Input value={password} placeholder="Password" setData={setPassword} />
-        <Button><Text>{isLogin ? "Login" : "Signup"}</Text></Button>
-        <Text onPress={() => setIsLogin(!isLogin)}>
-          {
-            isLogin
-              ? "Don't have an account"
-              : "Already have an account?"
-          }
-        </Text>
+        <Button><Text>Continue with email</Text></Button>
       </View>
     </Container>
   );
