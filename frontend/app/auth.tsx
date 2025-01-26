@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Appearance, Platform, Text, View } from "react-native";
 
 import { Button } from "@/components/buttons";
@@ -10,24 +10,18 @@ import GoogleAuthAndroidDark from "@/assets/google-auth-android-dark.svg";
 import GoogleAuthAndroidLight from "@/assets/google-auth-android-light.svg";
 import GoogleAuthIOSDark from "@/assets/google-auth-ios-dark.svg";
 import GoogleAuthIOSLight from "@/assets/google-auth-ios-light.svg";
-
-import * as Google from "expo-auth-session/providers/google";
-
 function AuthIcon() {
-  const dark = Appearance.getColorScheme() === "dark";
-  if (Platform.OS === "android") {
-    return dark ? <GoogleAuthAndroidDark /> : <GoogleAuthAndroidLight />;
-  }
-  return dark ? <GoogleAuthIOSDark /> : <GoogleAuthIOSLight />;
+  //const dark = Appearance.getColorScheme() === "dark";
+  //if (Platform.OS === "android") {
+  //  return dark ? <GoogleAuthAndroidDark /> : <GoogleAuthAndroidLight />;
+  //}
+  //return dark ? <GoogleAuthIOSDark /> : <GoogleAuthIOSLight />;
+  return <Text>something</Text>;
 }
 
 export default function AuthPage({ setAuthenticated }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const [_request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: process.env.EXPO_GOOGLE_OAUTH_ANDROID_CLIENT_ID
-  });
 
   /*
   const handleGoogleLogin = async () => {
@@ -81,7 +75,7 @@ export default function AuthPage({ setAuthenticated }) {
   return (
     <Container>
       <ThemedText header text="Avance" />
-      <Button onPress={() => promptAsync()}><AuthIcon /></Button>
+      <Button><AuthIcon /></Button>
       <View>
         <Input value={email} placeholder="Email" setData={setEmail} />
         <Input value={password} placeholder="Password" setData={setPassword} />
