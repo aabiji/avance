@@ -35,8 +35,6 @@ function BottomNavbar() {
 }
 
 export default function RootLayout() {
-  const [authenticated, setAuthenticated] = useState(false);
-  return authenticated
-    ? <BottomNavbar />
-    : <AuthPage setAuthenticated={setAuthenticated} />
+  const [ready, setReady] = useState(false);
+  return ready ? <BottomNavbar /> : <AuthPage setReady={setReady} />
 }

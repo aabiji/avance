@@ -1,7 +1,9 @@
 import { Database } from "bun:sqlite";
-import { z } from "zod";
+import { randomUUIDv7 } from "bun";
+import { sign, verify } from "jsonwebtoken";
 import { type Request, type Response, type NextFunction } from 'express';
 import express from "express";
+import { z } from "zod";
 
 // Setup the database
 // TODO: use postgresql at some point: https://bun.sh/docs/api/sql
@@ -9,7 +11,9 @@ const db = new Database("example.sqlite");
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     userId INTEGER PRIMARY KEY,
-    email TEXT NOT NULL
+    email TEXT NOT NULL,
+    password TEXT NOT NULL,
+    salt TEXT NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS weightEntries (
@@ -49,14 +53,15 @@ function getSchema(endpoint: string) {
   const numeric = strNum.or(num);
 
   const schemas: Record<string, z.ZodObject<any>> = {
-    "/userData": z.object({ userId: numeric }),
+    "/authenticate": z.object({
+      email: str.email(),
+      password: str,
+    }),
     "/setWeightEntry": z.object({
-      userId: numeric,
       date: str,
       weight: numeric
     }),
     "/updateExercise": z.object({
-      userId: numeric,
       weekDay: numeric,
       hiit: z.optional(z.object({
         name: str,
@@ -72,58 +77,103 @@ function getSchema(endpoint: string) {
       }))
     }),
     "/deleteExercise": z.object({
-      userId: numeric,
       name: str,
       isHiit: z.boolean(),
     })
   };
-  return schemas[endpoint].strict();
+  return endpoint in schemas ? schemas[endpoint].strict() : undefined;
 }
 
 function validateRequest(request: Request, response: Response, next: NextFunction) {
-  // Only validate the requests of certain endpoints
-  const ignoredEndpoints = ["/authenticate"];
+  // Ignore undefined endpoints
   const allEndpoints = app._router.stack
     .filter((r: Request) => r.route)
     .map((r: Request) => r.route.path);
-  if (ignoredEndpoints.includes(request.path) ||
-    !allEndpoints.includes(request.path)) {
+  if (!allEndpoints.includes(request.path)) {
     next();
     return;
   }
 
   // Check if the request body matches the expected schema
-  const result = getSchema(request.path).safeParse(request.body);
-  if (!result.success) {
-    response.json({ error: true });
+  const schema = getSchema(request.path);
+  if (schema !== undefined) {
+    const result = schema.safeParse(request.body);
+    if (!result.success) {
+      response.json({ error: true, message: "Invalid request" });
+      return;
+    }
+    response.locals.params = result.data;
+  }
+
+  // Certain endpoints don't need to be authenticated
+  const ignoredEndpoints = ["/authenticate"];
+  if (ignoredEndpoints.includes(request.path)) {
+    next();
     return;
   }
 
-  // TODO: remove the userid from the schemas, instead get it from the authorization header
-  // Check if it's a valid userId
-  const sql = `SELECT * FROM users WHERE userId=?`;
-  const values = db.query(sql).all(result.data.userId);
-  if (values.length != 1) {
-    response.json({ error: true });
+  // Verify the userId that's taken from the json web token in the request header
+  const auth = request.headers["authorization"];
+  if (auth === undefined || auth.split(" ").length != 2) {
+    response.json({ error: true, message: "Invalid Authorization header" });
     return;
   }
+  const token = auth.split(" ")[1] as string;
 
-  response.locals.params = result.data;
-  next();
+  verify(token, process.env.JWT_SECRET, (error, decoded) => {
+    if (error != null) {
+      response.json({ error: true, message: "Invalid token" });
+      return;
+    }
+
+    const sql = `SELECT * FROM users WHERE userId=?`;
+    const values = db.query(sql).all(decoded.userId);
+    if (values.length != 1) {
+      response.json({ error: true, message: "User not found" });
+      return;
+    }
+
+    response.locals.params = { ...response.locals.params, userId: decoded.userId };
+    next();
+  });
 }
 
 app.use(validateRequest);
 
-app.get("/authenticate", (request, response) => {
-  // TODO: Get the user's email with "Login with Google" OAuth
-  // https://codeculturepro.medium.com/implementing-google-login-in-a-node-js-application-b6fbd98ce5e
-  // If the user's email is already in the database, then just use the existing user id
-  // Else, create a new database row
-  // Create a new json web token
-  // Return the json web token
+// Verifies a user's account if it already exists, or create a new one
+app.post("/authenticate", async (_request, response) => {
+  console.log("LOG: /authenticate");
+  const email = response.locals.params.email;
+  const password = response.locals.params.password;
+
+  const users = db.query("SELECT * FROM users WHERE email=?").all(email);
+  let userId = "";
+
+  if (users.length > 0) {
+    // Check if the submitted password is correct
+    const [salt, existingPassword] = [users[0].salt, users[0].password];
+    const identical = await Bun.password.verify(password + salt, existingPassword);
+    if (!identical) {
+      response.json({ error: true, message: "Wrong password" });
+      return;
+    }
+    userId = users[0].userId;
+  } else {
+    // Create a new user account
+    const salt = randomUUIDv7();
+    const hashed = await Bun.password.hash(password + salt);
+    const sql = `INSERT INTO users (email, password, salt) VALUES (?, ?, ?)`;
+    db.query(sql).run(email, hashed, salt);
+    userId = db.query("SELECT last_insert_rowid()").all()[0] as string;
+  }
+
+  // Return a json web token that expires in 100 days
+  sign({ userId }, process.env.JWT_SECRET, { expiresIn: "100D" },
+    (err, token) => response.json(err === null ? { error: false, token } : { error: true })
+  );
 });
 
-app.post("/userData", (_request, response) => {
+app.get("/userData", (_request, response) => {
   console.log("LOG: /userData");
   const userId = Number(response.locals.params.userId);
 
@@ -178,7 +228,9 @@ app.delete("/deleteExercise", (_request, response) => {
   const table = isHiit ? "hiitExercises" : "strengthExercises";
   const sql = `DELETE FROM ${table} WHERE userId=? AND name=?`;
   const result = db.query(sql).run(userId, name);
-  response.json({ error: result.changes != 1 });
+  const deleteSuccess = result.changes == 1;
+  const message = deleteSuccess ? undefined : "Exercise doesn't exist";
+  response.json({ error: !deleteSuccess, message });
 });
 
 app.all("*", (_request, response) => { response.send("404"); });

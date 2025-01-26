@@ -189,7 +189,7 @@ function StrengthCard(
 export default function ExerciseScreen() {
   const navigation = useNavigation();
 
-  const [userId, _setUserId] = useStorage("userId", -1);
+  const [token, _setToken] = useStorage("token", undefined);
   const [exercises, setExercises] = useStorage("exercises", []);
   const [currentExercises, setCurrentExercises] = useState([]);
   const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
@@ -213,7 +213,7 @@ export default function ExerciseScreen() {
     request({
       method: "DELETE",
       endpoint: "/deleteExercise",
-      body: { userId, name, isHiit },
+      body: { name, isHiit }, token,
       // TODO: figure out what to do on error
       onError: (msg: unknown) => console.log("ERROR", msg),
       handler: () => console.log(`${name} deleted`),

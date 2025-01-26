@@ -1,4 +1,4 @@
-import { StyleSheet, StyleProp, TextInput, TextStyle } from "react-native";
+import { StyleSheet, StyleProp, TextInput, TextStyle, KeyboardTypeOptions } from "react-native";
 import { Dispatch, SetStateAction } from "react";
 import { Container } from "@/components/containers";
 import { ThemedText } from "@/components/text";
@@ -56,10 +56,11 @@ export function NumericInput({
 interface InputProps {
   value?: any;
   placeholder: string;
+  keyboardType?: KeyboardTypeOptions | undefined;
   setData: (value: string) => void | Dispatch<SetStateAction<any>>;
 }
 
-export function Input({ setData, placeholder, value }: InputProps) {
+export function Input({ setData, placeholder, value, keyboardType }: InputProps) {
   return (
     <TextInput
       placeholder={placeholder}
@@ -67,6 +68,7 @@ export function Input({ setData, placeholder, value }: InputProps) {
       value={value}
       style={[styles.input, { width: "100%" }]}
       onChange={(event) => setData(event.nativeEvent.text.trim())}
+      keyboardType={keyboardType ?? "default"}
     />
   );
 }

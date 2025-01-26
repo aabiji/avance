@@ -18,9 +18,9 @@ export default function CreateExercise() {
   const navigation = useNavigation();
   const routeParams = useLocalSearchParams();
 
+  const [token, _setToken] = useStorage("token", undefined);
   const [exercises, setExercises] = useStorage("exercises", []);
   const [weekDay, _setWeekDay] = useStorage("weekDay", new Date().getDay());
-  const [userId, _setUserId] = useStorage("userId", -1);
 
   const [selection, setSelection] = useState(ExerciseType.Strength);
   const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise(weekDay));
@@ -78,10 +78,10 @@ export default function CreateExercise() {
   const saveEntry = () => {
     if (!isValid()) return;
     request({
-      method: "POST",
+      method: "POST", token,
       endpoint: "/updateExercise",
       body: {
-        userId: userId, weekDay: weekDay,
+        weekDay,
         strength: selection == ExerciseType.Strength ? strength : undefined,
         hiit: selection == ExerciseType.Strength ? undefined : hiit
       },

@@ -1,64 +1,88 @@
-import { useState } from "react";
-import { Appearance, Platform, Text, View } from "react-native";
+import * as Crypto from "expo-crypto";
+import { useEffect, useState } from "react";
+import { View } from "react-native";
 
 import { Button } from "@/components/buttons";
 import { Container } from "@/components/containers";
 import { Input } from "@/components/inputs";
 import { ThemedText } from "@/components/text";
+import getColors from "@/components/theme";
 
-import GoogleAuthAndroidDark from "@/assets/google-auth-android-dark.svg";
-import GoogleAuthAndroidLight from "@/assets/google-auth-android-light.svg";
-import GoogleAuthIOSDark from "@/assets/google-auth-ios-dark.svg";
-import GoogleAuthIOSLight from "@/assets/google-auth-ios-light.svg";
-function AuthIcon() {
-  //const dark = Appearance.getColorScheme() === "dark";
-  //if (Platform.OS === "android") {
-  //  return dark ? <GoogleAuthAndroidDark /> : <GoogleAuthAndroidLight />;
-  //}
-  //return dark ? <GoogleAuthIOSDark /> : <GoogleAuthIOSLight />;
-  return <Text>something</Text>;
-}
+import request from "@/lib/http";
+import useStorage from "@/lib/storage";
 
-export default function AuthPage({ setAuthenticated }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+function validateInfo(email: string, password: string): string {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const specialCharacterRegex = /.*[!@#$%^&*(),.?":{}|<>].*/;
+  const numberRegex = /.*\d.*/;
 
-  /*
-  const handleGoogleLogin = async () => {
-    const token = response?.authentication?.accessToken;
-    const res = fetch("https://www.googleapis.com/userinfo/v2/me", {
-      headers: { Authorization: `Bearer ${token}` }
-    });
-    const user = await res.json();
-    console.log(user);
+  if (!emailRegex.test(email)) {
+    return "Invalid email";
   }
 
-  useEffect(() => {
-    if (response?.type === "success")
-      handleGoogleLogin();
-  }, [response]);
-  */
+  if (password.length < 8) {
+    return "Password must be at least 8 digits long";
+  }
 
-  /*
+  if (!specialCharacterRegex.test(password)) {
+    return "Password must contain a special character";
+  }
+
+  if (!numberRegex.test(password)) {
+    return "Password must contain a number";
+  }
+
+  return "";
+}
+
+export default function AuthPage({ setReady }) {
+  const [token, setToken] = useStorage("token", undefined);
   const [_weightEntries, setWeightEntries] = useStorage("weightEntries", {});
   const [_exercises, setExercises] = useStorage("exercises", []);
-  const [userId, setUserId] = useStorage("userId", -1);
-  setUserId(1);
 
-  // Update the user data that's stored locally
-  useEffect(() => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const authenticate = async () => {
+    const msg = validateInfo(email, password);
+    setErrorMessage(msg);
+    if (msg.length > 0) return;
+
     request({
-      method: "POST", endpoint: "/userData",
-      body: { userId: userId },
-
-      // TODO: figure out what to do on error --
-      //       if the user already logged in, we can just rely on localstorage,
-      //       but if they're not, then I guess they can't use the app
-      onError: (_msg: unknown) => { setAuthenticated(true) },
-
-      handler: (response: object) => {
-        // TODO: figure out what to do on error (see above)
+      endpoint: "/authenticate", method: "POST",
+      body: {
+        email,
+        password: await Crypto.digestStringAsync(
+          Crypto.CryptoDigestAlgorithm.SHA256,
+          password
+        )
+      },
+      handler: (response: unknown) => {
         if (response.error) {
+          setErrorMessage(response.message ?? "Server side issue");
+          return;
+        }
+        setToken(response.token);
+      },
+      onError: (_msg: unknown) => setErrorMessage("Couldn't connect to server"),
+    })
+  };
+
+  // Fetch the user data onee the user is authenticated
+  useEffect(() => {
+    if (token === undefined) return;
+    console.log(token);
+    request({
+      method: "GET", endpoint: "/userData", token,
+      // Fall back on the user data stored locally
+      onError: (_msg: unknown) => { setReady(true) },
+      handler: (response: object) => {
+        if (response.error) {
+          // The json web token must be expired, so
+          // force the user to authenticate again
+          if (response.message == "Invalid token")
+            setToken(undefined);
           console.log(`ERROR: ${JSON.stringify(response)}`);
           return;
         }
@@ -66,20 +90,23 @@ export default function AuthPage({ setAuthenticated }) {
         // Put the user data in the local storage
         setWeightEntries(response["weightEntries"]);
         setExercises(response["exercises"]);
-        setAuthenticated(true);
+        setReady(true);
       }
     });
-  }, []);
-  */
+  }, [token]);
 
   return (
     <Container>
       <ThemedText header text="Avance" />
-      <Button><AuthIcon /></Button>
+      {errorMessage.length > 0 &&
+        <ThemedText style={{ color: getColors().red }} text={errorMessage} />
+      }
       <View>
-        <Input value={email} placeholder="Email" setData={setEmail} />
+        <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
         <Input value={password} placeholder="Password" setData={setPassword} />
-        <Button><Text>Continue with email</Text></Button>
+        <Button onPress={authenticate}>
+          <ThemedText style={{ color: getColors().background["300"] }} text="Authenticate" />
+        </Button>
       </View>
     </Container>
   );

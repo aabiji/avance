@@ -5,19 +5,11 @@ module.exports = (() => {
   const projectRoot = __dirname;
   const monorepoRoot = path.resolve(projectRoot, '../..');
   const config = getDefaultConfig(projectRoot);
-  const { transformer, resolver } = config;
 
   config.watchFolders = [monorepoRoot];
 
-  config.transformer = {
-    ...transformer,
-    babelTransformerPath: require.resolve("react-native-svg-transformer/expo")
-  };
-
   config.resolver = {
-    ...resolver,
-    assetExts: resolver.assetExts.filter((ext) => ext !== "svg"),
-    sourceExts: [...resolver.sourceExts, "svg"],
+    ...config.resolver,
     nodeModulesPaths: [
       path.resolve(projectRoot, 'node_modules'),
       path.resolve(monorepoRoot, 'node_modules'),
