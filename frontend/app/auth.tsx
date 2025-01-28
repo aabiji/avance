@@ -1,10 +1,10 @@
 import * as Crypto from "expo-crypto";
 import { useEffect, useState } from "react";
-import { View } from "react-native";
 
 import { Button } from "@/components/buttons";
 import { Container } from "@/components/containers";
 import { Input } from "@/components/inputs";
+import Logo from "@/components/logo";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
@@ -97,17 +97,16 @@ export default function AuthPage({ setReady }) {
 
   return (
     <Container>
-      <ThemedText header text="Avance" />
-      {errorMessage.length > 0 &&
+      <Logo style={{ width: 250, height: 200, marginTop: 50 }} />
+      <Container style={{ width: "100%", gap: 15, height: "fit-content" }}>
         <ThemedText style={{ color: getColors().red }} text={errorMessage} />
-      }
-      <View>
         <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
         <Input value={password} placeholder="Password" setData={setPassword} />
+        <ThemedText text="Forgot password?" style={{ alignSelf: "flex-start", fontSize: 12, marginBottom: 10 }} />
         <Button onPress={authenticate}>
           <ThemedText style={{ color: getColors().background["300"] }} text="Authenticate" />
         </Button>
-      </View>
-    </Container>
+      </Container>
+    </Container >
   );
 }

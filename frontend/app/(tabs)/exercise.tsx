@@ -197,11 +197,12 @@ export default function ExerciseScreen() {
 
   useEffect(() => {
     setCurrentDay(new Date().getDay());
+    setCurrentExercises(exercises.filter((e) => e.weekDay == currentDay));
   }, []);
 
   useEffect(() => {
     setCurrentExercises(exercises.filter((e) => e.weekDay == currentDay));
-  }, [currentDay, exercises]);
+  }, [currentDay]);
 
   const remove = (index: number) => {
     const name = exercises[index].name;

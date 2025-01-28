@@ -168,7 +168,7 @@ app.post("/authenticate", async (_request, response) => {
   }
 
   // Return a json web token that expires in 100 days
-  sign({ userId }, process.env.JWT_SECRET, { expiresIn: "100D" },
+  sign({ userId }, process.env.JWT_SECRET, { expiresIn: "100Days" },
     (err, token) => response.json(err === null ? { error: false, token } : { error: true })
   );
 });

@@ -76,11 +76,10 @@ export function Input({ setData, placeholder, value, keyboardType }: InputProps)
 const styles = StyleSheet.create({
   input: {
     marginBottom: 10,
-    paddingVertical: 5,
+    paddingVertical: 15,
     paddingHorizontal: 15,
     color: getColors().text["100"],
-    backgroundColor: getColors().background["300"],
-    borderBottomColor: getColors().primary["400"],
-    borderBottomWidth: 2,
+    backgroundColor: getColors().background["200"],
+    borderRadius: 10,
   },
 });
