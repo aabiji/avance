@@ -222,8 +222,8 @@ export default function ExerciseScreen() {
   };
 
   return (
-    <Container>
-      <Container row style={{ width: "100%", marginBottom: 10 }}>
+    <Container background>
+      <Container background row style={{ width: "100%", marginBottom: 10 }}>
         <ThemedText header text={`${days[currentDay]}'s exercises`} style={{ fontSize: 20 }} />
         <ClickableIcon name="add" onPress={() => navigation.navigate("createExercise", {})} />
       </Container>

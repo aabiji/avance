@@ -1,9 +1,6 @@
 {
   "name": "backend",
   "type": "module",
-  "scripts": {
-    "start": "bun src/index.ts"
-  },
   "devDependencies": {
     "@types/bun": "latest"
   },

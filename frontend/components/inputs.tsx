@@ -24,14 +24,14 @@ export function NumericInput({
   const strValue = value !== undefined ? `${value}` : undefined;
 
   return (
-    <Container row>
+    <Container background row>
       {prefix.length > 0 && (
         <ThemedText
           text={prefix}
           style={[{ marginRight: 10, marginTop: -8 }, style]}
         />
       )}
-      <Container row style={{ justifyContent: "flex-start" }}>
+      <Container background row style={{ justifyContent: "flex-start" }}>
         <TextInput
           maxLength={10}
           defaultValue={strValue}
@@ -54,13 +54,16 @@ export function NumericInput({
 }
 
 interface InputProps {
-  value?: any;
   placeholder: string;
+  value?: any;
   keyboardType?: KeyboardTypeOptions | undefined;
+  password?: boolean;
   setData: (value: string) => void | Dispatch<SetStateAction<any>>;
 }
 
-export function Input({ setData, placeholder, value, keyboardType }: InputProps) {
+export function Input(
+  { setData, placeholder, value, keyboardType, password }: InputProps
+) {
   return (
     <TextInput
       placeholder={placeholder}
@@ -69,6 +72,7 @@ export function Input({ setData, placeholder, value, keyboardType }: InputProps)
       style={[styles.input, { width: "100%" }]}
       onChange={(event) => setData(event.nativeEvent.text.trim())}
       keyboardType={keyboardType ?? "default"}
+      secureTextEntry={password}
     />
   );
 }

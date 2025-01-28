@@ -1,4 +1,4 @@
-import { useNavigation, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 
 import { View } from "react-native";
@@ -15,7 +15,6 @@ import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
-  const navigation = useNavigation();
   const routeParams = useLocalSearchParams();
 
   const [token, _setToken] = useStorage("token", undefined);
@@ -93,7 +92,7 @@ export default function CreateExercise() {
           return;
         }
         createOrUpdateExercise();
-        navigation.goBack();
+        router.navigate("/exercise");
       }
     });
   };
@@ -104,7 +103,7 @@ export default function CreateExercise() {
   };
 
   return (
-    <Container>
+    <Container background>
       <Screen name={"Create exercise"} handleGoingBack={saveEntry} />
 
       {inputError.length > 0 &&

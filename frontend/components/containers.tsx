@@ -14,11 +14,18 @@ interface ContainerProps {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   row?: boolean;
+  background?: boolean;
 }
 
-export function Container({ children, row, style }: ContainerProps) {
+export function Container({ background, children, row, style }: ContainerProps) {
+  const bg = background ? getColors().background["300"] : getColors().background["200"];
   return (
-    <View style={[row ? styles.row : styles.container, style]}>
+    <View
+      style={[
+        row ? styles.row : styles.container,
+        { backgroundColor: bg },
+        style,
+      ]}>
       {children}
     </View>
   )
@@ -87,13 +94,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: getColors().background["300"],
   },
   container: {
     flex: 1,
     padding: 10,
     alignItems: "center",
-    backgroundColor: getColors().background["300"],
   },
   card: {
     width: "95%",
@@ -101,7 +106,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     borderWidth: 1,
     borderColor: getColors().background["200"],
-    backgroundColor: getColors().background["300"],
+    backgroundColor: getColors().background["200"],
     borderRadius: 10,
     // TODO: also make this work for ios also
     shadowColor: "rgba(99, 99, 99, 0.2)",

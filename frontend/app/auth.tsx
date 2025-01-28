@@ -70,6 +70,7 @@ export default function AuthPage({ setReady }) {
   };
 
   // Fetch the user data onee the user is authenticated
+  // TODO: remove the flash of the screen on load
   useEffect(() => {
     if (token === undefined) return;
     console.log(token);
@@ -97,14 +98,14 @@ export default function AuthPage({ setReady }) {
 
   return (
     <Container>
-      <Logo style={{ width: 250, height: 200, marginTop: 50 }} />
-      <Container style={{ width: "100%", gap: 15, height: "fit-content" }}>
+      <Logo />
+      <Container style={{ width: "100%", gap: 15, height: "fit-content", marginTop: -35 }}>
         <ThemedText style={{ color: getColors().red }} text={errorMessage} />
         <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
-        <Input value={password} placeholder="Password" setData={setPassword} />
+        <Input value={password} placeholder="Password" setData={setPassword} password />
         <ThemedText text="Forgot password?" style={{ alignSelf: "flex-start", fontSize: 12, marginBottom: 10 }} />
         <Button onPress={authenticate}>
-          <ThemedText style={{ color: getColors().background["300"] }} text="Authenticate" />
+          <ThemedText style={{ color: getColors().background["300"] }} text="Continue" />
         </Button>
       </Container>
     </Container >

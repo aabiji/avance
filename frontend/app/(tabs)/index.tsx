@@ -82,9 +82,9 @@ export default function HomeScreen() {
   }, [view]);
 
   return (
-    <Container style={{ flexDirection: "column" }}>
+    <Container background style={{ flexDirection: "column" }}>
       <View style={{ alignItems: "center", justifyContent: "center", height: "40%" }}>
-        <Container row>
+        <Container background row>
           <NumericInput
             value={`${weight}`}
             setValue={setWeight}
