@@ -198,7 +198,7 @@ app.get("/userData", (_request, response) => {
 });
 
 app.post("/setWeightEntry", (_request, response) => {
-  console.log("LOG: /weight_entry");
+  console.log("LOG: /setWeightEntry");
   const { userId, date, weight } = response.locals.params;
   const sql = "INSERT OR REPLACE INTO weightEntries (userId, date, weight) VALUES (?, ?, ?)";
   db.query(sql).run(userId, date, weight);

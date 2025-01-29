@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-
 import { View } from "react-native";
-import { lineDataItem } from "react-native-gifted-charts";
 
 import { Container } from "@/components/containers";
-import Graph from "@/components/graph";
+import { GraphPoint, Graph } from "@/components/graph";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
 import { fontSize, getColors } from "@/components/theme";
@@ -39,14 +37,14 @@ function weeklyWeights(entries: WeightEntries): WeightEntries {
 
 // Get the last recorded weight
 function getLastWeight(entries: WeightEntries): number {
-  // TODO: this should be sorted since we can't garantee that the keys will already be sorted
-  const days = Object.keys(entries);
+  const days = Object.keys(entries)
+    .sort((a, b) => new Date(a) - new Date(b));
   const last = days[days.length - 1];
   return last === undefined ? 0 : entries[last];
 }
 
 // Map our data into the data format the graph expects
-function prepareData(entries: WeightEntries): lineDataItem[] {
+function prepareData(entries: WeightEntries): GraphPoint[] {
   let graphData = [];
   for (const day in entries) {
     graphData.push({ label: day, value: entries[day] });
@@ -57,7 +55,7 @@ function prepareData(entries: WeightEntries): lineDataItem[] {
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0); // TODO: call setWeightEntry endpoint
-  const [graphData, setGraphData] = useState<lineDataItem[]>([]);
+  const [graphData, setGraphData] = useState<GraphPoint[]>([]);
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
 
   // Update the graph data when the component loads
@@ -104,7 +102,9 @@ export default function HomeScreen() {
           style={{ marginTop: "10%" }}
         />
       </View>
-      <Graph data={graphData} showEverything={view != GraphView.Daily} />
+      <View style={{ height: "50%", width: "100%" }}>
+        <Graph data={graphData} showEverything={view != GraphView.Daily} />
+      </View>
     </Container>
   );
 }

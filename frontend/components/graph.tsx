@@ -1,89 +1,62 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { LineChart, lineDataItem } from "react-native-gifted-charts";
-import { fontSize, getColors } from "./theme";
+import { ReactNode, useLayoutEffect, useRef, useState } from "react";
+import { ScrollView } from "react-native";
+import { Circle, Line, Svg } from "react-native-svg";
 
-function PointerLabel(
-  items: lineDataItem[],
-  _secondaryItem: object,
-  _pointerIndex: number,
-) {
-  const item = items[0];
-  return (
-    <View style={[styles.label, { width: 80 }]}>
-      <Text style={[styles.labelText, { color: getColors().background["300"] }]}>
-        {item.label}
-      </Text>
-      <Text style={[styles.labelText, { color: getColors().background["300"] }]}>
-        {item.value}
-      </Text>
-    </View>
-  );
+export interface GraphPoint {
+  value: number;
+  label: string;
 }
 
-// TODO: rewrite a better line graph implementation ourselves
-// TODO: and stress test by drawing a full graph with thousands of data points
-// TODO: could we use the Ramer-Douglas-Peuker algorithm to simplify the graph when
-//       we could also use the MinMax algorithm to "downsample" the poitns
-// TODO: or, we could fix the annoying bugs in react-native-gifted-charts. what to do???
-// TODO: remove the extra space at the end of the graph.
-// TODO: test case where there's only 1 data point
-export default function Graph({
-  data,
-  showEverything,
-}: {
-  data: lineDataItem[];
+interface GraphProps {
+  data: GraphPoint[];
   showEverything: boolean;
-}) {
-  const [lowest, setLowest] = useState(0);
-  useEffect(() => {
-    const values = data.map((entry: lineDataItem) => entry.value!);
-    if (values.length > 0) setLowest(Math.min(...values) - 1);
+}
+
+export function Graph({ data, showEverything }: GraphProps) {
+  const [containerHeight, setContainerHeight] = useState(0);
+  const container = useRef(null);
+
+  const [circles, setCircles] = useState<ReactNode[]>([]);
+  const [lines, setLines] = useState<ReactNode[]>([]);
+
+  const lowest = Math.min(...data.map((point) => point.value));
+  const highest = Math.max(...data.map((point) => point.value));
+  const spacing = 25;
+
+  const getXY = (index: number, height: number) => {
+    const v = data[index].value;
+    // Map from the range of lowest to highest to 0 to height
+    const y = (height / (highest - lowest)) * (v - lowest);
+    return [index * spacing, y];
+  };
+
+  useLayoutEffect(() => {
+    const height = container.current.unstable_getBoundingClientRect().height;
+    let circles = [];
+    let lines = [];
+
+    for (let i = 0; i < data.length; i++) {
+      // Draw the current point
+      const [x, y] = getXY(i, height);
+      circles.push(<Circle key={i} cx={x} cy={y} r="3" fill="blue" />);
+
+      // Draw connecting line to the next point
+      if (i + 1 < data.length) {
+        const [nextX, nextY] = getXY(i + 1, height);
+        lines.push(<Line key={i} x1={x} y1={y} x2={nextX} y2={nextY} stroke="blue" />);
+      }
+    }
+
+    setCircles(circles);
+    setLines(lines);
+    setContainerHeight(height);
   }, [data]);
 
   return (
-    <View style={{ width: "100%", overflow: "hidden" }}>
-      <LineChart
-        data={data}
-        showFractionalValues
-        animateOnDataChange
-        hideOrigin
-        scrollToEnd
-        rotateLabel
-        hideRules
-        curved
-        thickness={3}
-        yAxisOffset={lowest}
-        stepHeight={25}
-        endSpacing={0}
-        initialSpacing={0}
-        adjustToWidth={showEverything ?? false}
-        yAxisColor={getColors().background["100"]}
-        xAxisColor={getColors().background["100"]}
-        dataPointsColor={getColors().primary["200"]}
-        backgroundColor={getColors().background["300"]}
-        color={getColors().primary["200"]}
-        yAxisTextStyle={[styles.labelText]}
-        xAxisLabelTextStyle={[styles.labelText, { width: 200 }]}
-        pointerConfig={{
-          activatePointersOnLongPress: true,
-          pointerLabelComponent: PointerLabel,
-          pointerColor: getColors().primary["200"],
-        }}
-      />
-    </View>
+    <ScrollView horizontal ref={container}>
+      <Svg width={data.length * spacing} height={containerHeight}>{circles}{lines}</Svg>
+    </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  label: {
-    padding: 5,
-    alignSelf: "center",
-    backgroundColor: getColors().primary["300"],
-  },
-  labelText: {
-    fontSize: fontSize["100"],
-    alignSelf: "center",
-    color: getColors().text["100"]
-  },
-});
+export default Graph;

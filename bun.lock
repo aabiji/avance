@@ -54,7 +54,6 @@
         "react-native": "0.76.6",
         "react-native-bcrypt-cpp": "^0.2.3",
         "react-native-gesture-handler": "~2.20.2",
-        "react-native-gifted-charts": "^1.4.56",
         "react-native-mmkv": "^3.2.0",
         "react-native-mmkv-storage": "^0.11.2",
         "react-native-reanimated": "~3.16.7",
@@ -1159,8 +1158,6 @@
 
     "getenv": ["getenv@1.0.0", "", {}, "sha512-7yetJWqbS9sbn0vIfliPsFgoXMKn/YMF+Wuiog97x+urnSRRRZ7xB+uVkwGKzRgq9CDFfMQnE9ruL5DHv9c6Xg=="],
 
-    "gifted-charts-core": ["gifted-charts-core@0.1.58", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-NK+YRZMgpQ28t80+O3Vgx5mb+bsAiEl/+z4o3RmZfatt3pW6XvDpYOclqofaXAtoA/wEMHNww2CqYaxPE7pRqA=="],
-
     "glob": ["glob@7.2.3", "", { "dependencies": { "fs.realpath": "^1.0.0", "inflight": "^1.0.4", "inherits": "2", "minimatch": "^3.1.1", "once": "^1.3.0", "path-is-absolute": "^1.0.0" } }, "sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q=="],
 
     "glob-parent": ["glob-parent@5.1.2", "", { "dependencies": { "is-glob": "^4.0.1" } }, "sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow=="],
@@ -1724,8 +1721,6 @@
     "react-native-bcrypt-cpp": ["react-native-bcrypt-cpp@0.2.3", "", { "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-0J2Oml0dhACmehwPBuY1eNYYQRBzerhIRUsqtUpCGTbLlpKmJPazbHTHVoKodyOMTkX1GfxyApyDHMqACWeCxw=="],
 
     "react-native-gesture-handler": ["react-native-gesture-handler@2.20.2", "", { "dependencies": { "@egjs/hammerjs": "^2.0.17", "hoist-non-react-statics": "^3.3.0", "invariant": "^2.2.4", "prop-types": "^15.7.2" }, "peerDependencies": { "react": "*", "react-native": "*" } }, "sha512-HqzFpFczV4qCnwKlvSAvpzEXisL+Z9fsR08YV5LfJDkzuArMhBu2sOoSPUF/K62PCoAb+ObGlTC83TKHfUd0vg=="],
-
-    "react-native-gifted-charts": ["react-native-gifted-charts@1.4.56", "", { "dependencies": { "gifted-charts-core": "0.1.58" }, "peerDependencies": { "expo-linear-gradient": "*", "react": "*", "react-native": "*", "react-native-linear-gradient": "*", "react-native-svg": "*" }, "optionalPeers": ["expo-linear-gradient", "react-native-linear-gradient"] }, "sha512-APqS9/J2idCEDwZB8a/jsEryvyNtOjBmsynZBb3lijLnb+nJxj/qwBf9/ztXAvS2o9OyWXq10ZhuCObMcV6rMA=="],
 
     "react-native-helmet-async": ["react-native-helmet-async@2.0.4", "", { "dependencies": { "invariant": "^2.2.4", "react-fast-compare": "^3.2.2", "shallowequal": "^1.1.0" }, "peerDependencies": { "react": "^16.6.0 || ^17.0.0 || ^18.0.0" } }, "sha512-m3CkXWss6B1dd6mCMleLpzDCJJGGaHOLQsUzZv8kAASJmMfmVT4d2fx375iXKTRWT25ThBfae3dECuX5cq/8hg=="],
 
