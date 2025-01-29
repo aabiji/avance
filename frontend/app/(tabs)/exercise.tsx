@@ -1,5 +1,5 @@
 import { useNavigation } from "expo-router";
-import { useAudioPlayer } from "expo-audio";
+import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
 import { FlatList, View, StyleSheet } from "react-native";
 import { useEffect, useState } from "react";
 
@@ -43,7 +43,17 @@ function HIITCard(
   { exercise, removeSelf }: {
     exercise: HIITExercise, removeSelf: () => void
   }) {
-  const player = useAudioPlayer(require("@/assets/beep.mp3"));
+  const sound = useAudioPlayer(require("@/assets/countdown.mp3"));
+  const status = useAudioPlayerStatus(sound);
+  const [wasPlaying, setWasPlaying] = useState(false);
+
+  // Make the sound effect replayable
+  useEffect(() => {
+    if (status.didJustFinish) {
+      sound.seekTo(0);
+      sound.pause();
+    }
+  }, [status]);
 
   // Can either be "play", "pause" or "reload". Using the icon
   // name to determine whether we're playing the timer, pausing
@@ -57,8 +67,17 @@ function HIITCard(
   const [done, setDone] = useState(false); // Whether we've completed all rounds
 
   const toggleIcon = () => {
-    setIcon(icon == "play" || done ? "pause" : "play");
+    const newIcon = icon == "play" || done ? "pause" : "play";
     setDone(false);
+    setIcon(newIcon);
+    // Toggle the sound effect playing when pausing/unpausing
+    if (newIcon == "play") {
+      setWasPlaying(status.playing);
+      sound.pause();
+    } else if (newIcon == "pause" && wasPlaying) {
+      sound.play();
+      setWasPlaying(false);
+    }
   };
 
   // Transistion between work and rest session
@@ -78,7 +97,6 @@ function HIITCard(
         setRounds(exercise.rounds);
       }
     }
-    player.play(); // TODO: we don't seem to be playing multiple times
   };
 
   // Count down the duration of the current session
@@ -86,8 +104,11 @@ function HIITCard(
     if (icon == "play" || done) return;
 
     const interval = setInterval(() => {
-      setSeconds(seconds - 1);
+      const newSeconds = seconds - 1;
+      setSeconds(newSeconds);
       if (seconds == 0) toggleSession();
+      if (newSeconds > 0 && newSeconds <= 3 && !status.playing)
+        sound.play(); // Play sound effect signalling the session change
     }, 1000);
 
     return () => clearInterval(interval);
@@ -191,20 +212,18 @@ export default function ExerciseScreen() {
 
   const [token, _setToken] = useStorage("token", undefined);
   const [exercises, setExercises] = useStorage("exercises", []);
-  const [currentExercises, setCurrentExercises] = useState([]);
   const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
   const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-  useEffect(() => {
-    setCurrentDay(new Date().getDay());
-    setCurrentExercises(exercises.filter((e) => e.weekDay == currentDay));
-  }, []);
+  useEffect(() => { setCurrentDay(new Date().getDay()); }, []);
 
-  useEffect(() => {
-    setCurrentExercises(exercises.filter((e) => e.weekDay == currentDay));
-  }, [currentDay]);
+  const remove = (exercise: HIITExercise | StrengthExercise) => {
+    const index = exercises.findIndex(e => {
+      const a = e.rounds !== undefined;
+      const b = exercise.rounds !== undefined;
+      return e.name == exercise.name && e.weekDay == exercise.weekDay && a == b;
+    });
 
-  const remove = (index: number) => {
     const name = exercises[index].name;
     const isHiit = exercises[index].rounds !== undefined;
     const copy = [...exercises];
@@ -231,15 +250,15 @@ export default function ExerciseScreen() {
       <Selection options={days.map((day) => day[0])} selection={currentDay} setSelection={setCurrentDay} />
 
       {
-        currentExercises.length > 0
+        exercises.length > 0
           ? <FlatList
-            data={currentExercises}
-            renderItem={({ item, index }) => {
+            data={exercises.filter((e) => e.weekDay == currentDay)}
+            keyExtractor={(item) => `${item.name}-${item.weekDay}-${item.rounds}`}
+            renderItem={({ item }) => {
               const isHiit = (item as HIITExercise).rounds !== undefined;
-              // TODO: 2 items with same key error when we create a new exercise
               return isHiit
-                ? <HIITCard key={index} exercise={item} removeSelf={() => remove(index)} />
-                : <StrengthCard key={index} exercise={item} removeSelf={() => remove(index)} />;
+                ? <HIITCard exercise={item} removeSelf={() => remove(item)} />
+                : <StrengthCard exercise={item} removeSelf={() => remove(item)} />;
             }
             }
             style={{ width: "100%" }}

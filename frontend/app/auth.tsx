@@ -45,6 +45,7 @@ export default function AuthPage({ setReady }) {
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alreadyAuthenticated, setAlreadyAuthenticated] = useState(false);
 
   const authenticate = async () => {
     const msg = validateInfo(email, password);
@@ -77,7 +78,6 @@ export default function AuthPage({ setReady }) {
   };
 
   // Fetch the user data onee the user is authenticated
-  // TODO: remove the flash of the screen on load
   useEffect(() => {
     if (token === undefined) return;
     request({
@@ -90,8 +90,10 @@ export default function AuthPage({ setReady }) {
         if (response.error) {
           // The json web token must be expired, so
           // force the user to authenticate again
-          if (response.message == "Invalid token")
+          if (response.message == "Invalid token") {
             setToken(undefined);
+            setAlreadyAuthenticated(false);
+          }
           console.log(`ERROR: ${JSON.stringify(response)}`);
           return;
         }
@@ -104,6 +106,14 @@ export default function AuthPage({ setReady }) {
     });
   }, [token]);
 
+  // Don't show the ui if the user is already authenticated
+  useEffect(() => {
+    if (token !== undefined)
+      setAlreadyAuthenticated(true);
+  }, []);
+  if (alreadyAuthenticated)
+    return null;
+
   return (
     <Container background>
       <Logo />
@@ -115,13 +125,18 @@ export default function AuthPage({ setReady }) {
         <ThemedText style={{ color: getColors().red }} text={errorMessage} />
         <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
         <Input value={password} placeholder="Password" setData={setPassword} password />
-        <ThemedText text="Forgot password?" style={{ alignSelf: "flex-start", fontSize: fontSize["200"], marginBottom: 10 }} />
+        <ThemedText
+          text="Forgot password?"
+          style={{
+            alignSelf: "flex-start", fontSize: fontSize["200"], marginBottom: 10
+          }}
+        />
         <Button onPress={authenticate}>
           {
             loading
-              ? <ActivityIndicator color="#ffffff" />
+              ? <ActivityIndicator color={getColors().background["50"]} />
               : <ThemedText
-                style={{ color: getColors().background["300"] }}
+                style={{ color: getColors().background["50"] }}
                 text="Continue"
               />
           }

@@ -17,7 +17,7 @@ export const Button = forwardRef(({ onPress, children }: ButtonProps, ref: Forwa
       style={({ pressed }) => [
         styles.button,
         {
-          backgroundColor: pressed ? getColors().primary["100"] : getColors().primary["200"],
+          backgroundColor: pressed ? getColors().primary["400"] : getColors().primary["500"],
         },
       ]}
     >

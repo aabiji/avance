@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from "expo-router";
+import { useNavigation, useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
 
 import { View } from "react-native";
@@ -15,6 +15,7 @@ import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
+  const navigation = useNavigation();
   const routeParams = useLocalSearchParams();
 
   const [token, _setToken] = useStorage("token", undefined);
@@ -31,6 +32,7 @@ export default function CreateExercise() {
     selection == ExerciseType.Strength ? strength : hiit;
 
   const findExisting = (exercise: HIITExercise | StrengthExercise) => {
+    // Identical exercises have the same name, the same date and the same type
     return exercises.findIndex(e => {
       const a = e.rounds !== undefined;
       const b = exercise.rounds !== undefined;
@@ -92,7 +94,7 @@ export default function CreateExercise() {
           return;
         }
         createOrUpdateExercise();
-        router.navigate("/exercise");
+        navigation.goBack();
       }
     });
   };
