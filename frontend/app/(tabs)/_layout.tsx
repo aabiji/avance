@@ -17,14 +17,14 @@ function BottomNavbar() {
             exercise: "barbell-outline",
           };
           const name = iconNames[route.name] as IoniconsName;
-          const c = focused ? getColors().primary["200"] : getColors().text["300"];
+          const c = focused ? getColors().primary["500"] : getColors().accent["300"];
           return <Ionicons name={name} size={size} color={c} />;
         },
         tabBarShowLabel: false,
         tabBarStyle: {
           marginBottom: -10, // Remove bottom padding
-          backgroundColor: getColors().background["300"],
-          borderColor: getColors().background["300"],
+          backgroundColor: getColors().background["50"],
+          borderColor: getColors().background["100"],
         },
       })}
     >

@@ -1,12 +1,13 @@
 import * as Crypto from "expo-crypto";
 import { useEffect, useState } from "react";
+import { ActivityIndicator } from "react-native";
 
 import { Button } from "@/components/buttons";
 import { Container } from "@/components/containers";
 import { Input } from "@/components/inputs";
 import Logo from "@/components/logo";
 import { ThemedText } from "@/components/text";
-import getColors from "@/components/theme";
+import getColors, { fontSize } from "@/components/theme";
 
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
@@ -43,11 +44,13 @@ export default function AuthPage({ setReady }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const authenticate = async () => {
     const msg = validateInfo(email, password);
     setErrorMessage(msg);
     if (msg.length > 0) return;
+    setLoading(true);
 
     request({
       endpoint: "/authenticate", method: "POST",
@@ -60,12 +63,16 @@ export default function AuthPage({ setReady }) {
       },
       handler: (response: unknown) => {
         if (response.error) {
+          setLoading(false);
           setErrorMessage(response.message ?? "Server side issue");
           return;
         }
         setToken(response.token);
       },
-      onError: (_msg: unknown) => setErrorMessage("Couldn't connect to server"),
+      onError: (_msg: unknown) => {
+        setLoading(false);
+        setErrorMessage("Couldn't connect to server");
+      }
     })
   };
 
@@ -73,12 +80,13 @@ export default function AuthPage({ setReady }) {
   // TODO: remove the flash of the screen on load
   useEffect(() => {
     if (token === undefined) return;
-    console.log(token);
     request({
       method: "GET", endpoint: "/userData", token,
       // Fall back on the user data stored locally
       onError: (_msg: unknown) => { setReady(true) },
       handler: (response: object) => {
+        setLoading(false);
+
         if (response.error) {
           // The json web token must be expired, so
           // force the user to authenticate again
@@ -97,15 +105,26 @@ export default function AuthPage({ setReady }) {
   }, [token]);
 
   return (
-    <Container>
+    <Container background>
       <Logo />
-      <Container style={{ width: "100%", gap: 15, height: "fit-content", marginTop: -35 }}>
+      <Container
+        background
+        style={{
+          width: "100%", gap: 15, height: "fit-content", marginTop: -35
+        }}>
         <ThemedText style={{ color: getColors().red }} text={errorMessage} />
         <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
         <Input value={password} placeholder="Password" setData={setPassword} password />
-        <ThemedText text="Forgot password?" style={{ alignSelf: "flex-start", fontSize: 12, marginBottom: 10 }} />
+        <ThemedText text="Forgot password?" style={{ alignSelf: "flex-start", fontSize: fontSize["200"], marginBottom: 10 }} />
         <Button onPress={authenticate}>
-          <ThemedText style={{ color: getColors().background["300"] }} text="Continue" />
+          {
+            loading
+              ? <ActivityIndicator color="#ffffff" />
+              : <ThemedText
+                style={{ color: getColors().background["300"] }}
+                text="Continue"
+              />
+          }
         </Button>
       </Container>
     </Container >

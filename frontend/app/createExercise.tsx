@@ -106,15 +106,18 @@ export default function CreateExercise() {
     <Container background>
       <Screen name={"Create exercise"} handleGoingBack={saveEntry} />
 
-      {inputError.length > 0 &&
-        <ThemedText style={{ color: getColors().red }} text={inputError} />
-      }
-
       <Selection
         selection={selection}
         setSelection={setSelection}
         options={Object.keys(ExerciseType).filter((member) => isNaN(Number(member)))}
       />
+
+      {inputError.length > 0 &&
+        <ThemedText
+          style={{ color: getColors().red, marginTop: -20, marginBottom: 10 }}
+          text={inputError}
+        />
+      }
 
       <Input placeholder={"Name"} setData={setName} value={currentExercise().name} />
 
@@ -139,7 +142,7 @@ export default function CreateExercise() {
       ) : (
         <View style={{ width: "100%" }}>
           <NumericInput
-            prefix="Rounds" suffix=" "
+            prefix="Rounds" suffix="  "
             value={hiit.rounds}
             setValue={(value: number) => setHiit({ ...hiit, rounds: value })}
           />

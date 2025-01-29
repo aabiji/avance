@@ -9,9 +9,9 @@ export default function Screen(
     <Stack.Screen
       options={{
         title: name,
-        headerStyle: { backgroundColor: getColors().background["300"] },
-        headerTitleStyle: { color: getColors().text["100"] },
-        headerTintColor: getColors().text["100"], // Back button color
+        headerStyle: { backgroundColor: getColors().background["50"] },
+        headerTitleStyle: { color: getColors().text["950"] },
+        headerTintColor: getColors().text["950"], // Back button color
         headerRight: () => (
           <ClickableIcon
             transparent

@@ -92,8 +92,8 @@ export default function HomeScreen() {
             suffix={"lbs"}
             style={{
               fontWeight: "bold",
-              fontSize: fontSize.big,
-              color: getColors().text["100"],
+              fontSize: fontSize["800"],
+              color: getColors().text["950"],
             }}
           />
         </Container>

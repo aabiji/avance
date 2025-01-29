@@ -36,7 +36,7 @@ export function NumericInput({
           maxLength={10}
           defaultValue={strValue}
           placeholder="0"
-          placeholderTextColor={getColors().text["300"]}
+          placeholderTextColor={getColors().text["950"]}
           style={[styles.input, style]}
           onChange={(event) => set(event.nativeEvent.text)}
           keyboardType="numeric"
@@ -82,8 +82,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingVertical: 15,
     paddingHorizontal: 15,
-    color: getColors().text["100"],
-    backgroundColor: getColors().background["200"],
+    color: getColors().text["950"],
+    backgroundColor: getColors().primary["100"],
     borderRadius: 10,
   },
 });

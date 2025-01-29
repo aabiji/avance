@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
     backgroundColor: getColors().primary["300"],
   },
   labelText: {
-    fontSize: fontSize.small,
+    fontSize: fontSize["100"],
     alignSelf: "center",
     color: getColors().text["100"]
   },

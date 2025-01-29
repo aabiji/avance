@@ -15,7 +15,7 @@ export default function Selection({
   setSelection,
   style
 }: SelectionProps) {
-  const [bg, color] = [getColors().background["300"], getColors().primary["200"]];
+  const [bg, color] = [getColors().primary["500"], getColors().background["50"]];
   return (
     <View style={[styles.container, style]}>
       {options.map((option, index) => (
@@ -24,11 +24,11 @@ export default function Selection({
           onPressIn={() => setSelection(index)}
           style={[
             styles.button,
-            { backgroundColor: index == selection ? color : bg },
+            { backgroundColor: index == selection ? bg : color },
           ]}
         >
           <Text
-            style={{ color: index == selection ? bg : color, textAlign: "center" }}
+            style={{ color: index == selection ? color : bg, textAlign: "center" }}
           >
             {option}
           </Text>
@@ -43,14 +43,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "100%",
     marginBottom: 25,
-    overflow: "hidden",
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: getColors().primary["200"]
   },
   button: {
     flex: 1,
-    paddingHorizontal: 15,
+    borderRadius: 10,
     paddingVertical: 8,
   }
 });

@@ -7,7 +7,7 @@ import { Container, SwipeableCard } from "@/components/containers";
 import { ClickableIcon } from "@/components/buttons";
 import Selection from "@/components/selection";
 import { ThemedText } from "@/components/text";
-import getColors from "@/components/theme";
+import getColors, { fontSize } from "@/components/theme";
 
 import { HIITExercise, StrengthExercise } from "@/lib/types";
 
@@ -102,14 +102,14 @@ function HIITCard(
     <SwipeableCard maxXOffset={-50} style={styles.card}>
       <Container row style={{ width: "100%" }}>
         <Container style={styles.infoColumn}>
-          <ThemedText text={exercise.name} bold style={{ fontSize: 16 }} />
+          <ThemedText text={exercise.name} bold style={{ fontSize: fontSize["600"] }} />
 
           {/* Emphasize the current session */}
           <Container row>
             <ThemedText
               bold
               text={`${seconds} `}
-              style={{ color: getColors().secondary["100"] }}
+              style={{ color: getColors().secondary["500"] }}
             />
             <ThemedText text={`s ${working ? "work" : "rest"}`} />
           </Container>
@@ -118,17 +118,17 @@ function HIITCard(
             <ThemedText
               dimmed
               text={upcomingSession()}
-              style={{ fontSize: 13 }}
+              style={{ fontSize: fontSize["400"] }}
             />
             <ThemedText
               dimmed
               text={`x${rounds}`}
-              style={{ fontSize: 13, color: getColors().secondary["100"] }}
+              style={{ fontSize: fontSize["400"], color: getColors().secondary["100"] }}
             />
           </Container>
         </Container>
 
-        <ClickableIcon dimmed name={icon} transparent onPress={toggleIcon} />
+        <ClickableIcon name={icon} transparent onPress={toggleIcon} />
       </Container>
 
       <CardOptions remove={removeSelf} exercise={JSON.stringify(exercise)} />
@@ -147,13 +147,13 @@ function StrengthCard(
     <SwipeableCard maxXOffset={-50} style={styles.card}>
       <Container row style={{ width: "100%" }}>
         <Container style={styles.infoColumn}>
-          <ThemedText text={exercise.name} bold style={{ fontSize: 16 }} />
+          <ThemedText text={exercise.name} bold style={{ fontSize: fontSize["600"] }} />
 
           <Container row>
             <ThemedText
               bold
               text={`${sets} `}
-              style={{ color: getColors().secondary["100"] }}
+              style={{ color: getColors().secondary["500"] }}
             />
             <ThemedText text={`/ ${exercise.sets} sets`} />
           </Container>
@@ -162,20 +162,20 @@ function StrengthCard(
             <ThemedText
               dimmed
               text={`${exercise.reps} reps`}
-              style={{ fontSize: 13 }}
+              style={{ fontSize: fontSize["400"] }}
             />
             {exercise.weight > 0 &&
               <ThemedText
                 dimmed
                 text={`${exercise.weight} lbs`}
-                style={{ fontSize: 13 }}
+                style={{ fontSize: fontSize["400"] }}
               />
             }
           </Container>
         </Container>
 
         <ClickableIcon
-          dimmed transparent
+          transparent
           name={sets == exercise.sets ? "reload" : "add"}
           onPress={countSets}
         />
@@ -224,7 +224,7 @@ export default function ExerciseScreen() {
   return (
     <Container background>
       <Container background row style={{ width: "100%", marginBottom: 10 }}>
-        <ThemedText header text={`${days[currentDay]}'s exercises`} style={{ fontSize: 20 }} />
+        <ThemedText header text={`${days[currentDay]}'s exercises`} style={{ fontSize: fontSize["700"] }} />
         <ClickableIcon name="add" onPress={() => navigation.navigate("createExercise", {})} />
       </Container>
 

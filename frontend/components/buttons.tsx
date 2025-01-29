@@ -38,15 +38,13 @@ interface ClickableIconProps {
 }
 
 export const ClickableIcon = forwardRef(
-  ({ name, onPress, transparent, style, dimmed, size }: ClickableIconProps,
+  ({ name, onPress, transparent, style, size }: ClickableIconProps,
     ref: ForwardedRef<any>
   ) => {
-    let color = transparent ? getColors().primary["200"] : getColors().background["300"];
-    if (dimmed) color = getColors().primary["400"];
-
+    let color = transparent ? getColors().secondary["400"] : getColors().background["50"];
     const baseSize = transparent ? 35 : 25;
-    const base = transparent ? "#00000000" : getColors().primary["200"];
-    const hover = transparent ? `${getColors().primary["100"]}10` : getColors().primary["100"];
+    const base = transparent ? "#00000000" : getColors().accent["500"];
+    const hover = transparent ? `${getColors().primary["100"]}10` : getColors().accent["400"];
     return (
       <Pressable
         ref={ref}

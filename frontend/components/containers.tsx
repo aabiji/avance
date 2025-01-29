@@ -18,7 +18,7 @@ interface ContainerProps {
 }
 
 export function Container({ background, children, row, style }: ContainerProps) {
-  const bg = background ? getColors().background["300"] : getColors().background["200"];
+  const bg = background ? getColors().background["50"] : getColors().background["100"];
   return (
     <View
       style={[
@@ -105,11 +105,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     alignSelf: "center",
     borderWidth: 1,
-    borderColor: getColors().background["200"],
-    backgroundColor: getColors().background["200"],
     borderRadius: 10,
-    // TODO: also make this work for ios also
-    shadowColor: "rgba(99, 99, 99, 0.2)",
-    elevation: 20
+    borderColor: getColors().background["100"],
   }
 });
