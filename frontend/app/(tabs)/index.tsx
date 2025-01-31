@@ -46,7 +46,10 @@ function prepareData(entries: WeightEntries): GraphPoint[] {
     .sort((a, b) => (new Date(a)).valueOf() - (new Date(b)).valueOf());
   let graphData = [];
   for (const day of sortedDates) {
-    graphData.push({ label: formatDate(new Date(day)), value: entries[day] });
+    const date = new Date(day);
+    graphData.push({
+      value: entries[day], label: formatDate(date), info: formatDate(date, true)
+    });
   }
   return graphData;
 }
@@ -102,7 +105,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={{ height: "50%", width: "100%" }}>
-        <Graph data={graphData} showEverything={view != GraphView.Daily} />
+        <Graph data={graphData} fitToWidth={view != GraphView.Daily} />
       </View>
     </Container>
   );
