@@ -23,13 +23,10 @@ function weeklyWeights(entries: WeightEntries): WeightEntries {
   let newEntries: WeightEntries = {};
 
   for (const week of weeks) {
-    const weightValues = week.map((day) => entries[formatDate(day, true)]);
-
+    const weightValues = week.map((day) => entries[day.toString()]);
     const sum = weightValues.reduce((a, b) => a + b);
     const avg = sum / weightValues.length;
-
-    let weekStart = formatDate(week[0], true);
-    newEntries[weekStart] = Math.round(avg * 10) / 10;
+    newEntries[week[0].toString()] = Math.round(avg * 10) / 10;
   }
 
   return newEntries;
@@ -37,17 +34,19 @@ function weeklyWeights(entries: WeightEntries): WeightEntries {
 
 // Get the last recorded weight
 function getLastWeight(entries: WeightEntries): number {
-  const days = Object.keys(entries)
-    .sort((a, b) => new Date(a) - new Date(b));
-  const last = days[days.length - 1];
+  const sortedDates = Object.keys(entries)
+    .sort((a, b) => (new Date(a)).valueOf() - (new Date(b)).valueOf());
+  const last = sortedDates[sortedDates.length - 1];
   return last === undefined ? 0 : entries[last];
 }
 
 // Map our data into the data format the graph expects
 function prepareData(entries: WeightEntries): GraphPoint[] {
+  const sortedDates = Object.keys(entries)
+    .sort((a, b) => (new Date(a)).valueOf() - (new Date(b)).valueOf());
   let graphData = [];
-  for (const day in entries) {
-    graphData.push({ label: day, value: entries[day] });
+  for (const day of sortedDates) {
+    graphData.push({ label: formatDate(new Date(day)), value: entries[day] });
   }
   return graphData;
 }

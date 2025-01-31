@@ -1,19 +1,16 @@
+// Convert the date to a string in the "YYYY-MM-DD" format
+Date.prototype.toString = (): string => this.toISOString().slice(0, 10);
+
+// Convert the date to a string in the "Month Day, Year" format
+export const formatDate = (date: Date, includeYear: boolean = false): string => {
+  let options = { month: "short", day: "numeric", timeZone: "UTC" };
+  if (includeYear) options.year = "numeric";
+  return date.toLocaleString("default", options).replace(".", "");
+};
+
 // Get the current date in YYYY-MM-DD format
 export const today = (): string =>
   new Date().toLocaleString("default").split(",")[0];
-
-// Format a Date() in a compact way (YYYY-MM-DD) or a long way (Month Day, Year)
-export function formatDate(date: Date, compact: boolean = false): string {
-  if (compact) return date.toISOString().slice(0, 10);
-
-  const fmt = date.toLocaleString("default", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "UTC"
-  });
-  return fmt.replace(".", ""); // Remove the dot at the end of the month name
-}
 
 // Get the ISO-8601 week number for a given date.
 // The date is treated as UTC, ignoring local timezones.
