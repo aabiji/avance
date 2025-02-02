@@ -7,8 +7,13 @@ import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
 import { fontSize, getColors } from "@/components/theme";
 
-import { today, formatDate, groupDatesByWeek } from "@/lib/date";
 import useStorage from "@/lib/storage";
+
+import dayjs from "dayjs";
+import weekOfYear from "dayjs/plugin/weekOfYear";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+dayjs.extend(advancedFormat);
+dayjs.extend(weekOfYear);
 
 enum GraphView { Daily, Weekly, Full }
 const strEnumMembers = <T extends object>(enumType: T) =>
@@ -16,14 +21,38 @@ const strEnumMembers = <T extends object>(enumType: T) =>
 
 type WeightEntries = Record<string, number>;
 
+// Group a list of dates into groups, where each group
+// contains dates that fall within the same week.
+// The dates must be already be sorted in ascending order.
+function groupDatesByWeek(dates: string[]): string[][] {
+  let weeks = [];
+  let currentWeek = [dates[0]];
+
+  for (let i = 1; i < dates.length; i++) {
+    const current = dates[i];
+    const previous = currentWeek[currentWeek.length - 1];
+
+    if (dayjs(current).week() == dayjs(previous).week()) {
+      currentWeek.push(current);
+      continue;
+    }
+
+    // Move on to the next week
+    weeks.push(currentWeek);
+    currentWeek = [current];
+  }
+
+  weeks.push(currentWeek);
+  return weeks;
+}
+
 // Aggregate daily weight entries into weekly averages
 function weeklyWeights(entries: WeightEntries): WeightEntries {
-  const dates = Object.keys(entries).map((date) => new Date(date));
-  const weeks = groupDatesByWeek(dates);
+  const weeks = groupDatesByWeek(Object.keys(entries));
   let newEntries: WeightEntries = {};
 
   for (const week of weeks) {
-    const weightValues = week.map((day) => entries[day.toString()]);
+    const weightValues = week.map((day) => entries[day]);
     const sum = weightValues.reduce((a, b) => a + b);
     const avg = sum / weightValues.length;
     newEntries[week[0].toString()] = Math.round(avg * 10) / 10;
@@ -46,14 +75,17 @@ function prepareData(entries: WeightEntries): GraphPoint[] {
     .sort((a, b) => (new Date(a)).valueOf() - (new Date(b)).valueOf());
   let graphData = [];
   for (const day of sortedDates) {
-    const date = new Date(day);
+    const date = dayjs(day);
     graphData.push({
-      value: entries[day], label: formatDate(date), info: formatDate(date, true)
+      value: entries[day],
+      label: date.format("MMM D"),
+      info: date.format("MMM Do YYYY"),
     });
   }
   return graphData;
 }
 
+// TODO: handle the case where we have no data points (ex: when creating a new account)
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0); // TODO: call setWeightEntry endpoint
@@ -69,7 +101,8 @@ export default function HomeScreen() {
   // Update the graph rendering when the inputted weight value changes
   useEffect(() => {
     let copy = { ...weightEntries };
-    copy[today()] = Number(weight);
+    const today = dayjs().format("YYYY-MM-DD");
+    copy[today] = Number(weight);
     setWeightEntries(copy);
     setGraphData(prepareData(copy));
   }, [weight]);
@@ -77,7 +110,8 @@ export default function HomeScreen() {
   // Change the graph's data points based
   // on the way we choose to view the graph
   useEffect(() => {
-    const data = view == GraphView.Weekly ? weeklyWeights(weightEntries) : weightEntries;
+    const data = view == GraphView.Weekly
+      ? weeklyWeights(weightEntries) : weightEntries;
     setGraphData(prepareData(data));
   }, [view]);
 
@@ -105,7 +139,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={{ height: "50%", width: "100%" }}>
-        <Graph data={graphData} fitToWidth={view != GraphView.Daily} />
+        <Graph data={graphData} fitToWidth={view == GraphView.Full} />
       </View>
     </Container>
   );

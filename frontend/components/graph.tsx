@@ -146,6 +146,7 @@ function Tooltip({ point, x, y }: TooltipProps) {
   );
 }
 
+// TODO: We really need to improve the performance here....
 export function Graph({ data, fitToWidth }: GraphProps) {
   const view = useRef(null);
   const [width, setWidth] = useState(0);

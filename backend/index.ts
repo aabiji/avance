@@ -164,12 +164,14 @@ app.post("/authenticate", async (_request, response) => {
     const hashed = await Bun.password.hash(password + salt);
     const sql = `INSERT INTO users (email, password, salt) VALUES (?, ?, ?)`;
     db.query(sql).run(email, hashed, salt);
-    userId = db.query("SELECT last_insert_rowid()").all()[0] as string;
+    userId =
+      db.query("SELECT last_insert_rowid()").all()[0]["last_insert_rowid()"];
   }
 
   // Return a json web token that expires in 100 days
   sign({ userId }, process.env.JWT_SECRET, { expiresIn: "100Days" },
-    (err, token) => response.json(err === null ? { error: false, token } : { error: true })
+    (err, token) =>
+      response.json(err === null ? { error: false, token } : { error: true })
   );
 });
 

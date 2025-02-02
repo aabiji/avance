@@ -88,9 +88,9 @@ export default function AuthPage({ setReady }) {
         setLoading(false);
 
         if (response.error) {
-          // The json web token must be expired, so
-          // force the user to authenticate again
-          if (response.message == "Invalid token") {
+          // Force the user to authenticate again
+          const errorMessages = ["Invalid token", "User not found"];
+          if (errorMessages.includes(response.message)) {
             setToken(undefined);
             setAlreadyAuthenticated(false);
           }
