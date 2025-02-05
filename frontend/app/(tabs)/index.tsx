@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { View } from "react-native";
 
 import { Container } from "@/components/containers";
-import { GraphPoint, Graph } from "@/components/graph";
+import { DataPoint, Graph } from "@/components/graph";
 import { NumericInput } from "@/components/inputs";
 import Selection from "@/components/selection";
 import { fontSize, getColors } from "@/components/theme";
@@ -70,7 +70,7 @@ function getLastWeight(entries: WeightEntries): number {
 }
 
 // Map our data into the data format the graph expects
-function prepareData(entries: WeightEntries): GraphPoint[] {
+function prepareData(entries: WeightEntries): DataPoint[] {
   const sortedDates = Object.keys(entries)
     .sort((a, b) => (new Date(a)).valueOf() - (new Date(b)).valueOf());
   let graphData = [];
@@ -89,7 +89,7 @@ function prepareData(entries: WeightEntries): GraphPoint[] {
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0); // TODO: call setWeightEntry endpoint
-  const [graphData, setGraphData] = useState<GraphPoint[]>([]);
+  const [graphData, setGraphData] = useState<DataPoint[]>([]);
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
 
   // Update the graph data when the component loads

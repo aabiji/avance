@@ -1,23 +1,35 @@
 import { ReactNode, useLayoutEffect, useRef, useState } from "react";
 import { ScrollView, Text, View, GestureResponderEvent } from "react-native";
-import { Circle, Line, Svg } from "react-native-svg";
+import { Circle, G, Line, Svg } from "react-native-svg";
 
 import getColors, { fontSize } from "@/components/theme";
 
-export interface GraphPoint {
+export interface DataPoint {
   value: number;
   label: string;
   info: string;
 }
 
-export interface TooltipProps {
-  point: GraphPoint;
+type Point = { x: number; y: number; }
+
+interface GraphData {
+  width: number;
+  height: number;
+  svg: ReactNode[];
+  yLabels: ReactNode[];
+  xLabels: ReactNode[];
+  points: Point[];
+}
+
+interface TooltipProps {
+  point: DataPoint;
+  containerHeight: number;
   x: number;
   y: number;
 }
 
-export interface GraphProps {
-  data: GraphPoint[];
+interface GraphProps {
+  data: DataPoint[];
   fitToWidth: boolean;
 }
 
@@ -26,7 +38,7 @@ const map = (v: number, x1: number, y1: number, x2: number, y2: number) =>
   x2 + ((y2 - x2) / (y1 - x1)) * (v - x1);
 
 // Find the lowest and the highest value in the data
-function findExtremes(data: GraphPoint[]): [number, number] {
+function findExtremes(data: DataPoint[]): [number, number] {
   const lowest = Math.min(...data.map((point) => point.value));
   const highest = Math.max(...data.map((point) => point.value));
   // Extrapolate the low and high out so that
@@ -36,25 +48,24 @@ function findExtremes(data: GraphPoint[]): [number, number] {
 }
 
 function constructGraph(
-  data: GraphPoint[], fitToWidth: boolean,
+  data: DataPoint[], fitToWidth: boolean,
   width: number, height: number, spacing: number
 ) {
+  const [lowest, highest] = findExtremes(data);
   const labelInterval = fitToWidth ? 4 : 1;
   let labelCount = 0;
-
-  let elements = [];
-  let xLabels = [];
-  let yLabels = [];
-
-  const [lowest, highest] = findExtremes(data);
-
   let key = 0;
+
+  let result: GraphData = {
+    xLabels: [], yLabels: [], width,
+    svg: [], points: [], height
+  };
 
   // Add the vertical labels
   for (let i = 0; i < 10; i++) {
     const y = map(i, 0, 10, 0, height);
     const value = map(i, 0, 10, highest, lowest);
-    yLabels.push(
+    result.yLabels.push(
       <Text
         key={++key}
         style={{ position: "absolute", top: y, fontSize: fontSize["100"] }}>
@@ -64,7 +75,7 @@ function constructGraph(
   }
 
   // Add the horizontal axis
-  elements.push(
+  result.svg.push(
     <Line
       key={++key} stroke="#000000" strokeWidth="3"
       x1={0} y1={height} x2={width} y2={height}
@@ -72,19 +83,13 @@ function constructGraph(
   );
 
   for (let i = 0; i < data.length; i++) {
-    // Add the point (index is a custom prop)
     const x = i * spacing + spacing / 2;
     const y = map(data[i].value, lowest, highest, 0, height);
-    elements.push(
-      <Circle
-        key={++key}
-        index={i} cx={x} cy={y} r="3"
-        fill={getColors().accent["500"]} />
-    );
+    result.points.push({ x, y });
 
     // Add every nth horizontal label
     if (++labelCount == labelInterval) {
-      xLabels.push(
+      result.xLabels.push(
         <View
           key={++key}
           style={{ width: spacing, position: "absolute", left: i * spacing }}>
@@ -95,24 +100,16 @@ function constructGraph(
       );
       labelCount = 0;
     }
-
-    // Add the line connecting this point to the next point
-    if (i + 1 < data.length) {
-      const nextX = (i + 1) * spacing + spacing / 2;
-      const nextY = map(data[i + 1].value, lowest, highest, 0, height);
-      elements.push(
-        <Line
-          key={++key}
-          x1={x} y1={y} x2={nextX} y2={nextY}
-          stroke={getColors().accent["600"]} />
-      );
-    }
   }
 
-  return [elements, xLabels, yLabels];
+  return result;
 }
 
-function Tooltip({ point, x, y }: TooltipProps) {
+function Tooltip({ point, x, y, containerHeight }: TooltipProps) {
+  // Draw the tooltip above or below the data point.
+  // If the data point is near the top,
+  // the tooltip should be near the bottom and vice versea.
+  const height = 30;
   return (
     <View
       style={{
@@ -122,8 +119,10 @@ function Tooltip({ point, x, y }: TooltipProps) {
       <View
         style={{
           transform: "translate(-50%, 0)",
-          position: "absolute", zIndex: 1,
-          left: x, top: 0, padding: 8, borderRadius: 10,
+          position: "absolute", zIndex: 1, height,
+          top: y <= height ? undefined : 0,
+          bottom: y <= height ? height / 2 : undefined,
+          left: x, padding: 6, borderRadius: 10,
           backgroundColor: getColors().secondary["500"]
         }}>
         <Text
@@ -137,8 +136,9 @@ function Tooltip({ point, x, y }: TooltipProps) {
 
       <View
         style={{
-          width: 1, height: y,
-          position: "absolute", left: x,
+          width: 1, position: "absolute",
+          height: y <= height ? containerHeight - y : y,
+          top: y <= height ? y : 0, left: x,
           backgroundColor: getColors().text["200"]
         }}>
       </View>
@@ -146,14 +146,11 @@ function Tooltip({ point, x, y }: TooltipProps) {
   );
 }
 
-// TODO: We really need to improve the performance here....
 export function Graph({ data, fitToWidth }: GraphProps) {
   const view = useRef(null);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [elements, setElements] = useState<ReactNode[]>([]);
-  const [verticalLabels, setVerticalLabels] = useState<ReactNode[]>([]);
-  const [horizontalLabels, setHorizontalLabels] = useState<ReactNode[]>([]);
+  const [graphData, setGraphData] = useState<GraphData>({
+    width: 0, height: 0, svg: [], xLabels: [], yLabels: [], points: []
+  });
   const [tooltip, setTooltip] = useState<ReactNode>();
 
   // Show the tooltip containing info for the data point on hover
@@ -165,12 +162,11 @@ export function Graph({ data, fitToWidth }: GraphProps) {
     // Find the data point that was clicked
     let point = undefined;
     let [pointX, pointY] = [-1, -1];
-    for (const element of elements) {
-      if (element.type !== Circle) continue;
-      const [cx, cy] = [element.props.cx, element.props.cy];
+    for (let i = 0; i < graphData.points.length; i++) {
+      const [cx, cy] = [graphData.points[i].x, graphData.points[i].y];
       const inside = ((x - cx) ** 2) + ((y - cy) ** 2) < (clickRadius ** 2);
       if (inside) {
-        point = data[element.props.index];
+        point = data[i];
         pointX = cx;
         pointY = cy;
       }
@@ -178,7 +174,11 @@ export function Graph({ data, fitToWidth }: GraphProps) {
 
     // Show the hover element if we clicked a data point
     if (point !== undefined) {
-      setTooltip(<Tooltip point={point} x={pointX} y={pointY} />);
+      setTooltip(
+        <Tooltip
+          point={point} x={pointX}
+          y={pointY} containerHeight={graphData.height} />
+      );
     } else {
       setTooltip(undefined);
     }
@@ -193,33 +193,38 @@ export function Graph({ data, fitToWidth }: GraphProps) {
     // make space for horizontal labels
     const height = realHeight - fontSize["100"] * 2;
 
-    const [elements, xLabels, yLabels] =
-      constructGraph(data, fitToWidth, width, height, spacing);
-
-    setWidth(width);
-    setHeight(height);
-    setElements(elements);
-    setVerticalLabels(yLabels);
-    setHorizontalLabels(xLabels);
+    setGraphData(constructGraph(data, fitToWidth, width, height, spacing));
   }, [data, fitToWidth]);
 
   return (
     <View style={{ flexDirection: "row", height: "100%" }}>
-      <View style={{ position: "relative", width: 35 }}>{verticalLabels}</View>
-      <View style={{ width: 1, backgroundColor: "#000000", height }}></View>
+      <View style={{ position: "relative", width: 35 }}>{graphData.yLabels}</View>
+      <View style={{ width: 1, backgroundColor: "#000000", height: graphData.height }}></View>
 
       <ScrollView horizontal ref={view}>
-        <View style={{ flexDirection: "column", width: width }}>
+        <View style={{ flexDirection: "column", width: graphData.width }}>
           <Svg
-            width={width} height={height}
+            width={graphData.width} height={graphData.height}
             onPressIn={showTooltip}
             onPressOut={() => setTooltip(undefined)}>
-            {elements}
+            {
+              graphData.points.map(({ x, y }, i) => (
+                <G key={`${x}-${y}`}>
+                  <Circle cx={x} cy={y} r="3"
+                    fill={getColors().accent["500"]} />
+                  {i < graphData.points.length - 1 &&
+                    <Line
+                      x1={x} y1={y} x2={graphData.points[i + 1].x}
+                      y2={graphData.points[i + 1].y}
+                      stroke={getColors().accent["600"]} />
+                  }
+                </G>
+              ))
+            }
+            {graphData.svg}
           </Svg>
 
-          <View style={{ flexDirection: "row" }}>
-            {horizontalLabels}
-          </View>
+          <View style={{ flexDirection: "row" }}>{graphData.xLabels}</View>
 
           {tooltip}
         </View>
