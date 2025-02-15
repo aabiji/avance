@@ -1,5 +1,10 @@
-import { StyleSheet, StyleProp, TextInput, TextStyle, KeyboardTypeOptions } from "react-native";
-import { Dispatch, SetStateAction } from "react";
+import {
+  Keyboard, KeyboardTypeOptions, StyleSheet,
+  StyleProp, TextInput, TextStyle, View
+} from "react-native";
+import { Dispatch, SetStateAction, useState } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+
 import { Container } from "@/components/containers";
 import { ThemedText } from "@/components/text";
 import getColors from "./theme";
@@ -64,16 +69,31 @@ interface InputProps {
 export function Input(
   { setData, placeholder, value, keyboardType, password }: InputProps
 ) {
+  const [hidden, setHidden] = useState(password);
+  const togglePasswordVisibility = () => {
+    setHidden(!hidden);
+    Keyboard.dismiss();
+  };
   return (
-    <TextInput
-      placeholder={placeholder}
-      placeholderTextColor={getColors().text["300"]}
-      value={value}
-      style={[styles.input, { width: "100%" }]}
-      onChange={(event) => setData(event.nativeEvent.text.trim())}
-      keyboardType={keyboardType ?? "default"}
-      secureTextEntry={password}
-    />
+    <View style={{ width: "100%", flexDirection: "row" }}>
+      <TextInput
+        placeholder={placeholder}
+        placeholderTextColor={getColors().text["400"]}
+        value={value}
+        style={[styles.input, { width: "100%" }]}
+        onChange={(event) => setData(event.nativeEvent.text.trim())}
+        keyboardType={keyboardType ?? "default"}
+        secureTextEntry={hidden}
+      />
+      {password &&
+        <Ionicons
+          color={getColors().text["300"]} size={25}
+          name={hidden ? "eye" : "eye-off"}
+          onPress={togglePasswordVisibility}
+          style={styles.eyeIcon}
+        />
+      }
+    </View>
   );
 }
 
@@ -86,4 +106,11 @@ const styles = StyleSheet.create({
     backgroundColor: getColors().primary["100"],
     borderRadius: 10,
   },
+  eyeIcon: {
+    top: 0,
+    right: 55,
+    height: 55,
+    paddingVertical: 15,
+    paddingHorizontal: 15
+  }
 });

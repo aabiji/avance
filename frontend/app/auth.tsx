@@ -120,7 +120,7 @@ export default function AuthPage({ setReady }) {
       <Container
         background
         style={{
-          width: "100%", gap: 15, height: "fit-content", marginTop: -35
+          width: "100%", gap: 15,  marginTop: -35
         }}>
         <ThemedText style={{ color: getColors().red }} text={errorMessage} />
         <Input value={email} placeholder="Email" setData={setEmail} keyboardType="email-address" />
@@ -142,6 +142,6 @@ export default function AuthPage({ setReady }) {
           }
         </Button>
       </Container>
-    </Container >
+    </Container>
   );
 }

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   StyleProp,
   View,
-  ViewStyle,
+  ViewStyle
 } from "react-native";
 
 import getColors from "./theme";
@@ -15,12 +15,17 @@ interface ContainerProps {
   style?: StyleProp<ViewStyle>;
   row?: boolean;
   background?: boolean;
+  avoidKeyboard?: boolean;
 }
 
-export function Container({ background, children, row, style }: ContainerProps) {
+export function Container(
+  { background, children, avoidKeyboard, row, style }
+: ContainerProps) {
   const bg = background ? getColors().background["50"] : getColors().background["100"];
   return (
     <View
+      behavior="position"
+      enabled={avoidKeyboard ?? false}
       style={[
         row ? styles.row : styles.container,
         { backgroundColor: bg },
