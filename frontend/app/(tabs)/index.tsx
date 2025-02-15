@@ -90,6 +90,9 @@ export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0); // TODO: call setWeightEntry endpoint
   const [graphData, setGraphData] = useState<DataPoint[]>([]);
+
+  const [token, _setToken] = useStorage("token", undefined);
+  const [requestQueue, setRequestQueue] = useStorage("requestQueue", []);
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
 
   // Update the graph data when the component loads
@@ -115,6 +118,19 @@ export default function HomeScreen() {
     setGraphData(prepareData(data));
   }, [view]);
 
+  const updateRequest = () => {
+    const request = {
+      method: "POST",
+      endpoint: "/setWeightEntry",
+      body: {
+        date: dayjs().format("YYYY-MM-DD"),
+        weight: Number(weight)
+      },
+      token,
+    };
+    setRequestQueue([...requestQueue, request]);
+  };
+
   return (
     <Container background style={{ flexDirection: "column" }}>
       <View style={{ alignItems: "center", justifyContent: "center", height: "40%" }}>
@@ -124,6 +140,7 @@ export default function HomeScreen() {
             setValue={setWeight}
             prefix={""}
             suffix={"lbs"}
+            loseFocus={updateRequest}
             style={{
               fontWeight: "bold",
               fontSize: fontSize["800"],

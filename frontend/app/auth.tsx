@@ -18,7 +18,7 @@ function validateInfo(email: string, password: string): string {
   const numberRegex = /.*\d.*/;
 
   if (!emailRegex.test(email)) {
-    return "Invalid email";
+    return "Please enter a valid email";
   }
 
   if (password.length < 8) {
@@ -38,8 +38,9 @@ function validateInfo(email: string, password: string): string {
 
 export default function AuthPage({ setReady }) {
   const [token, setToken] = useStorage("token", undefined);
-  const [_weightEntries, setWeightEntries] = useStorage("weightEntries", {});
-  const [_exercises, setExercises] = useStorage("exercises", []);
+  const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
+  const [exercises, setExercises] = useStorage("exercises", []);
+  const [closeTimestamp, setCloseTimestamp] = useStorage("closeTimestamp", -1);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,6 +70,7 @@ export default function AuthPage({ setReady }) {
           return;
         }
         setToken(response.token);
+        setCloseTimestamp(-1); // We want to fetch all of the user's data
       },
       onError: (_msg: unknown) => {
         setLoading(false);
@@ -81,7 +83,10 @@ export default function AuthPage({ setReady }) {
   useEffect(() => {
     if (token === undefined) return;
     request({
-      method: "GET", endpoint: "/userData", token,
+      method: "POST",
+      endpoint: "/userData",
+      body: { startTimestamp: closeTimestamp }, token,
+
       // Fall back on the user data stored locally
       onError: (_msg: unknown) => { setReady(true) },
       handler: (response: object) => {
@@ -95,12 +100,14 @@ export default function AuthPage({ setReady }) {
             setAlreadyAuthenticated(false);
           }
           console.log(`ERROR: ${JSON.stringify(response)}`);
+          setWeightEntries({});
+          setExercises([]);
           return;
         }
 
         // Put the user data in the local storage
-        setWeightEntries(response["weightEntries"]);
-        setExercises(response["exercises"]);
+        setWeightEntries({ ...weightEntries, ...response["weightEntries"]});
+        setExercises([ ...exercises, response["exercises"] ]);
         setReady(true);
       }
     });

@@ -10,8 +10,6 @@ import { ThemedText } from "@/components/text";
 import getColors, { fontSize } from "@/components/theme";
 
 import { HIITExercise, StrengthExercise } from "@/lib/types";
-
-import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 function CardOptions({ exercise, remove }: { exercise: string, remove: () => void }) {
@@ -210,6 +208,7 @@ function StrengthCard(
 export default function ExerciseScreen() {
   const navigation = useNavigation();
 
+  const [requestQueue, setRequestQueue] = useStorage("requestQueue", []);
   const [token, _setToken] = useStorage("token", undefined);
   const [exercises, setExercises] = useStorage("exercises", []);
   const [currentDay, setCurrentDay] = useStorage("weekDay", new Date().getDay());
@@ -230,14 +229,12 @@ export default function ExerciseScreen() {
     copy.splice(index, 1);
     setExercises(copy);
 
-    request({
+    const request = {
       method: "DELETE",
       endpoint: "/deleteExercise",
       body: { name, isHiit }, token,
-      // TODO: figure out what to do on error
-      onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: () => console.log(`${name} deleted`),
-    });
+   };
+   setRequestQueue([...requestQueue, request]);
   };
 
   return (

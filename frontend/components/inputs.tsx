@@ -12,6 +12,7 @@ import getColors from "./theme";
 interface NumericInputProps {
   value?: any;
   style?: StyleProp<TextStyle>;
+  loseFocus?: () => void;
   prefix: string;
   suffix: string;
   setValue: (value: number) => void | Dispatch<SetStateAction<number>>;
@@ -23,6 +24,7 @@ export function NumericInput({
   suffix,
   setValue,
   value,
+  loseFocus
 }: NumericInputProps) {
   // Only to stop typescript from complaining
   const set = (data: string) => setValue(Number(data));
@@ -45,6 +47,7 @@ export function NumericInput({
           style={[styles.input, style]}
           onChange={(event) => set(event.nativeEvent.text)}
           keyboardType="numeric"
+          onBlur={loseFocus}
         />
         {suffix.length > 0 && (
           <ThemedText
@@ -59,15 +62,15 @@ export function NumericInput({
 }
 
 interface InputProps {
-  placeholder: string;
   value?: any;
-  keyboardType?: KeyboardTypeOptions | undefined;
+  placeholder: string;
   password?: boolean;
+  keyboardType?: KeyboardTypeOptions | undefined;
   setData: (value: string) => void | Dispatch<SetStateAction<any>>;
 }
 
 export function Input(
-  { setData, placeholder, value, keyboardType, password }: InputProps
+  { value, placeholder, password, keyboardType, setData }: InputProps
 ) {
   const [hidden, setHidden] = useState(password);
   const togglePasswordVisibility = () => {

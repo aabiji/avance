@@ -19,7 +19,8 @@ db.run(`
   CREATE TABLE IF NOT EXISTS weightEntries (
     userId INTEGER NOT NULL,
     date TEXT UNIQUE NOT NULL,
-    weight INTEGER NOT NULL
+    weight INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS strengthExercises (
@@ -28,7 +29,8 @@ db.run(`
     weekDay INTEGER NOT NULL,
     reps INTEGER NOT NULL,
     sets INTEGER NOT NULL,
-    weight INTEGER NOT NULL
+    weight INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
   );
 
   CREATE TABLE IF NOT EXISTS hiitExercises (
@@ -37,7 +39,8 @@ db.run(`
     weekDay INTEGER NOT NULL,
     workDuration INTEGER NOT NULL,
     restDuration INTEGER NOT NULL,
-    rounds INTEGER NOT NULL
+    rounds INTEGER NOT NULL,
+    timestamp INTEGER NOT NULL
   );
 `);
 
@@ -48,8 +51,8 @@ app.use(express.urlencoded({ extended: true }));
 // Get the schema that describes the endpoint's expected request body
 function getSchema(endpoint: string) {
   const str = z.string().min(1).max(250);
-  const strNum = z.string().regex(/^\d+$/).transform(Number);
-  const num = z.number().int().nonnegative().finite();
+  const strNum = z.string().regex(/^-?\d+$/).transform(Number);
+  const num = z.number().int().finite();
   const numeric = strNum.or(num);
 
   const schemas: Record<string, z.ZodObject<any>> = {
@@ -57,6 +60,7 @@ function getSchema(endpoint: string) {
       email: str.email(),
       password: str,
     }),
+    "/userData": z.object({ startTimestamp: numeric }),
     "/setWeightEntry": z.object({
       date: str,
       weight: numeric
@@ -175,35 +179,45 @@ app.post("/authenticate", async (_request, response) => {
   );
 });
 
-app.get("/userData", (_request, response) => {
+app.post("/userData", (_request, response) => {
   console.log("LOG: /userData");
   const userId = Number(response.locals.params.userId);
+  const start = response.locals.params.startTimestamp ?? -1;
 
+  const entries = db
+    .query("SELECT * FROM weightEntries WHERE userId=? AND timestamp>=?")
+    .all(userId, start);
   let weightEntries: Record<string, number> = {};
-  const sql1 = "SELECT * FROM weightEntries WHERE userId=?";
-  const entries = db.query(sql1).all(userId);
   for (const entry of entries) {
     weightEntries[entry.date] = entry.weight;
   }
 
   let exercises = [];
   for (const table of ["hiitExercises", "strengthExercises"]) {
-    const sql2 = `SELECT * FROM ${table} WHERE userId=?`;
-    const values = db.query(sql2).all(userId);
+    const values = db
+      .query(`SELECT * FROM ${table} WHERE userId=? AND timestamp>=?`)
+      .all(userId, start);
     for (const value of values) {
       delete value["userId"];
       exercises.push(value);
     }
   }
 
-  response.json({ error: false, weightEntries: weightEntries, exercises: exercises });
+  response.json({ error: false, weightEntries, exercises });
 });
 
 app.post("/setWeightEntry", (_request, response) => {
   console.log("LOG: /setWeightEntry");
   const { userId, date, weight } = response.locals.params;
-  const sql = "INSERT OR REPLACE INTO weightEntries (userId, date, weight) VALUES (?, ?, ?)";
-  db.query(sql).run(userId, date, weight);
+
+  const result = db
+    .query("SELECT timestamp FROM weightEntries WHERE date=? AND userId=?")
+    .all(date, userId)[0];
+  const timestamp = result === undefined ? Date.now() : result!.timestamp ;
+
+  const sql = `INSERT OR REPLACE INTO weightEntries
+    (userId, date, weight, timestamp) VALUES (?,?,?,?)`;
+  db.query(sql).run(userId, date, weight, timestamp);
   response.json({ error: false });
 });
 
@@ -218,9 +232,15 @@ app.post("/updateExercise", (_request, response) => {
     ? "userId, name, weekDay, workDuration, restDuration, rounds"
     : "userId, name, weekDay, reps, sets, weight";
   const table = hiit !== undefined ? "hiitExercises" : "strengthExercises";
-  const sql = `INSERT OR REPLACE INTO ${table} (${fields}) VALUES (?,?,?,?,?,?);`;
 
-  db.query(sql).run(...values);
+  const result = db
+    .query(`SELECT timestamp from ${table} WHERE userId=? AND name=?`)
+    .all(userId, hiit != undefined ? hiit.name : strength.name)[0];
+  const timestamp = result === undefined ? Date.now() : result!.timestamp ;
+
+  const sql = `INSERT OR REPLACE INTO ${table}
+    (${fields}, timestamp) VALUES (?,?,?,?,?,?,?);`;
+  db.query(sql).run(...values, timestamp);
   response.json({ error: false });
 });
 

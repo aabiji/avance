@@ -11,7 +11,6 @@ import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
 import { HIITExercise, StrengthExercise, ExerciseType } from "@/lib/types";
-import request from "@/lib/http";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
@@ -21,6 +20,7 @@ export default function CreateExercise() {
   const [token, _setToken] = useStorage("token", undefined);
   const [exercises, setExercises] = useStorage("exercises", []);
   const [weekDay, _setWeekDay] = useStorage("weekDay", new Date().getDay());
+  const [requestQueue, setRequestQueue] = useStorage("requestQueue", []);
 
   const [selection, setSelection] = useState(ExerciseType.Strength);
   const [hiit, setHiit] = useState<HIITExercise>(new HIITExercise(weekDay));
@@ -78,25 +78,18 @@ export default function CreateExercise() {
 
   const saveEntry = () => {
     if (!isValid()) return;
-    request({
+    const request = {
       method: "POST", token,
       endpoint: "/updateExercise",
       body: {
         weekDay,
         strength: selection == ExerciseType.Strength ? strength : undefined,
         hiit: selection == ExerciseType.Strength ? undefined : hiit
-      },
-      onError: (msg: unknown) => console.log("ERROR", msg),
-      handler: (response: object) => {
-        if (response.error) {
-          // TODO: figure out what to do on error
-          console.log("ERROR", response);
-          return;
-        }
-        createOrUpdateExercise();
-        navigation.goBack();
       }
-    });
+    };
+    setRequestQueue([...requestQueue, request]);
+    createOrUpdateExercise();
+    navigation.goBack();
   };
 
   const setName = (value: string) => {
