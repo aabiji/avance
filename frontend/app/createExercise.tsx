@@ -10,7 +10,9 @@ import Screen from "@/components/screen";
 import { ThemedText } from "@/components/text";
 import getColors from "@/components/theme";
 
-import { HIITExercise, StrengthExercise, ExerciseType } from "@/lib/types";
+import {
+  HIITExercise, StrengthExercise, ExerciseType, sameExercise
+} from "@/lib/types";
 import useStorage from "@/lib/storage";
 
 export default function CreateExercise() {
@@ -31,14 +33,8 @@ export default function CreateExercise() {
   const currentExercise = () =>
     selection == ExerciseType.Strength ? strength : hiit;
 
-  const findExisting = (exercise: HIITExercise | StrengthExercise) => {
-    // Identical exercises have the same name, the same date and the same type
-    return exercises.findIndex(e => {
-      const a = e.rounds !== undefined;
-      const b = exercise.rounds !== undefined;
-      return e.name == exercise.name && e.weekDay == exercise.weekDay && a == b;
-    });
-  };
+  const findExisting = (exercise: HIITExercise | StrengthExercise) =>
+    exercises.findIndex(e => sameExercise(e, exercise));
 
   // Set the pre-existing values if we're editing an exercise
   useEffect(() => {

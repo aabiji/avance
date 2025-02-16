@@ -27,3 +27,10 @@ export class StrengthExercise extends Exercise {
     this.weekDay = weekDay;
   }
 }
+
+// Identical exercises have the same name, the same date and the same type
+export function sameExercise(a: Exercise, b: Exercise): boolean {
+  const x = a.rounds !== undefined;
+  const y = b.rounds !== undefined;
+  return a.name == b.name && a.weekDay == b.weekDay && x == y;
+}

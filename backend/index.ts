@@ -199,6 +199,7 @@ app.post("/userData", (_request, response) => {
       .all(userId, start);
     for (const value of values) {
       delete value["userId"];
+      delete value["timestamp"];
       exercises.push(value);
     }
   }
@@ -209,15 +210,9 @@ app.post("/userData", (_request, response) => {
 app.post("/setWeightEntry", (_request, response) => {
   console.log("LOG: /setWeightEntry");
   const { userId, date, weight } = response.locals.params;
-
-  const result = db
-    .query("SELECT timestamp FROM weightEntries WHERE date=? AND userId=?")
-    .all(date, userId)[0];
-  const timestamp = result === undefined ? Date.now() : result!.timestamp ;
-
   const sql = `INSERT OR REPLACE INTO weightEntries
     (userId, date, weight, timestamp) VALUES (?,?,?,?)`;
-  db.query(sql).run(userId, date, weight, timestamp);
+  db.query(sql).run(userId, date, weight, Date.now());
   response.json({ error: false });
 });
 
@@ -232,15 +227,9 @@ app.post("/updateExercise", (_request, response) => {
     ? "userId, name, weekDay, workDuration, restDuration, rounds"
     : "userId, name, weekDay, reps, sets, weight";
   const table = hiit !== undefined ? "hiitExercises" : "strengthExercises";
-
-  const result = db
-    .query(`SELECT timestamp from ${table} WHERE userId=? AND name=?`)
-    .all(userId, hiit != undefined ? hiit.name : strength.name)[0];
-  const timestamp = result === undefined ? Date.now() : result!.timestamp ;
-
   const sql = `INSERT OR REPLACE INTO ${table}
     (${fields}, timestamp) VALUES (?,?,?,?,?,?,?);`;
-  db.query(sql).run(...values, timestamp);
+  db.query(sql).run(...values, Date.now());
   response.json({ error: false });
 });
 

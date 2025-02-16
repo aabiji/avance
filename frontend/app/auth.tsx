@@ -11,6 +11,7 @@ import getColors, { fontSize } from "@/components/theme";
 
 import request from "@/lib/http";
 import useStorage from "@/lib/storage";
+import { sameExercise } from "@/lib/types";
 
 function validateInfo(email: string, password: string): string {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,6 +80,24 @@ export default function AuthPage({ setReady }) {
     })
   };
 
+  // Update the user data in localstorage
+  const updateUserData = (response) => {
+    // Keys that now have different values will update on their own
+    setWeightEntries({ ...weightEntries, ...response["weightEntries"] });
+
+    // TODO: come up with a more efficient implementation
+    let copy = [...exercises];
+    for (const exercise of response["exercises"]) {
+      const index = copy.findIndex(e => sameExercise(e, exercise));
+      if (index != -1) {
+        copy[index] = exercise;
+      } else {
+        copy.push(exercise);
+      }
+   }
+   setExercises(copy);
+  };
+
   // Fetch the user data onee the user is authenticated
   useEffect(() => {
     if (token === undefined) return;
@@ -105,10 +124,8 @@ export default function AuthPage({ setReady }) {
           return;
         }
 
-        // Put the user data in the local storage
-        setWeightEntries({ ...weightEntries, ...response["weightEntries"]});
-        setExercises([ ...exercises, response["exercises"] ]);
-        setReady(true);
+        updateUserData(response);
+       setReady(true);
       }
     });
   }, [token]);
