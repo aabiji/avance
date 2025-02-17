@@ -105,9 +105,11 @@ export default function AuthPage({ setReady }) {
       method: "POST",
       endpoint: "/userData",
       body: { startTimestamp: closeTimestamp }, token,
-
-      // Fall back on the user data stored locally
-      onError: (_msg: unknown) => { setReady(true) },
+      onError: (_msg: unknown) => {
+        // Fall back on the user data stored locally
+        console.log("Server error");
+        setReady(true);
+      },
       handler: (response: object) => {
         setLoading(false);
 

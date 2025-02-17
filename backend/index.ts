@@ -1,52 +1,69 @@
-import { Database } from "bun:sqlite";
-import { randomUUIDv7 } from "bun";
+import express, {
+  type Request, type Response, type NextFunction
+} from 'express';
 import { sign, verify } from "jsonwebtoken";
-import { type Request, type Response, type NextFunction } from 'express';
-import express from "express";
+import { SQL, randomUUIDv7 } from "bun";
 import { z } from "zod";
-
-// Setup the database
-// TODO: use postgresql at some point: https://bun.sh/docs/api/sql
-const db = new Database("example.sqlite");
-db.run(`
-  CREATE TABLE IF NOT EXISTS users (
-    userId INTEGER PRIMARY KEY,
-    email TEXT NOT NULL,
-    password TEXT NOT NULL,
-    salt TEXT NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS weightEntries (
-    userId INTEGER NOT NULL,
-    date TEXT UNIQUE NOT NULL,
-    weight INTEGER NOT NULL,
-    timestamp INTEGER NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS strengthExercises (
-    userId INTEGER NOT NULL,
-    name TEXT UNIQUE NOT NULL,
-    weekDay INTEGER NOT NULL,
-    reps INTEGER NOT NULL,
-    sets INTEGER NOT NULL,
-    weight INTEGER NOT NULL,
-    timestamp INTEGER NOT NULL
-  );
-
-  CREATE TABLE IF NOT EXISTS hiitExercises (
-    userId INTEGER NOT NULL,
-    name TEXT UNIQUE NOT NULL,
-    weekDay INTEGER NOT NULL,
-    workDuration INTEGER NOT NULL,
-    restDuration INTEGER NOT NULL,
-    rounds INTEGER NOT NULL,
-    timestamp INTEGER NOT NULL
-  );
-`);
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const JWT_SECRET = await Bun.file("/run/secrets/jwt_secret").text();
+const pw = await Bun.file("/run/secrets/postgres_password").text();
+const db = process.env.PGDATABASE;
+const sql = new SQL(`postgres://postgres:${pw}@database:5432/${db}`);
+
+async function setupDatabase(sql: SQL) {
+  sql.connect().catch(() => {
+    console.log("Couldn't connect to the database :(");
+    process.exit(1);
+  });
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS users (
+      userId SERIAL PRIMARY KEY,
+      email TEXT NOT NULL,
+      password TEXT NOT NULL,
+      salt TEXT NOT NULL
+    );
+    `
+  await sql`
+    CREATE TABLE IF NOT EXISTS weightEntries (
+      userId INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      weight INTEGER NOT NULL,
+      timestamp BIGINT NOT NULL,
+      UNIQUE (userId, date)
+    );
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS strengthExercises (
+      userId INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      weekDay INTEGER NOT NULL,
+      reps INTEGER NOT NULL,
+      sets INTEGER NOT NULL,
+      weight INTEGER NOT NULL,
+      timestamp BIGINT NOT NULL,
+      UNIQUE (userId, name, weekDay)
+    );
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS hiitExercises (
+      userId INTEGER NOT NULL,
+      name TEXT NOT NULL,
+      weekDay INTEGER NOT NULL,
+      workDuration INTEGER NOT NULL,
+      restDuration INTEGER NOT NULL,
+      rounds INTEGER NOT NULL,
+      timestamp BIGINT NOT NULL,
+      UNIQUE (userId, name, weekDay)
+    );
+  `;
+}
 
 // Get the schema that describes the endpoint's expected request body
 function getSchema(endpoint: string) {
@@ -88,7 +105,11 @@ function getSchema(endpoint: string) {
   return endpoint in schemas ? schemas[endpoint].strict() : undefined;
 }
 
-function validateRequest(request: Request, response: Response, next: NextFunction) {
+function validateRequest(
+  request: Request,
+  response: Response,
+  next: NextFunction
+) {
   // Ignore undefined endpoints
   const allEndpoints = app._router.stack
     .filter((r: Request) => r.route)
@@ -116,7 +137,8 @@ function validateRequest(request: Request, response: Response, next: NextFunctio
     return;
   }
 
-  // Verify the userId that's taken from the json web token in the request header
+  // Verify the userId that's taken from the
+  // json web token in the request header
   const auth = request.headers["authorization"];
   if (auth === undefined || auth.split(" ").length != 2) {
     response.json({ error: true, message: "Invalid Authorization header" });
@@ -124,20 +146,23 @@ function validateRequest(request: Request, response: Response, next: NextFunctio
   }
   const token = auth.split(" ")[1] as string;
 
-  verify(token, process.env.JWT_SECRET, (error, decoded) => {
-    if (error != null) {
+  verify(token, JWT_SECRET, async (error, decoded) => {
+    if (error != null || decoded.userId === undefined) {
       response.json({ error: true, message: "Invalid token" });
       return;
     }
 
-    const sql = `SELECT * FROM users WHERE userId=?`;
-    const values = db.query(sql).all(decoded.userId);
+    const values =
+      await sql`SELECT * FROM users WHERE userId=${decoded.userId}`;
     if (values.length != 1) {
       response.json({ error: true, message: "User not found" });
       return;
     }
 
-    response.locals.params = { ...response.locals.params, userId: decoded.userId };
+    response.locals.params = {
+      ...response.locals.params,
+      userId: decoded.userId
+    };
     next();
   });
 }
@@ -150,7 +175,7 @@ app.post("/authenticate", async (_request, response) => {
   const email = response.locals.params.email;
   const password = response.locals.params.password;
 
-  const users = db.query("SELECT * FROM users WHERE email=?").all(email);
+  const users = await sql`SELECT * FROM users WHERE email=${email};`;
   let userId = "";
 
   if (users.length > 0) {
@@ -161,42 +186,47 @@ app.post("/authenticate", async (_request, response) => {
       response.json({ error: true, message: "Wrong password" });
       return;
     }
-    userId = users[0].userId;
+    userId = users[0].userid;
   } else {
     // Create a new user account
     const salt = randomUUIDv7();
     const hashed = await Bun.password.hash(password + salt);
-    const sql = `INSERT INTO users (email, password, salt) VALUES (?, ?, ?)`;
-    db.query(sql).run(email, hashed, salt);
-    userId =
-      db.query("SELECT last_insert_rowid()").all()[0]["last_insert_rowid()"];
+    const results = await sql`
+      INSERT INTO users (email, password, salt)
+      VALUES (${email}, ${hashed}, ${salt})
+      RETURNING userId;`;
+    userId = results[0].userid;
   }
 
   // Return a json web token that expires in 100 days
-  sign({ userId }, process.env.JWT_SECRET, { expiresIn: "100Days" },
+  sign({ userId }, JWT_SECRET, { expiresIn: "100Days" },
     (err, token) =>
       response.json(err === null ? { error: false, token } : { error: true })
   );
 });
 
-app.post("/userData", (_request, response) => {
+app.post("/userData", async (_request, response) => {
   console.log("LOG: /userData");
   const userId = Number(response.locals.params.userId);
   const start = response.locals.params.startTimestamp ?? -1;
 
-  const entries = db
-    .query("SELECT * FROM weightEntries WHERE userId=? AND timestamp>=?")
-    .all(userId, start);
+  const entries = await sql`
+    SELECT * FROM weightEntries
+    WHERE userId = ${userId} AND timestamp >= ${start};`;
   let weightEntries: Record<string, number> = {};
   for (const entry of entries) {
     weightEntries[entry.date] = entry.weight;
   }
 
   let exercises = [];
-  for (const table of ["hiitExercises", "strengthExercises"]) {
-    const values = db
-      .query(`SELECT * FROM ${table} WHERE userId=? AND timestamp>=?`)
-      .all(userId, start);
+  for (let i = 0; i < 2; i++) {
+    const values = i == 0
+      ? await sql`
+          SELECT * FROM strengthExercises
+          WHERE userId = ${userId} AND timestamp >= ${start};`
+      : await sql`
+          SELECT * FROM hiitExercises
+          WHERE userId = ${userId} AND timestamp >= ${start};`;
     for (const value of values) {
       delete value["userId"];
       delete value["timestamp"];
@@ -207,38 +237,72 @@ app.post("/userData", (_request, response) => {
   response.json({ error: false, weightEntries, exercises });
 });
 
-app.post("/setWeightEntry", (_request, response) => {
+app.post("/setWeightEntry", async (_request, response) => {
   console.log("LOG: /setWeightEntry");
   const { userId, date, weight } = response.locals.params;
-  const sql = `INSERT OR REPLACE INTO weightEntries
-    (userId, date, weight, timestamp) VALUES (?,?,?,?)`;
-  db.query(sql).run(userId, date, weight, Date.now());
+  await sql`
+    INSERT INTO weightEntries
+    (userId, date, weight, timestamp)
+    VALUES (${userId},${date},${weight},${Date.now()})
+    ON CONFLICT (userId, date)
+    DO UPDATE SET
+      weight = EXCLUDED.weight,
+      timestamp = EXCLUDED.timestamp;`;
   response.json({ error: false });
 });
 
-app.post("/updateExercise", (_request, response) => {
+app.post("/updateExercise", async (_request, response) => {
   console.log("LOG: /updateExercise");
   const { userId, weekDay, hiit, strength } = response.locals.params;
-
-  const values = hiit !== undefined
-    ? [userId, hiit.name, weekDay, hiit.workDuration, hiit.restDuration, hiit.rounds]
-    : [userId, strength.name, weekDay, strength.reps, strength.sets, strength.weight];
-  const fields = hiit !== undefined
-    ? "userId, name, weekDay, workDuration, restDuration, rounds"
-    : "userId, name, weekDay, reps, sets, weight";
-  const table = hiit !== undefined ? "hiitExercises" : "strengthExercises";
-  const sql = `INSERT OR REPLACE INTO ${table}
-    (${fields}, timestamp) VALUES (?,?,?,?,?,?,?);`;
-  db.query(sql).run(...values, Date.now());
-  response.json({ error: false });
+  const timestamp = Date.now();
+  if (hiit !== undefined) {
+    await sql`
+      INSERT INTO hiitExercises
+      (userId, name, weekDay, workDuration, restDuration, rounds, timestamp)
+      VALUES (
+        ${userId}, ${hiit.name}, ${weekDay},
+        ${hiit.workDuration}, ${hiit.restDuration},
+        ${hiit.rounds}, ${timestamp}
+      )
+      ON CONFLICT (userId, name, weekDay)
+      DO UPDATE SET
+        weekDay = EXCLUDED.weekDay,
+        workDuration = EXCLUDED.workDuration,
+        restDuration = EXCLUDED.restDuration,
+        rounds = EXCLUDED.rounds,
+        timestamp = EXCLUDED.timestamp;
+    `;
+  } else {
+    await sql`
+      INSERT INTO strengthExercises
+      (userId, name, weekDay, reps, sets, weight, timestamp)
+      VALUES (
+        ${userId}, ${strength.name}, ${weekDay},
+        ${strength.reps}, ${strength.sets},
+        ${strength.weight}, ${timestamp}
+      )
+      ON CONFLICT (userId, name, weekDay)
+      DO UPDATE SET
+        weekDay = EXCLUDED.weekDay,
+        reps = EXCLUDED.reps,
+        sets = EXCLUDED.sets,
+        weight = EXCLUDED.weight,
+        timestamp = EXCLUDED.timestamp;
+    `;
+  }
+ response.json({ error: false });
 });
 
-app.delete("/deleteExercise", (_request, response) => {
+app.delete("/deleteExercise", async (_request, response) => {
   console.log("LOG: /deleteExercise");
   const { userId, name, isHiit } = response.locals.params;
-  const table = isHiit ? "hiitExercises" : "strengthExercises";
-  const sql = `DELETE FROM ${table} WHERE userId=? AND name=?`;
-  const result = db.query(sql).run(userId, name);
+  const result = isHiit
+    ? await sql`
+        DELETE FROM hiitExercises
+        WHERE userId=${userId} AND name=${name}`
+    : await sql`
+        DELETE FROM strengthExercises
+        WHERE userId=${userId} AND name=${name}`;
   const deleteSuccess = result.changes == 1;
   const message = deleteSuccess ? undefined : "Exercise doesn't exist";
   response.json({ error: !deleteSuccess, message });
@@ -246,4 +310,7 @@ app.delete("/deleteExercise", (_request, response) => {
 
 app.all("*", (_request, response) => { response.send("404"); });
 
-app.listen(8080, () => console.log("Listening at http://localhost:8080"));
+app.listen(8080, async () => {
+  setupDatabase(sql);
+  console.log("Listening at http://localhost:8080");
+});

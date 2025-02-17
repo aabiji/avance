@@ -1,6 +1,9 @@
 {
   "name": "backend",
   "type": "module",
+  "scripts": {
+    "start": "bun run --watch index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
