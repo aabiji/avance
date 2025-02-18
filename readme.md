@@ -1,20 +1,37 @@
 # Avance
 
-TODO: put a screenshot here and improve the readme
+TODO: what should EXPO_PUBLIC_HOST be in the production build of the app?
 
-Immediate things to improve:
-  - I still don't like the ui. Do another styling overhaul -- this time the background should be white.
-    Should look like MacroTracker
-  - Use the Ramer-Douglas-Peuker algorithm to simplify the graph when there are too many data points
-  - Start planning the calorie tracking feature
-  - Fix all the todos in the app
-  - Refactor index.ts
-  - TODO: what if we want to change the name of an existing exercise???
-  - TODO: test with multiple users
-  - TODO: test, test, test!!!!
+A fitness app to track your weight and exercises. Avance is
+designed to be offline-first, with an optional self hosted
+backend. Currently, Avance has only been tested on Android,
+but since it's built with React Native, it should work cross
+platform.
 
-Setup:
-1. Run backend with `sudo docker compose up`. Cleanup with `sudo docker system prune`
-2. Run frontend with `bun install && bunx expo start`
-3. TODO: build frontend app apk
-4. TODO: create the secrets file and put the required files
+### Setup
+To build and run the app, ensure you have Android Studio,
+Docker, and Bun installed.
+
+**Deploy the backend**
+```bash
+mkdir secrets
+echo "Super secret secret" > secrets/jwt_secret.txt
+echo "Super secret password" > secrets/postgres_password.txt
+sudo docker compose up
+```
+
+**Run the app's development build**
+```bash
+export EXPO_PUBLIC_HOST="Your ip address"
+bun install
+bunx expo start
+```
+
+**Build the Android APK**
+```bash
+bunx expo prebuild
+cd android
+./gradlew assembleRelease
+```
+
+Avance is open source under the MIT license. Contributions are welcome!
