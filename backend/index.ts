@@ -11,8 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 
 const JWT_SECRET = await Bun.file("/run/secrets/jwt_secret").text();
 const pw = await Bun.file("/run/secrets/postgres_password").text();
-const db = process.env.PGDATABASE;
-const sql = new SQL(`postgres://postgres:${pw}@database:5432/${db}`);
+const sql = new SQL(`postgres://postgres:${pw}@database:5432/avance-database`);
 
 async function setupDatabase(sql: SQL) {
   sql.connect().catch(() => {

@@ -88,6 +88,7 @@ function prepareData(entries: WeightEntries): DataPoint[] {
 export default function HomeScreen() {
   const [view, setView] = useState<GraphView>(GraphView.Daily);
   const [weight, setWeight] = useState<number>(0);
+  const [weekly, setWeekly] = useState({});
   const [graphData, setGraphData] = useState<DataPoint[]>([]);
 
   const [token, _setToken] = useStorage("token", undefined);
@@ -96,25 +97,26 @@ export default function HomeScreen() {
 
   // Update the graph data when the component loads
   useEffect(() => {
+    setWeekly(weeklyWeights(weightEntries));
     setGraphData(prepareData(weightEntries));
     setWeight(getLastWeight(weightEntries));
   }, []);
 
   // Update the graph rendering when the inputted weight value changes
   useEffect(() => {
-    let copy = { ...weightEntries };
     const today = dayjs().format("YYYY-MM-DD");
+    let copy = { ...weightEntries };
+    let weeklyCopy = { ...weekly };
     copy[today] = Number(weight);
+    weeklyCopy[today] = Number(weight);
     setWeightEntries(copy);
-    setGraphData(prepareData(copy));
+    setWeekly(weeklyCopy);
+    setGraphData(prepareData(view == GraphView.Weekly ? weeklyCopy : weightEntries));
   }, [weight]);
 
-  // Change the graph's data points based
-  // on the way we choose to view the graph
+  // Change the graph's data points based on the way we choose to view the graph
   useEffect(() => {
-    const data = view == GraphView.Weekly
-      ? weeklyWeights(weightEntries) : weightEntries;
-    setGraphData(prepareData(data));
+    setGraphData(prepareData(view == GraphView.Weekly ? weekly : weightEntries ));
   }, [view]);
 
   const updateRequest = () => {

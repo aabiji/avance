@@ -158,7 +158,6 @@ function constructGraph(
     }
   }
 
-  // TODO: Find a more optimal epsilon
   result.simplifiedPoints = douglasPeucker(result.points, result.points.length / 4)
 
   return result;
@@ -252,7 +251,6 @@ export function Graph({ data, fitToWidth }: GraphProps) {
 
   const handleScroll = (event) => setScrollX(event.nativeEvent.contentOffset.x);
 
-  // TODO: improve the performance of the graph (especially when switching views)
   useLayoutEffect(() => {
     const rect = view.current.unstable_getBoundingClientRect();
 
