@@ -94,18 +94,6 @@ export default function HomeScreen() {
   const [requestQueue, setRequestQueue] = useStorage("requestQueue", []);
   const [weightEntries, setWeightEntries] = useStorage("weightEntries", {});
 
-  // Temporary function to get random weight entries
-  const randomDataset = (n: number) => {
-    const entries = {};
-    let date = dayjs(new Date(new Date().valueOf() - Math.random() * (1e+12)));
-    for (let i = 0; i < n; i++) {
-      const randomNum = Math.round(100 + (Math.random() * 50));
-      entries[date.format("YYYY-MM-DD")] = randomNum;
-      date = date.add(1, 'd');
-    }
-    return entries;
-  };
-
   // Update the graph data when the component loads
   useEffect(() => {
     setGraphData(prepareData(weightEntries));
@@ -167,7 +155,7 @@ export default function HomeScreen() {
         />
       </View>
       <View style={{ height: "50%", width: "100%" }}>
-        <Graph data={prepareData(randomDataset(100))} fitToWidth={view == GraphView.Full} />
+        <Graph data={graphData} fitToWidth={view == GraphView.Full} />
       </View>
     </Container>
   );

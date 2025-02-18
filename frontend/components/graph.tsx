@@ -10,8 +10,6 @@ export interface DataPoint {
   info: string;
 }
 
-type Point = { x: number; y: number; }
-
 interface GraphData {
   width: number;
   height: number;
@@ -19,6 +17,7 @@ interface GraphData {
   yLabels: ReactNode[];
   xLabels: ReactNode[];
   points: Point[];
+  simplifiedPoints: Point[];
 }
 
 interface TooltipProps {
@@ -32,6 +31,8 @@ interface GraphProps {
   data: DataPoint[];
   fitToWidth: boolean;
 }
+
+type Point = { x: number; y: number; }
 
 // Map a value from an input range (x1 to y1) to an output range (x2 to y2)
 const map = (v: number, x1: number, y1: number, x2: number, y2: number) =>
@@ -48,18 +49,60 @@ function findExtremes(data: DataPoint[]): [number, number] {
   return [lowest - amount, highest + amount];
 }
 
+// Function to calculate perpendicular distance of a point from a line segment
+function perpendicularDistance(point: Point, start: Point, end: Point) {
+  const x1 = start.x, y1 = start.y;
+  const x2 = end.x, y2 = end.y;
+  const x0 = point.x, y0 = point.y;
+  const numerator = Math.abs((y2 - y1) * x0 - (x2 - x1) * y0 + x2 * y1 - y2 * x1);
+  const denominator = Math.sqrt(Math.pow(y2 - y1, 2) + Math.pow(x2 - x1, 2));
+  return numerator / denominator;
+}
+
+// Ramer-Douglas-Peucker algorithm to simplify points
+// Epsilon controls how much the points are reduced - a
+// higher epsilon means more points are reduced
+function douglasPeucker(points: Point[], epsilon: number): Point[] {
+  if (points.length <= 2)
+    return points; // Can't reduce further
+
+  // Find the point with the maximum distance
+  let maxDistance = 0;
+  let index = 0;
+  for (let i = 1; i < points.length - 1; i++) {
+    const distance =
+      perpendicularDistance(points[i], points[0], points[points.length - 1]);
+    if (distance > maxDistance) {
+      maxDistance = distance;
+      index = i;
+    }
+  }
+
+  let result = [];
+  if (maxDistance > epsilon) {
+    // Recursively simplify the points before and after the farthest point
+    const before = douglasPeucker(points.slice(0, index + 1), epsilon);
+    const after = douglasPeucker(points.slice(index), epsilon);
+    result = before.slice(0, before.length - 1).concat(after);
+  } else {
+    result = [points[0], points[points.length - 1]];
+  }
+
+  return result;
+}
+
 function constructGraph(
   data: DataPoint[], fitToWidth: boolean,
   width: number, height: number, spacing: number
 ): GraphData {
   const [lowest, highest] = findExtremes(data);
-  const labelInterval = fitToWidth ? 4 : 1;
+  const labelInterval = fitToWidth ? Math.min(4, data.length - 1) : 1;
   let labelCount = 0;
   let key = 0;
 
   let result: GraphData = {
-    xLabels: [], yLabels: [], width,
-    svg: [], points: [], height
+    width, height, xLabels: [], yLabels: [],
+    svg: [], points: [], simplifiedPoints: []
   };
 
   // Add the vertical labels
@@ -84,9 +127,10 @@ function constructGraph(
   );
 
   for (let i = 0; i < data.length; i++) {
+    // Add the xy point
     const x = i * spacing + spacing / 2;
     const y = map(data[i].value, lowest, highest, 0, height);
-    result.points.push({ x, y });
+    result.points.push({ x: Math.round(x), y: Math.round(y) });
 
     // Add every nth horizontal label
     if (++labelCount == labelInterval) {
@@ -102,6 +146,9 @@ function constructGraph(
       labelCount = 0;
     }
   }
+
+  // TODO: Find a more optimal epsilon
+  result.simplifiedPoints = douglasPeucker(result.points, result.points.length / 4)
 
   return result;
 }
@@ -150,16 +197,19 @@ function Tooltip({ point, x, y, containerHeight }: TooltipProps) {
 export function Graph({ data, fitToWidth }: GraphProps) {
   const view = useRef(null);
   const [graphData, setGraphData] = useState<GraphData>({
-    width: 0, height: 0, svg: [], xLabels: [], yLabels: [], points: []
+    width: 0, height: 0, svg: [], points: [],
+    xLabels: [], yLabels: [], simplifiedPoints: []
   });
   const [tooltip, setTooltip] = useState<ReactNode>();
   const [scrollX, setScrollX] = useState<number>(0);
+  const currentPoints = () => fitToWidth ? graphData.simplifiedPoints : graphData.points;
 
   // Width between the start of the container and the vertical line
   const yLabelWidth = 35;
 
   // Show the tooltip containing info for the data point on hover
   const showTooltip = (event: GestureResponderEvent) => {
+    const points = currentPoints();
     const x = event.nativeEvent.locationX;
     const y = event.nativeEvent.locationY;
     const clickRadius = 25;
@@ -167,8 +217,8 @@ export function Graph({ data, fitToWidth }: GraphProps) {
     // Find the data point that was clicked
     let point = undefined;
     let [pointX, pointY] = [-1, -1];
-    for (let i = 0; i < graphData.points.length; i++) {
-      const [cx, cy] = [graphData.points[i].x, graphData.points[i].y];
+    for (let i = 0; i < points.length; i++) {
+      const [cx, cy] = [points[i].x, points[i].y];
       const inside = ((x - cx) ** 2) + ((y - cy) ** 2) < (clickRadius ** 2);
       if (inside) {
         point = data[i];
@@ -191,6 +241,7 @@ export function Graph({ data, fitToWidth }: GraphProps) {
 
   const handleScroll = (event) => setScrollX(event.nativeEvent.contentOffset.x);
 
+  // TODO: improve the performance of the graph (especially when switching views)
   useLayoutEffect(() => {
     const rect = view.current.unstable_getBoundingClientRect();
 
@@ -224,14 +275,14 @@ export function Graph({ data, fitToWidth }: GraphProps) {
             onPressIn={showTooltip}
             onPressOut={() => setTooltip(undefined)}>
             {
-              graphData.points.map(({ x, y }, i) => (
+              currentPoints().map(({ x, y }, i) => (
                 <G key={`${x}-${y}`}>
                   <Circle cx={x} cy={y} r="3"
                     fill={getColors().accent["500"]} />
-                  {i < graphData.points.length - 1 &&
+                  {i < currentPoints().length - 1 &&
                     <Line
-                      x1={x} y1={y} x2={graphData.points[i + 1].x}
-                      y2={graphData.points[i + 1].y}
+                      x1={x} y1={y} x2={currentPoints()[i + 1].x}
+                      y2={currentPoints()[i + 1].y}
                       stroke={getColors().accent["600"]} />
                   }
                 </G>
