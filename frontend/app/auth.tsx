@@ -81,7 +81,7 @@ export default function AuthPage({ setReady }) {
   };
 
   // Update the user data in localstorage
-  const updateUserData = (response) => {
+  const updateUserData = (response: object) => {
     // Keys that now have different values will update on their own
     setWeightEntries({ ...weightEntries, ...response["weightEntries"] });
 

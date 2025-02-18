@@ -119,7 +119,7 @@ function HIITCard(
 
   return (
     <SwipeableCard maxXOffset={-50} style={styles.card}>
-      <Container row style={{ width: "100%" }}>
+      <Container row style={styles.content}>
         <Container style={styles.infoColumn}>
           <ThemedText text={exercise.name} bold style={{ fontSize: fontSize["600"] }} />
 
@@ -164,7 +164,7 @@ function StrengthCard(
 
   return (
     <SwipeableCard maxXOffset={-50} style={styles.card}>
-      <Container row style={{ width: "100%" }}>
+      <Container row style={styles.content}>
         <Container style={styles.infoColumn}>
           <ThemedText text={exercise.name} bold style={{ fontSize: fontSize["600"] }} />
 
@@ -278,5 +278,9 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "space-between",
     flexDirection: "column"
+  },
+  content: {
+    width: "100%",
+    paddingLeft: 5
   }
 });

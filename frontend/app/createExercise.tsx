@@ -105,7 +105,7 @@ export default function CreateExercise() {
 
       {inputError.length > 0 &&
         <ThemedText
-          style={{ color: getColors().red, marginTop: -20, marginBottom: 10 }}
+          style={{ color: getColors().red, marginTop: -5, marginBottom: 10 }}
           text={inputError}
         />
       }
@@ -113,7 +113,7 @@ export default function CreateExercise() {
       <Input placeholder={"Name"} setData={setName} value={currentExercise().name} />
 
       {selection == ExerciseType.Strength ? (
-        <View style={{ width: "100%" }}>
+        <View style={{ width: "98%" }}>
           <NumericInput
             prefix="Reps" suffix="     "
             value={strength.reps}
@@ -131,7 +131,7 @@ export default function CreateExercise() {
           />
         </View>
       ) : (
-        <View style={{ width: "100%" }}>
+        <View style={{ width: "98%" }}>
           <NumericInput
             prefix="Rounds" suffix="  "
             value={hiit.rounds}

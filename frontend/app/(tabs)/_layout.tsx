@@ -17,18 +17,19 @@ function BottomNavbar() {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, size }) => {
           const iconNames: Record<string, string> = {
-            index: "scale-outline",
-            exercise: "barbell-outline",
+            index: "scale",
+            exercise: "barbell",
           };
           const name = iconNames[route.name] as IoniconsName;
-          const c = focused ? getColors().primary["500"] : getColors().accent["300"];
+          const c = focused ? getColors().primary["300"] : getColors().background["200"];
           return <Ionicons name={name} size={size} color={c} />;
         },
         tabBarShowLabel: false,
         tabBarStyle: {
           marginBottom: -10, // Remove bottom padding
           backgroundColor: getColors().background["50"],
-          borderColor: getColors().background["100"],
+          borderColor: getColors().background["50"],
+          elevation: 0
         },
       })}
     >

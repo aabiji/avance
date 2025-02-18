@@ -15,7 +15,7 @@ export default function Selection({
   setSelection,
   style
 }: SelectionProps) {
-  const [bg, color] = [getColors().primary["500"], getColors().background["50"]];
+  const [bg, color] = [getColors().primary["600"], getColors().background["50"]];
   return (
     <View style={[styles.container, style]}>
       {options.map((option, index) => (

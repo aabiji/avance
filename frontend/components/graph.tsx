@@ -112,7 +112,12 @@ function constructGraph(
     result.yLabels.push(
       <Text
         key={++key}
-        style={{ position: "absolute", top: y, fontSize: fontSize["100"] }}>
+        style={{
+          position: "absolute",
+          top: y,
+          fontSize: fontSize["100"],
+          color: getColors().text["600"]
+        }}>
         {value.toFixed(1)}
       </Text>
     );
@@ -121,7 +126,7 @@ function constructGraph(
   // Add the horizontal axis
   result.svg.push(
     <Line
-      key={++key} stroke="#000000" strokeWidth="3"
+      key={++key} stroke={getColors().text["600"]} strokeWidth="3"
       x1={0} y1={height} x2={width} y2={height}
     />
   );
@@ -138,7 +143,13 @@ function constructGraph(
         <View
           key={++key}
           style={{ width: spacing, position: "absolute", left: i * spacing }}>
-          <Text style={{ fontSize: fontSize["100"], textAlign: "center" }}>
+          <Text
+            style={{
+              fontSize: fontSize["100"],
+              textAlign: "center",
+              color: getColors().text["600"]
+            }}
+          >
             {data[i].label}
           </Text>
         </View>
@@ -263,7 +274,7 @@ export function Graph({ data, fitToWidth }: GraphProps) {
       <View
         style={{
           width: 1,
-          backgroundColor: "#000000",
+          backgroundColor: getColors().text["600"],
           height: graphData.height
         }}>
       </View>
@@ -278,12 +289,12 @@ export function Graph({ data, fitToWidth }: GraphProps) {
               currentPoints().map(({ x, y }, i) => (
                 <G key={`${x}-${y}`}>
                   <Circle cx={x} cy={y} r="3"
-                    fill={getColors().accent["500"]} />
+                    fill={getColors().accent["200"]} />
                   {i < currentPoints().length - 1 &&
                     <Line
                       x1={x} y1={y} x2={currentPoints()[i + 1].x}
                       y2={currentPoints()[i + 1].y}
-                      stroke={getColors().accent["600"]} />
+                      stroke={getColors().accent["300"]} />
                   }
                 </G>
               ))

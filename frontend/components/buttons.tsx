@@ -43,8 +43,8 @@ export const ClickableIcon = forwardRef(
   ) => {
     let color = transparent ? getColors().secondary["400"] : getColors().background["50"];
     const baseSize = transparent ? 35 : 25;
-    const base = transparent ? "#00000000" : getColors().accent["500"];
-    const hover = transparent ? `${getColors().primary["100"]}10` : getColors().accent["400"];
+    const base = transparent ? "#00000000" : getColors().accent["200"];
+    const hover = transparent ? `${getColors().primary["100"]}10` : getColors().accent["100"];
     return (
       <Pressable
         ref={ref}
