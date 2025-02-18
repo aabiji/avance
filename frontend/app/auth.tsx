@@ -85,7 +85,6 @@ export default function AuthPage({ setReady }) {
     // Keys that now have different values will update on their own
     setWeightEntries({ ...weightEntries, ...response["weightEntries"] });
 
-    // TODO: come up with a more efficient implementation
     let copy = [...exercises];
     for (const exercise of response["exercises"]) {
       const index = copy.findIndex(e => sameExercise(e, exercise));

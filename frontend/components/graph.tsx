@@ -43,14 +43,15 @@ function findExtremes(data: DataPoint[]): [number, number] {
   const highest = Math.max(...data.map((point) => point.value));
   // Extrapolate the low and high out so that
   // the graph has a bit of padding at both ends
-  const amount = Math.round((highest - lowest) * 0.1);
+  const fraction = Math.round((highest - lowest) * 0.1);
+  const amount = Math.max(lowest * 0.01, fraction);
   return [lowest - amount, highest + amount];
 }
 
 function constructGraph(
   data: DataPoint[], fitToWidth: boolean,
   width: number, height: number, spacing: number
-) {
+): GraphData {
   const [lowest, highest] = findExtremes(data);
   const labelInterval = fitToWidth ? 4 : 1;
   let labelCount = 0;
@@ -152,6 +153,10 @@ export function Graph({ data, fitToWidth }: GraphProps) {
     width: 0, height: 0, svg: [], xLabels: [], yLabels: [], points: []
   });
   const [tooltip, setTooltip] = useState<ReactNode>();
+  const [scrollX, setScrollX] = useState<number>(0);
+
+  // Width between the start of the container and the vertical line
+  const yLabelWidth = 35;
 
   // Show the tooltip containing info for the data point on hover
   const showTooltip = (event: GestureResponderEvent) => {
@@ -167,8 +172,8 @@ export function Graph({ data, fitToWidth }: GraphProps) {
       const inside = ((x - cx) ** 2) + ((y - cy) ** 2) < (clickRadius ** 2);
       if (inside) {
         point = data[i];
-        pointX = cx;
         pointY = cy;
+        pointX = (yLabelWidth + cx) - scrollX;
       }
     }
 
@@ -184,24 +189,35 @@ export function Graph({ data, fitToWidth }: GraphProps) {
     }
   }
 
-  useLayoutEffect(() => {
-    const realWidth = view.current.unstable_getBoundingClientRect().width;
-    const spacing = fitToWidth ? realWidth / data.length : 45;
-    const width = fitToWidth ? realWidth : data.length * spacing;
+  const handleScroll = (event) => setScrollX(event.nativeEvent.contentOffset.x);
 
-    const realHeight = view.current.unstable_getBoundingClientRect().height;
-    // make space for horizontal labels
-    const height = realHeight - fontSize["100"] * 2;
+  useLayoutEffect(() => {
+    const rect = view.current.unstable_getBoundingClientRect();
+
+    const spacing = fitToWidth ? rect.width / data.length : 45;
+    const width =
+      fitToWidth ? rect.width : Math.max(data.length * spacing, rect.width);
+
+    // Make space for horizontal labels
+    const height = rect.height - fontSize["100"] * 2;
 
     setGraphData(constructGraph(data, fitToWidth, width, height, spacing));
   }, [data, fitToWidth]);
 
   return (
     <View style={{ flexDirection: "row", height: "100%" }}>
-      <View style={{ position: "relative", width: 35 }}>{graphData.yLabels}</View>
-      <View style={{ width: 1, backgroundColor: "#000000", height: graphData.height }}></View>
-
-      <ScrollView horizontal ref={view}>
+      <View style={{ position: "relative", width: yLabelWidth }}>
+        {graphData.yLabels}
+      </View>
+      <View
+        style={{
+          width: 1,
+          backgroundColor: "#000000",
+          height: graphData.height
+        }}>
+      </View>
+      {tooltip}
+      <ScrollView horizontal ref={view} onScroll={handleScroll}>
         <View style={{ flexDirection: "column", width: graphData.width }}>
           <Svg
             width={graphData.width} height={graphData.height}
@@ -223,10 +239,7 @@ export function Graph({ data, fitToWidth }: GraphProps) {
             }
             {graphData.svg}
           </Svg>
-
           <View style={{ flexDirection: "row" }}>{graphData.xLabels}</View>
-
-          {tooltip}
         </View>
       </ScrollView>
     </View>
